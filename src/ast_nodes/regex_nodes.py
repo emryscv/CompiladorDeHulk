@@ -1,18 +1,21 @@
-from src.ast_nodes.ast_base_nodes import Node, UnaryNode, BinaryNode
+from src.ast_nodes.ast_base_nodes import Node, UnaryNode, BinaryNode, AtomicNode
 
 
 class EpsilonNode(Node):
     pass
 
-class SymbolNode(UnaryNode):
+
+class SymbolNode(AtomicNode):
     pass
 
-class ClousureNode(UnaryNode):
+
+class ClosureNode(UnaryNode):
     pass
+
 
 class UnionNode(BinaryNode):
     pass
 
+
 class ConcatNode(BinaryNode):
     pass
-    
