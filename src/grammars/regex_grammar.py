@@ -7,7 +7,7 @@ def get_regex_grammar():
 
     init = G.NonTerminal('<init>', startSymbol=True)
 
-    union, concat, kleene = G.NonTerminal('<union>', '<concat>', '<kleene>')
+    union, concat, kleene, atom, literal = G.NonTerminals('<union>', '<concat>', '<kleene>', '<atom>')
 
     pipe, star, opar, cpar, symbol = G.Terminals('| * ( ) symbol')
 
@@ -21,9 +21,9 @@ def get_regex_grammar():
 
     concat %= kleene, lambda h, s: s[1], None
 
-    kleene %= kleene + star, lambda h, s: ClosureNode(s[1]), None, None
+    kleene %= atom + star, lambda h, s: ClosureNode(s[1]), None, None
 
-    kleene %= symbol, lambda h, s: SymbolNode[1], None
+    kleene %= symbol, lambda h, s: SymbolNode(s[1]), None
 
     kleene %= opar + init + cpar, lambda h, s: s[2], None, None, None
 

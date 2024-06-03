@@ -2,6 +2,7 @@ from src.utils.utils import Token
 from src.lexer.regex import Regex
 from src.utils.automata import State
 
+
 class Lexer:
     def __init__(self, table, eof):
         self.eof = eof
