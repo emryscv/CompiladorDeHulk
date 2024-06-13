@@ -1,7 +1,7 @@
 from ast_nodes.ast_base_nodes import BinaryNode, AtomicNode, Node
 import utils.visitor as visitor
 
-class ConstantNumberNode(AtomicNode):
+class ConstantNode(AtomicNode):
     def validate(self, context):
         return True
 

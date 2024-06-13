@@ -29,7 +29,7 @@ def get_hulk_grammar():
     factor %= atom + pow2 + factor, lambda h, s: BinaryOperationNode(s[1], s[3], s[2]), None, None, None
     factor %= atom, lambda h, s: s[1], None
     
-    atom %= num, lambda h, s: ConstantNumberNode(s[1]), None
+    atom %= num, lambda h, s: ConstantNode(s[1]), None
     atom %= id, lambda h, s: VariableNode(s[1]), None
     atom %= func_call, lambda h, s: s[1], None
     atom %= opar + expr + cpar, lambda h, s: s[2], None, None, None

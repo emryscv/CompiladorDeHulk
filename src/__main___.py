@@ -1,30 +1,28 @@
 import grammars.HULK_grammar
-from cmp.tools.parsing import *
 from ast_nodes.hulk_ast_nodes import *
-from cmp.utils import Token, UnknownToken
 
-printer = get_printer(AtomicNode=ConstantNumberNode, BinaryNode=BinaryOperationNode, FuncCallNode=FuncCallNode)
+printer = get_printer(AtomicNode=ConstantNode, BinaryNode=BinaryOperationNode, FuncCallNode=FuncCallNode)
 
 print(printer(
     BinaryOperationNode(
-        ConstantNumberNode(2),
+        ConstantNode(2),
         BinaryOperationNode(
             FuncCallNode(
                 "print", 
                 [
                     BinaryOperationNode(
-                        ConstantNumberNode(2),
-                        ConstantNumberNode(2),
+                        ConstantNode(2),
+                        ConstantNode(2),
                         "/"
                     ),
                     BinaryOperationNode(
-                        ConstantNumberNode(2),
-                        ConstantNumberNode(2),
+                        ConstantNode(2),
+                        ConstantNode(2),
                         "/"
                     )
                 ]  
                 ),
-                ConstantNumberNode(3),
+                ConstantNode(3),
                 "^"
             ),
             "+"
