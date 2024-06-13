@@ -6,7 +6,7 @@ def get_hulk_grammar():
     G = Grammar()
     
     expr_or_block = G.NonTerminal('<expr-or-block>', startSymbol=True)
-    expr, expr_list, stringify, term, factor, atom, func_call, arg_list, func_dec, arg_dec_list, func_body, var_def, boolean_expr, boolean_term = G.NonTerminals('<expr> <expr-list> <stringify> <term> <factor> <atom> <func-call> <arg-list> <func-dec> <arg-dec-list> <func-body> <var-def> <boolean-expr> <boolean-term>')
+    expr, expr_list, stringify, term, factor, atom, func_call, arg_list, func_def, arg_def_list, func_body, var_def, boolean_expr, boolean_term = G.NonTerminals('<expr> <expr-list> <stringify> <term> <factor> <atom> <func-call> <arg-list> <func-def> <arg-def-list> <func-body> <var-def> <boolean-expr> <boolean-term>')
     
     sum, sub, mul, div, pow1, pow2, num, id, opar, cpar, ocurl, ccurl, coma, semicolon, at, function, arrow, let, in_token, asign_equal, asign, if_token, else_token, and_token, or_token, lower, greater, lower_equal, greater_equal, equal, diferent, true, false, while_token, for_token = G.Terminals('+ - * / ^ ** num id ( ) { } , ; @ function => let in = := if else & | < > <= >= == != true false while for')
     
@@ -44,7 +44,9 @@ def get_hulk_grammar():
     
     ###functions###
     
-    func_dec %= function + id + opar + arg_dec_list + cpar + func_body, None, None, None, None, None, None, None
+    func_def %= function + id + opar + arg_def_list + cpar + func_body, None, None, None, None, None, None, None
+    arg_def_list %= id + coma + arg_def_list, None, None, None, None
+    arg_def_list %= id 
     func_body %= arrow + expr + semicolon, None, None, None, None
     func_body %= ocurl + expr_list + ccurl, None, None, None, None
     
@@ -79,6 +81,5 @@ def get_hulk_grammar():
     ###loops###
     expr %= while_token + opar + boolean_expr + cpar + expr_or_block, None, None, None, None, None, None
     expr %= for_token + opar + id + in_token + expr_or_block + cpar + expr_or_block, None, None, None, None, None, None, None, None
-    
     
     return G

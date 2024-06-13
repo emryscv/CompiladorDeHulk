@@ -25,6 +25,7 @@ class BlockExprNode(Node):
             if not expr.validate(context):
                 return False
         return True
+    
 class FuncCallNode(Node):
     def __init__(self, identifier, arg_list):
         super().__init__()
@@ -38,7 +39,7 @@ class FuncCallNode(Node):
                     return False    
             return True
         return False
-        
+
 def get_printer(AtomicNode=AtomicNode, BinaryNode=BinaryOperationNode, FuncCallNode=FuncCallNode):
 
     class PrintVisitor(object):
