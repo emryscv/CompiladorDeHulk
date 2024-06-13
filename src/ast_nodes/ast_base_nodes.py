@@ -5,6 +5,8 @@ class Node:
     def evaluate(self):
         raise NotImplementedError()
 
+    def validate(self, context):
+        raise NotImplementedError()
 
 class AtomicNode(Node):
     def __init__(self, lex):
