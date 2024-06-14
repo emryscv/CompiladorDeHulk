@@ -8,10 +8,17 @@ class Context:
         return variable in self.variables or (self.parent != None and self.parent.IsDefine(variable))
     
     def IsDefine(self, function, args):
-        if function in self.functions and len(self.functions[function]) == args:
-            return True
+        if function in self.functions:
+            if len(self.functions[function]) == args:
+                return (True, True)
+            else:
+                return (True, False)
+        elif self.parent != None:
+            return self.parent.IsDefine(function, args)
         else:
-            return self.parent != None and self.parent.IsDefined(function, args)
+            return (False, False)
+            
+    
     
     def Define(self, variable):
         size = len(self.variables)

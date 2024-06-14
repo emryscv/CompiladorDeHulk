@@ -5,14 +5,12 @@ from ast_nodes.hulk_ast_nodes import *
 def get_hulk_grammar():
     G = Grammar()
     
-    expr_or_block = G.NonTerminal('<expr-or-block>', startSymbol=True)
-    expr, expr_list, stringify, term, factor, atom, func_call, arg_list, func_def, arg_def_list, func_body, var_def, boolean_expr, boolean_term = G.NonTerminals('<expr> <expr-list> <stringify> <term> <factor> <atom> <func-call> <arg-list> <func-def> <arg-def-list> <func-body> <var-def> <boolean-expr> <boolean-term>')
+    expr = G.NonTerminal('<expr>', startSymbol=True)
+    expr_list, stringify, term, factor, atom, func_call, arg_list, func_def, arg_def_list, func_body, var_def, boolean_expr, boolean_term = G.NonTerminals('<expr-list> <stringify> <term> <factor> <atom> <func-call> <arg-list> <func-def> <arg-def-list> <func-body> <var-def> <boolean-expr> <boolean-term>')
     
     sum, sub, mul, div, pow1, pow2, num, id, opar, cpar, ocurl, ccurl, coma, semicolon, at, function, arrow, let, in_token, asign_equal, asign, if_token, else_token, and_token, or_token, lower, greater, lower_equal, greater_equal, equal, diferent, true, false, while_token, for_token = G.Terminals('+ - * / ^ ** num id ( ) { } , ; @ function => let in = := if else & | < > <= >= == != true false while for')
     
-    expr_or_block %= expr
-    expr_or_block %= ocurl + expr_list + ccurl, lambda h, s: BlockExprNode(s[2]), None, None, None
-    
+    expr %= ocurl + expr_list + ccurl, lambda h, s: BlockExprNode(s[2]), None, None, None
     expr %= stringify + at + expr, lambda h, s: BinaryOperationNode(s[1], s[3], s[2]), None, None, None
     expr %= stringify, lambda h, s: s[1], None
     
@@ -53,15 +51,15 @@ def get_hulk_grammar():
     ###variables###
     
     
-    expr %= let + var_def + in_token + expr_or_block, None, None, None, None
-    expr %= id + asign + expr_or_block
+    expr %= let + var_def + in_token + expr, None, None, None, None
+    expr %= id + asign + expr
     
-    var_def %= id + asign_equal + expr_or_block + coma + var_def
-    var_def %= id + asign_equal + expr_or_block
+    var_def %= id + asign_equal + expr + coma + var_def
+    var_def %= id + asign_equal + expr
     
     ### if - else###
  
-    expr %= if_token + opar + boolean_expr + cpar + expr_or_block + else_token + expr_or_block
+    expr %= if_token + opar + boolean_expr + cpar + expr + else_token + expr
     
     boolean_expr %= boolean_term + and_token + boolean_expr
     boolean_expr %= boolean_term + or_token + boolean_expr
@@ -79,7 +77,7 @@ def get_hulk_grammar():
     
     
     ###loops###
-    expr %= while_token + opar + boolean_expr + cpar + expr_or_block, None, None, None, None, None, None
-    expr %= for_token + opar + id + in_token + expr_or_block + cpar + expr_or_block, None, None, None, None, None, None, None, None
+    expr %= while_token + opar + boolean_expr + cpar + expr, None, None, None, None, None, None
+    expr %= for_token + opar + id + in_token + expr + cpar + expr, None, None, None, None, None, None, None, None
     
     return G

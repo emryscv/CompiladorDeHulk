@@ -40,6 +40,8 @@ class FuncCallNode(Node):
             return True
         return False
 
+            
+
 def get_printer(AtomicNode=AtomicNode, BinaryNode=BinaryOperationNode, FuncCallNode=FuncCallNode):
 
     class PrintVisitor(object):
