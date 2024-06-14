@@ -17,9 +17,7 @@ class Context:
             return self.parent.IsDefine(function, args)
         else:
             return (False, False)
-            
-    
-    
+        
     def Define(self, variable):
         size = len(self.variables)
         self.variables.add(variable)

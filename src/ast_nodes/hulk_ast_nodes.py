@@ -39,8 +39,26 @@ class FuncCallNode(Node):
                     return False    
             return True
         return False
-
+   
+class FuncDefNode(Node):
+    def __init__(self, identifier, args_list, body):
+        self.identifier = identifier
+        self.args_list = args_list
+        self.body = body
+    
+    def validate(self, context):
+        if not context.Define(self.identifier, self.args):
+            return False
+        
+        innerContext = context.CreateChildContext()
+        
+        for arg in self.args_list:
+            innerContext.Define(arg)
             
+        return self.body.validate(innerContext)
+        
+        
+        
 
 def get_printer(AtomicNode=AtomicNode, BinaryNode=BinaryOperationNode, FuncCallNode=FuncCallNode):
 
