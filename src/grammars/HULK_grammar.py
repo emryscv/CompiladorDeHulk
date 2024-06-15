@@ -5,10 +5,10 @@ def get_hulk_grammar():
     G = Grammar()
     
     expr = G.NonTerminal('<expr>', startSymbol=True)
-    expr_list, stringify, term, factor, atom, func_call, arg_list, func_def, arg_def_list, func_body, var_def, boolean_expr, boolean_term = G.NonTerminals('<expr-list> <stringify> <term> <factor> <atom> <func-call> <arg-list> <func-def> <arg-def-list> <func-body> <var-def> <boolean-expr> <boolean-term>')
     
-    sum, sub, mul, div, pow1, pow2, num, id, opar, cpar, ocurl, ccurl, coma, semicolon, at, function, arrow, let, in_token, asign_equal, asign, if_token, else_token, and_token, or_token, lower, greater, lower_equal, greater_equal, equal, diferent, true, false, while_token, for_token = G.Terminals('+ - * / ^ ** num id ( ) { } , ; @ function => let in = := if else & | < > <= >= == != true false while for')
+    expr_list, stringify, term, factor, atom, func_call, arg_list, func_dec, arg_dec_list, func_body, var_dec, elif_expr, boolean_expr, boolean_term, type_dec, type_body, type_body_stat, optional_args, optional_inherits, optional_inherits_args = G.NonTerminals('<expr-list> <stringify> <term> <factor> <atom> <func-call> <arg-list> <func-dec> <arg-dec-list> <func-body> <var-dec> <elif_expr> <boolean-expr> <boolean-term> <type-dec> <type-body> <type-body-stat> <optional-args> <optional-inherits> <optional-inherits-args>')
     
+    sum, sub, mul, div, pow1, pow2, num, id, opar, cpar, ocurl, ccurl, coma, semicolon, at, function, arrow, let, in_token, asign_equal, asign, if_token, elif_token, else_token, and_token, or_token, lower, greater, lower_equal, greater_equal, equal, diferent, true, false, while_token, for_token, type_token, inherits, new = G.Terminals('+ - * / ^ ** num id ( ) { } , ; @ function => let in = := if elif else & | < > <= >= == != true false while for type inherits new')    
     expr %= ocurl + expr_list + ccurl, lambda h, s: BlockExprNode(s[2]), None, None, None
     expr %= stringify + at + expr, lambda h, s: BinaryOperationNode(s[1], s[3], s[2]), None, None, None
     expr %= stringify, lambda h, s: s[1], None
@@ -57,23 +57,25 @@ def get_hulk_grammar():
     var_def %= id + asign_equal + expr + coma + var_def , lambda h , s: [VarDefNode(s[1], s[3])] + s[5]
     var_def %= id + asign_equal + expr, lambda h , s: [VarDefNode(s[1], s[3])]
     
-    ### if - else###
- 
-    expr %= if_token + opar + boolean_expr + cpar + expr + else_token + expr
+    ### if - else###If
+    expr %= if_token + opar + boolean_expr + cpar + expr + elif_token + else_token + expr, lambda h, s: IfElseNode([s[3]] + s[6][0], [s[5]] + s[6][1] + s[8]), None, None, None, None, None, None, None, None
     
-    boolean_expr %= boolean_term + and_token + boolean_expr
-    boolean_expr %= boolean_term + or_token + boolean_expr
-    boolean_expr %= boolean_term
+    elif_expr %= elif_token + opar + boolean_expr + cpar + expr + elif_expr, lambda h, s: ([s[3]] + s[6][0], [s[5]] + s[6][1]), None, None, None, None, None, None
+    elif_expr %= G.Epsilon, lambda h, s: ([], []), None
     
-    boolean_term %= expr + lower + expr, None, None, None, None
-    boolean_term %= expr + greater + expr, None, None, None, None
-    boolean_term %= expr + lower_equal + expr, None, None, None, None
-    boolean_term %= expr + greater_equal + expr, None, None, None, None
-    boolean_term %= expr + equal + expr, None, None, None, None
-    boolean_term %= expr + diferent + expr, None, None, None, None
-    boolean_term %= true, None, None
-    boolean_term %= false, None, None
-    boolean_term %= id, None, None
+    boolean_expr %= boolean_term + and_token + boolean_expr, lambda h, s: BooleanExprNode(s[1], s[3], s[2]), None, None, None
+    boolean_expr %= boolean_term + or_token + boolean_expr, lambda h, s: BooleanExprNode(s[1], s[3], s[2]), None, None, None
+    boolean_expr %= boolean_term, lambda h, s: s[1], None, None, None
+    
+    boolean_term %= expr + lower + expr, lambda h, s: BinaryOperationNode(s[1], s[3], s[2]), None, None, None
+    boolean_term %= expr + greater + expr, lambda h, s: BinaryOperationNode(s[1], s[3], s[2]), None, None, None
+    boolean_term %= expr + lower_equal + expr, lambda h, s: BinaryOperationNode(s[1], s[3], s[2]), None, None, None
+    boolean_term %= expr + greater_equal + expr, lambda h, s: BinaryOperationNode(s[1], s[3], s[2]), None, None, None
+    boolean_term %= expr + equal + expr, lambda h, s: BinaryOperationNode(s[1], s[3], s[2]), None, None, None
+    boolean_term %= expr + diferent + expr, lambda h, s: BinaryOperationNode(s[1], s[3], s[2]), None, None, None
+    boolean_term %= true, lambda h, s: ConstantNode(s[1]), None
+    boolean_term %= false, lambda h, s: ConstantNode(s[1]), None
+    boolean_term %= id, lambda h, s: VariableNode(s[1]), None
     
     
     ###loops###
@@ -81,3 +83,4 @@ def get_hulk_grammar():
     expr %= for_token + opar + id + in_token + expr + cpar + expr, None, None, None, None, None, None, None, None
     
     return G
+
