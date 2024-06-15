@@ -6,9 +6,9 @@ def get_hulk_grammar():
     G = Grammar()
     
     expr = G.NonTerminal('<expr>', startSymbol=True)
-    expr_list, stringify, term, factor, atom, func_call, arg_list, func_dec, arg_dec_list, func_body, var_dec, boolean_expr, boolean_term, type_dec, type_body, type_body_stat, optional_args, optional_inherits, optional_inherits_args = G.NonTerminals('<expr-list> <stringify> <term> <factor> <atom> <func-call> <arg-list> <func-dec> <arg-dec-list> <func-body> <var-dec> <boolean-expr> <boolean-term> <type-dec> <type-body> <type-body-stat> <optional-args> <optional-inherits> <optional-inherits-args>')
+    expr_list, stringify, term, factor, atom, func_call, arg_list, func_dec, arg_dec_list, func_body, var_dec, elif_expr, boolean_expr, boolean_term, type_dec, type_body, type_body_stat, optional_args, optional_inherits, optional_inherits_args = G.NonTerminals('<expr-list> <stringify> <term> <factor> <atom> <func-call> <arg-list> <func-dec> <arg-dec-list> <func-body> <var-dec> <elif_expr> <boolean-expr> <boolean-term> <type-dec> <type-body> <type-body-stat> <optional-args> <optional-inherits> <optional-inherits-args>')
     
-    sum, sub, mul, div, pow1, pow2, num, id, opar, cpar, ocurl, ccurl, coma, semicolon, at, function, arrow, let, in_token, asign_equal, asign, if_token, else_token, and_token, or_token, lower, greater, lower_equal, greater_equal, equal, diferent, true, false, while_token, for_token, type_token, inherits, new = G.Terminals('+ - * / ^ ** num id ( ) { } , ; @ function => let in = := if else & | < > <= >= == != true false while for type inherits new')
+    sum, sub, mul, div, pow1, pow2, num, id, opar, cpar, ocurl, ccurl, coma, semicolon, at, function, arrow, let, in_token, asign_equal, asign, if_token, elif_token, else_token, and_token, or_token, lower, greater, lower_equal, greater_equal, equal, diferent, true, false, while_token, for_token, type_token, inherits, new = G.Terminals('+ - * / ^ ** num id ( ) { } , ; @ function => let in = := if elif else & | < > <= >= == != true false while for type inherits new')
     
     expr %= ocurl + expr_list + ccurl, lambda h, s: BlockExprNode(s[2]), None, None, None
     expr %= stringify + at + expr, lambda h, s: BinaryOperationNode(s[1], s[3], s[2]), None, None, None
@@ -56,11 +56,14 @@ def get_hulk_grammar():
     var_dec %= id + asign_equal + expr
     
     ### if - else###
-    expr %= if_token + opar + boolean_expr + cpar + expr + else_token + expr
+    expr %= if_token + opar + boolean_expr + cpar + expr + elif_token + else_token + expr
     
-    boolean_expr %= boolean_term + and_token + boolean_expr
-    boolean_expr %= boolean_term + or_token + boolean_expr
-    boolean_expr %= boolean_term
+    elif_expr %= elif_token + opar + boolean_expr + cpar + elif_expr, None, None, None, None, None, None
+    elif_expr %= G.Epsilon, None, None
+    
+    boolean_expr %= boolean_term + and_token + boolean_expr, None, None, None, None
+    boolean_expr %= boolean_term + or_token + boolean_expr, None, None, None, None
+    boolean_expr %= boolean_term, None, None, None, None
     
     boolean_term %= expr + lower + expr, None, None, None, None
     boolean_term %= expr + greater + expr, None, None, None, None
