@@ -57,7 +57,24 @@ class FuncDefNode(Node):
             innerContext.Define(arg)
             
         return self.body.validate(innerContext)
+
+class IfElseNode(Node):
+    def __init__(self, boolExpr_List, body_List):
+        self.boolExpr_lsit = boolExpr_List
+        self.body_List = body_List
         
+    def validate(self, context):
+        for boolExpr in self.boolExpr_List:
+            if not boolExpr.validate(context):
+                return False
+        
+        for body in self.body_List:
+            innerContext = context.CreateChildContext()
+            if not body.validate(innerContext):
+                return False
+        
+        return True
+
 class BooleanExprNode(BinaryOperationNode):
     def __init__(self, left, right, operator):
         super().__init__(left, right, operator)
