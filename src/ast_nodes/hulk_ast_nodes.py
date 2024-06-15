@@ -90,7 +90,7 @@ class VarReAsignNode(Node):
     def validate(self, context):
         return context.IsDefine(self.identifier) and self.expr.validate(context) 
 
-class WhileLoop(Node):
+class WhileLoopNode(Node):
     def __init__(self, condition, body):
         self.condition = condition
         self.body = body
@@ -102,6 +102,13 @@ class WhileLoop(Node):
         innerContext = context.CreateChildContext()
 
         return self.body.evaluate(innerContext)
+
+# class ForLoopNode(LetInNode):
+#     def __init__(self, var, iterable, body):
+#         iter = VarDefNode("iterable", iterable)
+#         whileLoop = WhileLoopNode()
+
+
 
 def get_printer(AtomicNode=AtomicNode, BinaryNode=BinaryOperationNode, FuncCallNode=FuncCallNode):
 
