@@ -1,34 +1,40 @@
-import grammars.HULK_grammar
+from grammars.HULK_grammar import *
 from ast_nodes.hulk_ast_nodes import *
+from parser.LR1Parser import LR1Parser
+from parser.SRParser import ShiftReduceParser
 
-printer = get_printer(AtomicNode=ConstantNode, BinaryNode=BinaryOperationNode, FuncCallNode=FuncCallNode)
+parser = LR1Parser(G, verbose=True)
 
-print(printer(
-    BinaryOperationNode(
-        ConstantNode(2),
-        BinaryOperationNode(
-            FuncCallNode(
-                "print", 
-                [
-                    BinaryOperationNode(
-                        ConstantNode(2),
-                        ConstantNode(2),
-                        "/"
-                    ),
-                    BinaryOperationNode(
-                        ConstantNode(2),
-                        ConstantNode(2),
-                        "/"
-                    )
-                ]  
-                ),
-                ConstantNode(3),
-                "^"
-            ),
-            "+"
-        )
-    )
-)
+derivation = parser([num, mul, num, equal, num, mul, num, G.EOF])
+print(derivation)
+# printer = get_printer(AtomicNode=ConstantNode, BinaryNode=BinaryOperationNode, FuncCallNode=FuncCallNode)
+#
+# print(printer(
+#     BinaryOperationNode(
+#         ConstantNode(2),
+#         BinaryOperationNode(
+#             FuncCallNode(
+#                 "print",
+#                 [
+#                     BinaryOperationNode(
+#                         ConstantNode(2),
+#                         ConstantNode(2),
+#                         "/"
+#                     ),
+#                     BinaryOperationNode(
+#                         ConstantNode(2),
+#                         ConstantNode(2),
+#                         "/"
+#                     )
+#                 ]
+#                 ),
+#                 ConstantNode(3),
+#                 "^"
+#             ),
+#             "+"
+#         )
+#     )
+# )
 
 # def tokenize_text(text):
 #     fixed_tokens = { lex: Token(lex, G[lex]) for lex in '+ - * / ^ ** num id ( ) { } , ; @'.split() }

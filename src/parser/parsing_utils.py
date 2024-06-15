@@ -1,5 +1,5 @@
 from src.utils.pycompiler import Item, EOF
-from src.utils.automata import State
+from src.utils.automata import State, multiline_formatter
 from src.utils.utils import ContainerSet
 from itertools import islice
 from src.parser.SRParser import ShiftReduceParser
@@ -89,6 +89,95 @@ def compute_follows(G, firsts):
                     if beta_f.contains_epsilon:
                         change |= follows[Y].hard_update(follow_x)
     return follows
+
+
+def expand(item, firsts):
+    next_symbol = item.NextSymbol
+    if next_symbol is None or not next_symbol.IsNonTerminal:
+        return []
+
+    lookaheads = ContainerSet()
+    for symbol in item.Preview():
+        lookaheads.update(compute_local_first(firsts, symbol))
+
+    assert not lookaheads.contains_epsilon
+
+    return [Item(production, 0, lookaheads) for production in next_symbol.productions]
+
+
+def compress(items):
+    centers = {}
+
+    for item in items:
+        center = item.Center()
+        try:
+            lookaheads = centers[center]
+        except KeyError:
+            centers[center] = lookaheads = set()
+        lookaheads.update(item.lookaheads)
+
+    return {Item(x.production, x.pos, set(lookahead)) for x, lookahead in centers.items()}
+
+
+def closure_lr1(items, firsts):
+    closure = ContainerSet(*items)
+
+    changed = True
+    while changed:
+        changed = False
+
+        new_items = ContainerSet()
+        for item in closure:
+            new_items.extend(expand(item, firsts))
+
+        changed = closure.update(new_items)
+
+    return compress(closure)
+
+
+def goto_lr1(items, symbol, firsts=None, just_kernel=False):
+    assert just_kernel or firsts is not None, '`firsts` must be provided if `just_kernel=False`'
+    items = frozenset(item.NextItem() for item in items if item.NextSymbol == symbol)
+    return items if just_kernel else closure_lr1(items, firsts)
+
+
+def build_LR1_automaton(G):
+    assert len(G.startSymbol.productions) == 1, 'Grammar must be augmented'
+
+    firsts = compute_firsts(G)
+    firsts[G.EOF] = ContainerSet(G.EOF)
+
+    start_production = G.startSymbol.productions[0]
+    start_item = Item(start_production, 0, lookaheads=(G.EOF,))
+    start = frozenset([start_item])
+
+    closure = closure_lr1(start, firsts)
+    automaton = State(frozenset(closure), True)
+
+    pending = [start]
+    visited = {start: automaton}
+
+    while pending:
+        current = pending.pop()
+        current_state = visited[current]
+
+        for symbol in G.terminals + G.nonTerminals:
+            next_items = goto_lr1(current_state.state, symbol, just_kernel=True)
+            if not next_items:
+                continue
+
+            try:
+                next_state = visited[next_items]
+            except KeyError:
+                pending.append(next_items)
+                closure = closure_lr1(next_items, firsts)
+                visited[next_items] = State(frozenset(closure), True)
+                next_state = visited[next_items]
+
+            current_state.add_transition(symbol.Name, next_state)
+
+    automaton.set_formatter(multiline_formatter)
+    return automaton
 
 
 def build_LR0_automaton(self):
