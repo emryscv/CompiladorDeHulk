@@ -77,7 +77,7 @@ def get_hulk_grammar():
     
     
     ###loops###
-    expr %= while_token + opar + boolean_expr + cpar + expr, None, None, None, None, None, None
+    expr %= while_token + opar + boolean_expr + cpar + expr, lambda h, s: WhileLoop(s[3], s[5]), None, None, None, None, None
     expr %= for_token + opar + id + in_token + expr + cpar + expr, None, None, None, None, None, None, None, None
     
     return G

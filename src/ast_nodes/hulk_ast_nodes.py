@@ -90,6 +90,19 @@ class VarReAsignNode(Node):
     def validate(self, context):
         return context.IsDefine(self.identifier) and self.expr.validate(context) 
 
+class WhileLoop(Node):
+    def __init__(self, condition, body):
+        self.condition = condition
+        self.body = body
+
+    def validate(self, context):
+        if not self.condition.validate(context):
+            return False
+        
+        innerContext = context.CreateChildContext()
+
+        return self.body.evaluate(innerContext)
+
 def get_printer(AtomicNode=AtomicNode, BinaryNode=BinaryOperationNode, FuncCallNode=FuncCallNode):
 
     class PrintVisitor(object):
