@@ -13,6 +13,7 @@ class BinaryOperationNode(BinaryNode):
     def __init__(self, left, right, operator):
         super().__init__(left, right)
         self.operator = operator
+        
     def validate(self, context):
         return self.left.validate(context) and self.right.validate(context)
 
@@ -39,7 +40,7 @@ class FuncCallNode(Node):
                     return False    
             return True
         return False
-   
+    
 class FuncDefNode(Node):
     def __init__(self, identifier, args_list, body):
         self.identifier = identifier
@@ -57,8 +58,11 @@ class FuncDefNode(Node):
             
         return self.body.validate(innerContext)
         
-        
-        
+class BooleanExprNode(BinaryOperationNode):
+    def __init__(self, left, right, operator):
+        super().__init__(left, right, operator)
+    
+    #when typing validate left and right most be bool#
 
 def get_printer(AtomicNode=AtomicNode, BinaryNode=BinaryOperationNode, FuncCallNode=FuncCallNode):
 
