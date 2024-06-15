@@ -55,11 +55,11 @@ def get_hulk_grammar():
     var_dec %= id + asign_equal + expr + coma + var_dec
     var_dec %= id + asign_equal + expr
     
-    ### if - else###
-    expr %= if_token + opar + boolean_expr + cpar + expr + elif_token + else_token + expr
+    ### if - else###If
+    expr %= if_token + opar + boolean_expr + cpar + expr + elif_token + else_token + expr, lambda h, s: IfElseNode([s[3]] + s[6][0], [s[5]] + s[6][1] + s[8]), None, None, None, None, None, None, None, None
     
-    elif_expr %= elif_token + opar + boolean_expr + cpar + expr + elif_expr, None, None, None, None, None, None, None
-    elif_expr %= G.Epsilon, None, None
+    elif_expr %= elif_token + opar + boolean_expr + cpar + expr + elif_expr, lambda h, s: ([s[3]] + s[6][0], [s[5]] + s[6][1]), None, None, None, None, None, None
+    elif_expr %= G.Epsilon, lambda h, s: ([], []), None
     
     boolean_expr %= boolean_term + and_token + boolean_expr, lambda h, s: BooleanExprNode(s[1], s[3], s[2]), None, None, None
     boolean_expr %= boolean_term + or_token + boolean_expr, lambda h, s: BooleanExprNode(s[1], s[3], s[2]), None, None, None
