@@ -1,4 +1,3 @@
-from utils.pycompiler import Grammar
 from ast_nodes.hulk_ast_nodes import *
 
 
@@ -6,9 +5,9 @@ def get_hulk_grammar():
     G = Grammar()
     
     expr = G.NonTerminal('<expr>', startSymbol=True)
-    expr_list, stringify, term, factor, atom, func_call, arg_list, func_dec, arg_dec_list, func_body, var_dec, boolean_expr, boolean_term, type_dec, type_body, type_body_stat, optional_args, optional_inherits, optional_inherits_args = G.NonTerminals('<expr-list> <stringify> <term> <factor> <atom> <func-call> <arg-list> <func-dec> <arg-dec-list> <func-body> <var-dec> <boolean-expr> <boolean-term> <type-dec> <type-body> <type-body-stat> <optional-args> <optional-inherits> <optional-inherits-args>')
+    expr_list, stringify, term, factor, atom, func_call, arg_list, func_def, arg_def_list, func_body, var_def, boolean_expr, boolean_term = G.NonTerminals('<expr-list> <stringify> <term> <factor> <atom> <func-call> <arg-list> <func-def> <arg-def-list> <func-body> <var-def> <boolean-expr> <boolean-term>')
     
-    sum, sub, mul, div, pow1, pow2, num, id, opar, cpar, ocurl, ccurl, coma, semicolon, at, function, arrow, let, in_token, asign_equal, asign, if_token, else_token, and_token, or_token, lower, greater, lower_equal, greater_equal, equal, diferent, true, false, while_token, for_token, type_token, inherits, new = G.Terminals('+ - * / ^ ** num id ( ) { } , ; @ function => let in = := if else & | < > <= >= == != true false while for type inherits new')
+    sum, sub, mul, div, pow1, pow2, num, id, opar, cpar, ocurl, ccurl, coma, semicolon, at, function, arrow, let, in_token, asign_equal, asign, if_token, else_token, and_token, or_token, lower, greater, lower_equal, greater_equal, equal, diferent, true, false, while_token, for_token = G.Terminals('+ - * / ^ ** num id ( ) { } , ; @ function => let in = := if else & | < > <= >= == != true false while for')
     
     expr %= ocurl + expr_list + ccurl, lambda h, s: BlockExprNode(s[2]), None, None, None
     expr %= stringify + at + expr, lambda h, s: BinaryOperationNode(s[1], s[3], s[2]), None, None, None
@@ -39,23 +38,27 @@ def get_hulk_grammar():
     arg_list %= expr + coma + arg_list, lambda h, s: [s[1]] + s[3], None, None, None
     arg_list %= expr, lambda h, s: [s[1]], None
     
+    
     ###functions###
-    func_dec %= function + id + opar + arg_dec_list + cpar + func_body, None, None, None, None, None, None, None
     
-    arg_dec_list %= id + coma + arg_dec_list, None, None, None, None
-    arg_dec_list %= id 
-    
-    func_body %= arrow + expr + semicolon, None, None, None, None
-    func_body %= ocurl + expr_list + ccurl, None, None, None, None
+    func_def %= function + id + opar + arg_def_list + cpar + func_body, lambda h , s: FuncDefNode(s[2], s[4], s[6]), None, None, None, None, None, None
+    arg_def_list %= id + coma + arg_def_list, lambda h , s: [s[1]] + s[3], None, None, None
+    arg_def_list %= id , lambda h ,s: [s[1]], None
+    arg_def_list %= G.Epsilon, lambda h , s: [], None
+    func_body %= arrow + expr + semicolon, lambda h ,s: s[2], None, None, None
+    func_body %= ocurl + expr_list + ccurl, lambda h, s: BlockExprNode(s[2]), None, None, None
     
     ###variables###
-    expr %= let + var_dec + in_token + expr, None, None, None, None
-    expr %= id + asign + expr
     
-    var_dec %= id + asign_equal + expr + coma + var_dec
-    var_dec %= id + asign_equal + expr
+    
+    expr %= let + var_def + in_token + expr, lambda h, s: LetInNode(s[2], s[4]), None, None, None
+    expr %= id + asign + expr 
+    
+    var_def %= id + asign_equal + expr + coma + var_def , lambda h , s: [VarDefNode(s[1], s[3])] + s[5]
+    var_def %= id + asign_equal + expr, lambda h , s: [VarDefNode(s[1], s[3])]
     
     ### if - else###
+ 
     expr %= if_token + opar + boolean_expr + cpar + expr + else_token + expr
     
     boolean_expr %= boolean_term + and_token + boolean_expr
@@ -72,29 +75,9 @@ def get_hulk_grammar():
     boolean_term %= false, None, None
     boolean_term %= id, None, None
     
+    
     ###loops###
     expr %= while_token + opar + boolean_expr + cpar + expr, None, None, None, None, None, None
     expr %= for_token + opar + id + in_token + expr + cpar + expr, None, None, None, None, None, None, None, None
-    
-    ###types###
-    type_dec %= type_token + id + optional_args +  ocurl + type_body + ccurl, None, None, None, None, None, None, None
-    
-    optional_args %= opar + arg_dec_list + cpar, None, None, None, None
-    optional_args %= G.Epsilon, None, None
-    
-    optional_inherits %= inherits + id + optional_inherits_args, None, None, None, None
-    optional_inherits %= G.Epsilon, None, None
-    
-    optional_inherits_args %= opar + arg_list + cpar, None, None, None, None
-    optional_inherits_args %= G.Epsilon, None, None
-    
-    
-    type_body %= type_body_stat + semicolon + type_body, None, None, None, None,
-    type_body %= type_body_stat + semicolon, None, None, None
-    
-    type_body_stat %= id + asign_equal + expr, None, None, None, None
-    type_body_stat %= id + opar + arg_dec_list + cpar + func_body, None, None, None, None, None, None
-    
-    expr %= new + id + opar + arg_list + cpar, None, None, None, None, None, None
     
     return G

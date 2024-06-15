@@ -57,8 +57,30 @@ class FuncDefNode(Node):
             
         return self.body.validate(innerContext)
         
-        
-        
+class LetInNode(Node):
+    def __init__(self,var_list, body):
+        super().__init__()        
+        self.var_list = var_list
+        self.body = body
+    
+    def validate(self, context):
+
+        innerContext = context.CreateChildContext()
+
+        for var in self.var_list:
+            if not var.validate(innerContext):
+                return False
+        return self.body.validate(innerContext)
+
+class VarDefNode(Node):
+    def __init__(self, identifier , expr):
+        super().__init__()        
+        self.identifier = identifier
+        self.expr = expr
+    
+    def validate(self, context):
+
+        return self.expr.validate(context) and context.define(self.identifier)
 
 def get_printer(AtomicNode=AtomicNode, BinaryNode=BinaryOperationNode, FuncCallNode=FuncCallNode):
 
