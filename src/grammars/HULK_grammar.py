@@ -52,7 +52,7 @@ def get_hulk_grammar():
     
     
     expr %= let + var_def + in_token + expr, lambda h, s: LetInNode(s[2], s[4]), None, None, None
-    expr %= id + asign + expr 
+    expr %= id + asign + expr, lambda h, s: VarReAsignNode(s[1], s[3]), None, None, None
     
     var_def %= id + asign_equal + expr + coma + var_def , lambda h , s: [VarDefNode(s[1], s[3])] + s[5]
     var_def %= id + asign_equal + expr, lambda h , s: [VarDefNode(s[1], s[3])]

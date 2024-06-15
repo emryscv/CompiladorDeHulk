@@ -82,6 +82,14 @@ class VarDefNode(Node):
 
         return self.expr.validate(context) and context.define(self.identifier)
 
+class VarReAsignNode(Node):
+    def __init__(self, identifier, expr):
+        self.identifier = identifier
+        self.expr = expr
+    
+    def validate(self, context):
+        return context.IsDefine(self.identifier) and self.expr.validate(context) 
+
 def get_printer(AtomicNode=AtomicNode, BinaryNode=BinaryOperationNode, FuncCallNode=FuncCallNode):
 
     class PrintVisitor(object):
