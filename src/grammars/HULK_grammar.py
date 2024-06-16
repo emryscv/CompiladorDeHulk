@@ -5,8 +5,8 @@ G = Grammar()
 
 expr = G.NonTerminal('<expr>', startSymbol=True)
 
-expr_list, stringify, term, factor, atom, func_call, arg_list = G.NonTerminals(
-    '<expr-list> <stringify> <term> <factor> <atom> <func-call> <arg-list>')
+expr_list, stringify, term, factor, atom, func_call, arg_list, dot_notation_expr = G.NonTerminals(
+    '<expr-list> <stringify> <term> <factor> <atom> <func-call> <arg-list> <dot-notation-expr>')
 func_def, arg_def_list, func_body = G.NonTerminals(
     '<func-def> <arg-def-list> <func-body>')
 var_def, elif_expr, boolean_expr, boolean_term = G.NonTerminals(
@@ -14,8 +14,8 @@ var_def, elif_expr, boolean_expr, boolean_term = G.NonTerminals(
 type_dec, type_body, type_body_stat, optional_args, optional_inherits, optional_inherits_args = G.NonTerminals(
     '<type-dec> <type-body> <type-body-stat> <optional-args> <optional-inherits> <optional-inherits-args>')
 
-sum, sub, mul, div, pow1, pow2, num, id, opar, cpar, ocurl, ccurl = G.Terminals(
-    '+ - * / ^ ** num id ( ) { }')
+sum, sub, mul, div, pow1, pow2, num, id, opar, cpar, ocurl, ccurl, dot = G.Terminals(
+    '+ - * / ^ ** num id ( ) { } .')
 coma, semicolon, at, function, arrow, let, in_token, asign_equal, asign = G.Terminals(
      ', ; @ function => let in = :=')
 if_token, elif_token, else_token, and_token, or_token = G.Terminals(
@@ -44,9 +44,12 @@ factor %= atom + pow2 + factor, lambda h, s: BinaryOperationNode(s[1], s[3], s[2
 factor %= atom, lambda h, s: s[1], None
 
 atom %= num, lambda h, s: ConstantNode(s[1]), None
-atom %= id, lambda h, s: VariableNode(s[1]), None
-atom %= func_call, lambda h, s: s[1], None
 atom %= opar + expr + cpar, lambda h, s: s[2], None, None, None
+
+dot_notation_expr %= id + dot + dot_notation_expr, lambda h, s: VariableNode(s[1]), None, None, None
+dot_notation_expr %= func_call + dot + dot_notation_expr, lambda h, s: s[1], None, None, None
+dot_notation_expr %= id, lambda h, s: VariableNode(s[1]), None
+dot_notation_expr %= func_call, lambda h, s: s[1], None
 
 func_call %= id + opar + arg_list + cpar, lambda h, s: FuncCallNode(s[1], s[3]), None, None, None, None
 
