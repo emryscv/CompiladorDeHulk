@@ -53,13 +53,13 @@ dot_notation_expr %= func_call, lambda h, s: s[1], None
 
 func_call %= id + opar + arg_list + cpar, lambda h, s: FuncCallNode(s[1], s[3]), None, None, None, None
 
-arg_list %= expr + coma + arg_list, lambda h, s: [s[1]] + s[3], None, None, None
+arg_list %= arg_list + coma + expr, lambda h, s: s[1] + [s[3]], None, None, None
 arg_list %= expr, lambda h, s: [s[1]], None
 
 ###functions###
 
 func_def %= function + id + opar + arg_def_list + cpar + func_body, lambda h , s: FuncDefNode(s[2], s[4], s[6]), None, None, None, None, None, None
-arg_def_list %= id + coma + arg_def_list, lambda h , s: [s[1]] + s[3], None, None, None
+arg_def_list %= arg_def_list + coma + id, lambda h , s: s[1] + [s[3]], None, None, None
 arg_def_list %= id , lambda h ,s: [s[1]], None
 arg_def_list %= G.Epsilon, lambda h , s: []
 func_body %= arrow + expr + semicolon, lambda h ,s: s[2], None, None, None
@@ -70,7 +70,7 @@ func_body %= ocurl + expr_list + ccurl, lambda h, s: BlockExprNode(s[2]), None, 
 expr %= let + var_def + in_token + expr, lambda h, s: LetInNode(s[2], s[4]), None, None, None, None
 expr %= id + asign + expr, lambda h, s: VarReAsignNode(s[1], s[3]), None, None, None
 
-var_def %= id + asign_equal + expr + coma + var_def , lambda h , s: [VarDefNode(s[1], s[3])] + s[5]
+var_def %= var_def + coma + id + asign_equal + expr, lambda h , s: s[1] + [VarDefNode(s[3], s[5])]
 var_def %= id + asign_equal + expr, lambda h , s: [VarDefNode(s[1], s[3])]
 
 ### if - else ###
