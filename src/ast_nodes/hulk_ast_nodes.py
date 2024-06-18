@@ -19,6 +19,7 @@ class BinaryOperationNode(BinaryNode):
 
 class BlockExprNode(Node):
     def __init__(self, expr_list):
+        super().__init__()
         self.expr_list = expr_list
     
     def validate(self, context):
@@ -43,6 +44,7 @@ class FuncCallNode(Node):
     
 class FuncDefNode(Node):
     def __init__(self, identifier, args_list, body):
+        super().__init__()
         self.identifier = identifier
         self.args_list = args_list
         self.body = body
@@ -60,6 +62,7 @@ class FuncDefNode(Node):
 
 class IfElseNode(Node):
     def __init__(self, boolExpr_List, body_List):
+        super().__init__()
         self.boolExpr_lsit = boolExpr_List
         self.body_List = body_List
         
@@ -108,11 +111,18 @@ class VarDefNode(Node):
 
 class VarReAsignNode(Node):
     def __init__(self, identifier, expr):
+        super().__init__()
         self.identifier = identifier
         self.expr = expr
     
     def validate(self, context):
         return context.IsDefine(self.identifier) and self.expr.validate(context) 
+
+class DotNotationNode(Node):
+    def __init__(self, object, member):
+        super().__init__()
+        self.object = object
+        self.member = member
 
 def get_printer(AtomicNode=AtomicNode, BinaryNode=BinaryOperationNode, FuncCallNode=FuncCallNode):
 
