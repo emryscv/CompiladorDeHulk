@@ -1,5 +1,5 @@
-from src.ast_nodes.hulk_ast_nodes import *
-from src.utils.pycompiler import Grammar
+from  ast_nodes.hulk_ast_nodes import *
+from  utils.pycompiler import Grammar
 
 G = Grammar()
 
@@ -28,11 +28,11 @@ expr %= ocurl + expr_list + ccurl, lambda h, s: BlockExprNode(s[2]), None, None,
 expr %= expr + at + stringify, lambda h, s: BinaryOperationNode(s[1], s[3], s[2]), None, None, None
 expr %= stringify, lambda h, s: s[1], None
 
-stringify %= expr + sum + term, lambda h, s: BinaryOperationNode(s[1], s[3], s[2]), None, None, None
-stringify %= expr + sub + term, lambda h, s: BinaryOperationNode(s[1], s[3], s[2]), None, None, None
+stringify %= stringify + sum + term, lambda h, s: BinaryOperationNode(s[1], s[3], s[2]), None, None, None
+stringify %= stringify + sub + term, lambda h, s: BinaryOperationNode(s[1], s[3], s[2]), None, None, None
 stringify %= term, lambda h, s: s[1], None
 
-expr_list %= expr + semicolon + expr_list, lambda h, s: [s[1]] + s[3], None, None, None
+expr_list %= expr_list + semicolon + expr, lambda h, s: s[1] + [s[3]], None, None, None
 expr_list %= expr, lambda h, s: [s[1]], None
 
 term %= term + mul + factor, lambda h, s: BinaryOperationNode(s[1], s[3], s[2]), None, None, None
@@ -119,5 +119,3 @@ type_body_stat %= id + asign_equal + expr, None, None, None, None
 type_body_stat %= id + opar + arg_def_list + cpar + func_body, None, None, None, None, None, None
 
 expr %= new + id + opar + arg_list + cpar, None, None, None, None, None, None
-    
-

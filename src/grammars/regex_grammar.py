@@ -1,5 +1,5 @@
-from src.utils.pycompiler import Grammar
-from src.ast_nodes.regex_nodes import *
+from  utils.pycompiler import Grammar
+from  ast_nodes.regex_nodes import *
 
 
 def get_regex_grammar():

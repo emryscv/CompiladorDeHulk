@@ -1,4 +1,4 @@
-from src.ast_nodes.ast_base_nodes import Node, UnaryNode, BinaryNode, AtomicNode
+from ast_nodes.ast_base_nodes import Node, UnaryNode, BinaryNode, AtomicNode
 
 
 class EpsilonNode(Node):

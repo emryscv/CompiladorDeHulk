@@ -1,5 +1,5 @@
-from src.parser.parsing_utils import build_LR1_automaton
-from src.parser.SRParser import ShiftReduceParser
+from  parser.parsing_utils import build_LR1_automaton
+from  parser.SRParser import ShiftReduceParser
 
 class LR1Parser(ShiftReduceParser):
     def _build_parsing_table(self):

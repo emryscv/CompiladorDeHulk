@@ -1,8 +1,8 @@
-from src.utils.pycompiler import Item, EOF
-from src.utils.automata import State, multiline_formatter
-from src.utils.utils import ContainerSet
+from  utils.pycompiler import Item, EOF
+from  utils.automata import State, multiline_formatter
+from  utils.utils import ContainerSet
 from itertools import islice
-from src.parser.SRParser import ShiftReduceParser
+from  parser.SRParser import ShiftReduceParser
 
 
 def compute_local_first(firsts, alpha):
