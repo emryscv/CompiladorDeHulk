@@ -100,4 +100,25 @@ boolean_term %= id, lambda h, s: VariableNode(s[1]), None
 expr %= while_token + opar + boolean_expr + cpar + expr, None, None, None, None, None, None
 expr %= for_token + opar + id + in_token + expr + cpar + expr, None, None, None, None, None, None, None, None
 
+###types###
+type_dec %= type_token + id + optional_args +  ocurl + type_body + ccurl, None, None, None, None, None, None, None
+    
+optional_args %= opar + arg_dec_list + cpar, None, None, None, None
+optional_args %= G.Epsilon, None, None
+
+optional_inherits %= inherits + id + optional_inherits_args, None, None, None, None
+optional_inherits %= G.Epsilon, None, None
+
+optional_inherits_args %= opar + arg_list + cpar, None, None, None, None
+optional_inherits_args %= G.Epsilon, None, None
+
+
+type_body %= type_body_stat + semicolon + type_body, None, None, None, None,
+type_body %= type_body_stat + semicolon, None, None, None
+
+type_body_stat %= id + asign_equal + expr, None, None, None, None
+type_body_stat %= id + opar + arg_dec_list + cpar + func_body, None, None, None, None, None, None
+
+expr %= new + id + opar + arg_list + cpar, None, None, None, None, None, None
+    
 
