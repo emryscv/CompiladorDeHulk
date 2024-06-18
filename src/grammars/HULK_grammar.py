@@ -25,18 +25,18 @@ lower, greater, lower_equal, greater_equal, equal, diferent = G.Terminals(
 true, false, while_token, for_token, type_token, inherits, new = G.Terminals('true false while for type inherits new')
 
 expr %= ocurl + expr_list + ccurl, lambda h, s: BlockExprNode(s[2]), None, None, None
-expr %= stringify + at + expr, lambda h, s: BinaryOperationNode(s[1], s[3], s[2]), None, None, None
+expr %= expr + at + stringify, lambda h, s: BinaryOperationNode(s[1], s[3], s[2]), None, None, None
 expr %= stringify, lambda h, s: s[1], None
 
-stringify %= term + sum + expr, lambda h, s: BinaryOperationNode(s[1], s[3], s[2]), None, None, None
-stringify %= term + sub + expr, lambda h, s: BinaryOperationNode(s[1], s[3], s[2]), None, None, None
+stringify %= expr + sum + term, lambda h, s: BinaryOperationNode(s[1], s[3], s[2]), None, None, None
+stringify %= expr + sub + term, lambda h, s: BinaryOperationNode(s[1], s[3], s[2]), None, None, None
 stringify %= term, lambda h, s: s[1], None
 
 expr_list %= expr + semicolon + expr_list, lambda h, s: [s[1]] + s[3], None, None, None
 expr_list %= expr, lambda h, s: [s[1]], None
 
-term %= factor + mul + term, lambda h, s: BinaryOperationNode(s[1], s[3], s[2]), None, None, None
-term %= factor + div + term, lambda h, s: BinaryOperationNode(s[1], s[3], s[2]), None, None, None
+term %= term + mul + factor, lambda h, s: BinaryOperationNode(s[1], s[3], s[2]), None, None, None
+term %= term + div + factor, lambda h, s: BinaryOperationNode(s[1], s[3], s[2]), None, None, None
 term %= factor, lambda h, s: s[1], None
 
 factor %= atom + pow1 + factor, lambda h, s: BinaryOperationNode(s[1], s[3], s[2]), None, None, None
@@ -80,8 +80,8 @@ expr %= if_token + opar + boolean_expr + cpar + expr + elif_token + else_token +
 elif_expr %= elif_token + opar + boolean_expr + cpar + expr + elif_expr, lambda h, s: ([s[3]] + s[6][0], [s[5]] + s[6][1]), None, None, None, None, None, None
 elif_expr %= G.Epsilon, lambda h, s: ([], [])
 
-boolean_expr %= boolean_term + and_token + boolean_expr, lambda h, s: BooleanExprNode(s[1], s[3], s[2]), None, None, None
-boolean_expr %= boolean_term + or_token + boolean_expr, lambda h, s: BooleanExprNode(s[1], s[3], s[2]), None, None, None
+boolean_expr %= boolean_expr + and_token + boolean_term, lambda h, s: BooleanExprNode(s[1], s[3], s[2]), None, None, None
+boolean_expr %= boolean_expr + or_token + boolean_term, lambda h, s: BooleanExprNode(s[1], s[3], s[2]), None, None, None
 boolean_expr %= boolean_term, lambda h, s: s[1], None
 
 boolean_term %= expr + lower + expr, lambda h, s: BinaryOperationNode(s[1], s[3], s[2]), None, None, None
