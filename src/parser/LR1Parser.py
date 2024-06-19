@@ -25,13 +25,18 @@ class LR1Parser(ShiftReduceParser):
                     next_idx = node[next_symbol.Name][0].idx
 
                     if next_symbol.IsTerminal:
-                        self._register(self.action, key, (LR1Parser.SHIFT, next_idx))
+                        self._register(self.action, key, (LR1Parser.SHIFT, nex t_idx))
                     else:
                         self._register(self.goto, key, next_idx)
                 pass
 
     @staticmethod
     def _register(table, key, value):
-        assert key not in table, 'Shift-Reduce!!!'
-        assert table[key] == value, 'Reduce-Reduce conflict!!!'
+        print("key", key)
+        print("value", value)
+        try:
+            print("table", table[key])
+        except:
+            pass
+        assert key not in table or table[key] == value, 'Shift-Reduce or Reduce-Reduce conflict!!!'
         table[key] = value
