@@ -72,8 +72,8 @@ func_body %= ocurl + expr_list + ccurl, lambda h, s: BlockExprNode(s[2])
 
 ###variables###
 
-let_in %= let + var_def + in_token + expr, lambda h, s: LetInNode(s[2], s[4])
-asign_simple %= id + asign + expr, lambda h, s: VarReAsignNode(s[1], s[3])
+let_in %= let + var_def + in_token + program, lambda h, s: LetInNode(s[2], s[4])
+asign_simple %= id + asign + program, lambda h, s: VarReAsignNode(s[1], s[3])
 
 var_def %= var_def + coma + id + asign_equal + expr, lambda h , s: s[1] + [VarDefNode(s[3], s[5])]
 var_def %= id + asign_equal + expr, lambda h , s: [VarDefNode(s[1], s[3])]
