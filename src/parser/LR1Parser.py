@@ -12,6 +12,7 @@ class LR1Parser(ShiftReduceParser):
 
         for node in automaton:
             idx = node.idx
+            print(node)
             for item in node.state:
                 if item.IsReduceItem:
                     if item.production.Left == G.startSymbol:
