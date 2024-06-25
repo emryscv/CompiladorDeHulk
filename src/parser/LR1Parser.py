@@ -25,7 +25,7 @@ class LR1Parser(ShiftReduceParser):
                     next_idx = node[next_symbol.Name][0].idx
 
                     if next_symbol.IsTerminal:
-                        self._register(self.action, key, (LR1Parser.SHIFT, nex t_idx))
+                        self._register(self.action, key, (LR1Parser.SHIFT, next_idx))
                     else:
                         self._register(self.goto, key, next_idx)
                 pass
