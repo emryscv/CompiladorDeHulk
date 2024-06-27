@@ -123,12 +123,6 @@ class DotNotationNode(Node):
         super().__init__()
         self.object = object
         self.member = member
-        
-class ProgramNode(Node):
-    def __init__(self, declarations, mainExpression):
-        super().__init__()
-        self.declarations = declarations
-        self.mainExpression = mainExpression
 
 def get_printer(AtomicNode=AtomicNode, BinaryNode=BinaryOperationNode, FuncCallNode=FuncCallNode):
 
