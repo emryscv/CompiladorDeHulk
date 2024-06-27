@@ -25,18 +25,18 @@ lower, greater, lower_equal, greater_equal, equal, diferent = G.Terminals(
 true, false, while_token, for_token, type_token, inherits, new = G.Terminals(
     'true false while for type inherits new')
 
-program %= definition_list + expr + semicolon, None
-definition_list %= definition_list + definition, None
-definition_list %= G.Epsilon, None
+program %= definition_list + expr + semicolon, lambda h, s: ProgramNode(s[1], s[2])
+definition_list %= definition_list + definition, lambda h, s: s[1] + [s[2]]
+definition_list %= G.Epsilon, lambda h, s: []
 
-definition %= type_def, None
-definition %= func_def, None
+definition %= type_def, lambda h, s: s[1]
+definition %= func_def, lambda h, s: s[1]
 
 expr_or_block %= ocurl + expr_list + ccurl, lambda h, s: BlockExprNode(s[2])
-expr_or_block %= expr, None
-
-expr %= let_in, None, None
-expr %= asign_simple, None, None
+expr_or_block %= expr, lambda h, s: s[1]
+                                     
+expr %= let_in, lambda h, s: s[1]
+expr %= asign_simple, lambda h, s: s[1]
 
 expr_list %= expr_list + expr_or_block + semicolon, lambda h, s: s[1] + [s[2]]
 expr_list %= expr_or_block + semicolon, lambda h, s: [s[1]]
@@ -56,8 +56,7 @@ factor %= atom + pow1 + factor, lambda h, s: BinaryOperationNode(s[1], s[3], s[2
 factor %= atom + pow2 + factor, lambda h, s: BinaryOperationNode(s[1], s[3], s[2])
 factor %= atom, lambda h, s: s[1]
 
-atom %= num, lambda h, s: ConstantNode(s[1])
-#atom %= id, lambda h, s: VariableNode(s[1])
+atom %= num, lambda h, s: ConstantNode(s[1]) #TODO cambiar num por constante
 atom %= opar + expr_or_block + cpar, lambda h, s: s[2]
 atom %= dot_notation_expr,  lambda h, s: s[1]
 
@@ -68,8 +67,8 @@ dot_notation_expr %= func_call, lambda h, s: s[1]
 
 func_call %= id + opar + arguments + cpar, lambda h, s: FuncCallNode(s[1], s[3])
 
-arguments %= G.Epsilon, None
-arguments %= arg_list, None
+arguments %= G.Epsilon, lambda h, s: []
+arguments %= arg_list,  lambda h, s: s[1]
 
 arg_list %= arg_list + coma + expr_or_block, lambda h, s: s[1] + [s[3]]
 arg_list %= expr_or_block, lambda h, s: [s[1]]
