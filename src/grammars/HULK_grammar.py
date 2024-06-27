@@ -3,10 +3,10 @@ from  utils.pycompiler import Grammar
 
 G = Grammar()
 
-statement = G.NonTerminal('<statement>', startSymbol=True)
+program = G.NonTerminal('<program>', startSymbol=True)
 
-arithmetic_expr, expr, expr_list, stringify, term, factor, atom, func_call, arguments, arg_list, dot_notation_expr = G.NonTerminals(
-    '<arithmetic-expr> <expr> <expr-list> <stringify> <term> <factor> <atom> <func-call> <arguments> <arg-list> <dot-notation-expr>')
+definition_list, definition, arithmetic_expr, expr, expr_list, stringify, term, factor, atom, func_call, arguments, arg_list, dot_notation_expr = G.NonTerminals(
+    '<definition-list> <definition> <arithmetic-expr> <expr> <expr-list> <stringify> <term> <factor> <atom> <func-call> <arguments> <arg-list> <dot-notation-expr>')
 asign_simple, func_def, arg_def_list, func_body = G.NonTerminals(
     '<asign-simple> <func-def> <arg-def-list> <func-body>')
 var_def, elif_expr, boolean_expr, boolean_term = G.NonTerminals(
@@ -25,14 +25,19 @@ lower, greater, lower_equal, greater_equal, equal, diferent = G.Terminals(
 true, false, while_token, for_token, type_token, inherits, new = G.Terminals(
     'true false while for type inherits new')
 
-statement %= expr, None
+program %= definition_list + expr, None
+definition_list %= definition_list + definition, None
+definition_list %= G.Epsilon, None
+
+definition %= type_def, None
+definition %= func_def, None
 
 expr %= let_in, None, None
 expr %= asign_simple, None, None
 expr %= ocurl + expr_list + ccurl, lambda h, s: BlockExprNode(s[2])
 
-expr_list %= expr_list + semicolon + statement, lambda h, s: s[1] + [s[3]]
-expr_list %= statement, lambda h, s: [s[1]]
+expr_list %= expr_list + semicolon + expr, lambda h, s: s[1] + [s[3]]
+expr_list %= expr, lambda h, s: [s[1]]
 
 arithmetic_expr %= arithmetic_expr + at + stringify, lambda h, s: BinaryOperationNode(s[1], s[3], s[2])
 arithmetic_expr %= stringify, lambda h, s: s[1]
@@ -62,15 +67,17 @@ dot_notation_expr %= func_call, lambda h, s: s[1]
 func_call %= id + opar + arguments + cpar, lambda h, s: FuncCallNode(s[1], s[3])
 
 arguments %= G.Epsilon, None
-arg_list %= arg_list + coma + statement, lambda h, s: s[1] + [s[3]]
-arg_list %= statement, lambda h, s: [s[1]]
+arguments %= arg_list, None
+
+arg_list %= arg_list + coma + expr, lambda h, s: s[1] + [s[3]]
+arg_list %= expr, lambda h, s: [s[1]]
 
 ###functions###
 
 func_def %= function + id + opar + arg_def_list + cpar + func_body, lambda h , s: FuncDefNode(s[2], s[4], s[6])
 arg_def_list %= arg_def_list + coma + id, lambda h , s: s[1] + [s[3]]
 arg_def_list %= id , lambda h ,s: [s[1]]
-arg_def_list %= G.Epsilon, lambda h , s: []
+arg_def_list %= G.Epsilon, lambda h , s: [] #TODO arreglar aqui como en el func_call
 func_body %= arrow + expr + semicolon, lambda h ,s: s[2]
 func_body %= ocurl + expr_list + ccurl, lambda h, s: BlockExprNode(s[2])
 
