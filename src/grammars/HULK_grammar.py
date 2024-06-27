@@ -7,8 +7,8 @@ program = G.NonTerminal('<program>', startSymbol=True)
 
 definition_list, definition, arithmetic_expr, expr, expr_or_block, expr_list, stringify, term, factor, atom, func_call, arguments, arg_list, dot_notation_expr = G.NonTerminals(
     '<definition-list> <definition> <arithmetic-expr> <expr> <expr-or-block> <expr-list> <stringify> <term> <factor> <atom> <func-call> <arguments> <arg-list> <dot-notation-expr>')
-asign_simple, func_def, arg_def_list, func_body = G.NonTerminals(
-    '<asign-simple> <func-def> <arg-def-list> <func-body>')
+asign_simple, func_def, arg_def, arg_def_list, func_body = G.NonTerminals(
+    '<asign-simple> <func-def> <arg_def? <arg-def-list> <func-body>')
 var_def, elif_expr, boolean_expr, boolean_term = G.NonTerminals(
     '<var-def> <elif_expr> boolean-expr> <boolean-term>')
 type_def, type_body, type_body_stat, optional_args, optional_inherits, optional_inherits_args, let_in = G.NonTerminals(
@@ -77,9 +77,13 @@ arg_list %= expr_or_block, lambda h, s: [s[1]]
 ###functions###
 
 func_def %= function + id + opar + arg_def_list + cpar + func_body, lambda h , s: FuncDefNode(s[2], s[4], s[6])
+
+arg_def %= arg_def_list, lambda h , s: s[1]
+arg_def %= G.Epsilon, lambda h , s: []
+
 arg_def_list %= arg_def_list + coma + id, lambda h , s: s[1] + [s[3]]
 arg_def_list %= id , lambda h ,s: [s[1]]
-arg_def_list %= G.Epsilon, lambda h , s: [] #TODO arreglar aqui como en el func_call
+
 func_body %= arrow + expr + semicolon, lambda h ,s: s[2]
 func_body %= ocurl + expr_list + ccurl, lambda h, s: BlockExprNode(s[2])
 
