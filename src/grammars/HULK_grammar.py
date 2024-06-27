@@ -5,8 +5,8 @@ G = Grammar()
 
 program = G.NonTerminal('<program>', startSymbol=True)
 
-definition_list, definition, arithmetic_expr, expr, expr_list, stringify, term, factor, atom, func_call, arguments, arg_list, dot_notation_expr = G.NonTerminals(
-    '<definition-list> <definition> <arithmetic-expr> <expr> <expr-list> <stringify> <term> <factor> <atom> <func-call> <arguments> <arg-list> <dot-notation-expr>')
+definition_list, definition, arithmetic_expr, expr, expr_or_block, expr_list, stringify, term, factor, atom, func_call, arguments, arg_list, dot_notation_expr = G.NonTerminals(
+    '<definition-list> <definition> <arithmetic-expr> <expr> <expr-or-block> <expr-list> <stringify> <term> <factor> <atom> <func-call> <arguments> <arg-list> <dot-notation-expr>')
 asign_simple, func_def, arg_def_list, func_body = G.NonTerminals(
     '<asign-simple> <func-def> <arg-def-list> <func-body>')
 var_def, elif_expr, boolean_expr, boolean_term = G.NonTerminals(
@@ -25,19 +25,21 @@ lower, greater, lower_equal, greater_equal, equal, diferent = G.Terminals(
 true, false, while_token, for_token, type_token, inherits, new = G.Terminals(
     'true false while for type inherits new')
 
-program %= definition_list + expr, None
+program %= definition_list + expr + semicolon, None
 definition_list %= definition_list + definition, None
 definition_list %= G.Epsilon, None
 
 definition %= type_def, None
 definition %= func_def, None
 
+expr_or_block %= ocurl + expr_list + ccurl, lambda h, s: BlockExprNode(s[2])
+expr_or_block %= expr, None
+
 expr %= let_in, None, None
 expr %= asign_simple, None, None
-expr %= ocurl + expr_list + ccurl, lambda h, s: BlockExprNode(s[2])
 
-expr_list %= expr_list + semicolon + expr, lambda h, s: s[1] + [s[3]]
-expr_list %= expr, lambda h, s: [s[1]]
+expr_list %= expr_list + expr_or_block + semicolon, lambda h, s: s[1] + [s[2]]
+expr_list %= expr_or_block + semicolon, lambda h, s: [s[1]]
 
 arithmetic_expr %= arithmetic_expr + at + stringify, lambda h, s: BinaryOperationNode(s[1], s[3], s[2])
 arithmetic_expr %= stringify, lambda h, s: s[1]
@@ -56,7 +58,7 @@ factor %= atom, lambda h, s: s[1]
 
 atom %= num, lambda h, s: ConstantNode(s[1])
 #atom %= id, lambda h, s: VariableNode(s[1])
-atom %= opar + expr + cpar, lambda h, s: s[2]
+atom %= opar + expr_or_block + cpar, lambda h, s: s[2]
 atom %= dot_notation_expr,  lambda h, s: s[1]
 
 dot_notation_expr %= dot_notation_expr + dot + id, lambda h, s: DotNotationNode(s[1], VariableNode(s[3]))
@@ -69,8 +71,8 @@ func_call %= id + opar + arguments + cpar, lambda h, s: FuncCallNode(s[1], s[3])
 arguments %= G.Epsilon, None
 arguments %= arg_list, None
 
-arg_list %= arg_list + coma + expr, lambda h, s: s[1] + [s[3]]
-arg_list %= expr, lambda h, s: [s[1]]
+arg_list %= arg_list + coma + expr_or_block, lambda h, s: s[1] + [s[3]]
+arg_list %= expr_or_block, lambda h, s: [s[1]]
 
 ###functions###
 
@@ -83,17 +85,17 @@ func_body %= ocurl + expr_list + ccurl, lambda h, s: BlockExprNode(s[2])
 
 ###variables###
 
-let_in %= let + var_def + in_token + expr, lambda h, s: LetInNode(s[2], s[4])
-asign_simple %= id + asign + expr, lambda h, s: VarReAsignNode(s[1], s[3])
+let_in %= let + var_def + in_token + expr_or_block, lambda h, s: LetInNode(s[2], s[4])
+asign_simple %= id + asign + expr_or_block, lambda h, s: VarReAsignNode(s[1], s[3])
 
-var_def %= var_def + coma + id + asign_equal + expr, lambda h , s: s[1] + [VarDefNode(s[3], s[5])]
-var_def %= id + asign_equal + expr, lambda h , s: [VarDefNode(s[1], s[3])]
+var_def %= var_def + coma + id + asign_equal + expr_or_block, lambda h , s: s[1] + [VarDefNode(s[3], s[5])]
+var_def %= id + asign_equal + expr_or_block, lambda h , s: [VarDefNode(s[1], s[3])]
 
 ### if - else ###
 
-expr %= if_token + opar + boolean_expr + cpar + expr + elif_expr + else_token + expr, lambda h, s: IfElseNode([s[3]] + s[6][0], [s[5]] + s[6][1] + s[8])
+expr %= if_token + opar + boolean_expr + cpar + expr_or_block + elif_expr + else_token + expr_or_block, lambda h, s: IfElseNode([s[3]] + s[6][0], [s[5]] + s[6][1] + s[8])
 
-elif_expr %= elif_expr + elif_token + opar + boolean_expr + cpar + expr, lambda h, s: (s[6][0] + [s[3]], s[6][1] + [s[5]])
+elif_expr %= elif_expr + elif_token + opar + boolean_expr + cpar + expr_or_block, lambda h, s: (s[6][0] + [s[3]], s[6][1] + [s[5]])
 elif_expr %= G.Epsilon, lambda h, s: ([], [])
 
 expr %= boolean_expr, lambda h, s: s[1]
@@ -114,8 +116,8 @@ boolean_term %= arithmetic_expr, lambda h, s: s[1]
 
 ###loops###
 
-expr %= while_token + opar + boolean_expr + cpar + expr, None
-expr %= for_token + opar + id + in_token + expr + cpar + expr, None
+expr %= while_token + opar + boolean_expr + cpar + expr_or_block, None
+expr %= for_token + opar + id + in_token + expr_or_block + cpar + expr_or_block, None
 
 ###types###
 
@@ -133,7 +135,7 @@ optional_inherits_args %= G.Epsilon, None
 type_body %= type_body_stat + semicolon + type_body, None
 type_body %= type_body_stat + semicolon, None
 
-type_body_stat %= id + asign_equal + expr, None
+type_body_stat %= id + asign_equal + expr_or_block, None
 type_body_stat %= id + opar + arg_def_list + cpar + func_body, None
 
 expr %= new + id + opar + arg_list + cpar, None
