@@ -1,5 +1,5 @@
-from src.parser.parsing_utils import build_LR1_automaton
-from src.parser.SRParser import ShiftReduceParser
+from  parser.parsing_utils import build_LR1_automaton
+from  parser.SRParser import ShiftReduceParser
 
 class LR1Parser(ShiftReduceParser):
     def _build_parsing_table(self):
@@ -12,6 +12,7 @@ class LR1Parser(ShiftReduceParser):
 
         for node in automaton:
             idx = node.idx
+            print(node)
             for item in node.state:
                 if item.IsReduceItem:
                     if item.production.Left == G.startSymbol:
@@ -32,6 +33,11 @@ class LR1Parser(ShiftReduceParser):
 
     @staticmethod
     def _register(table, key, value):
-        assert key not in table, 'Shift-Reduce!!!'
-        assert table[key] == value, 'Reduce-Reduce conflict!!!'
+        print("key", key)
+        print("value", value)
+        try:
+            print("table", table[key])
+        except:
+            pass
+        assert key not in table or table[key] == value, 'Shift-Reduce or Reduce-Reduce conflict!!!'
         table[key] = value

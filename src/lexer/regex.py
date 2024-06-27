@@ -1,9 +1,9 @@
-from src.grammars.regex_grammar import get_regex_grammar
-from src.parser.SLR1Parser import SLR1Parser
-from src.parser.parsing_utils import evaluate_reverse_parse
-from src.lexer.build_regex_automata import RegexAutomataBuilder
-from src.utils.automata_utils import nfa_to_dfa, automata_minimization
-from src.utils.utils import Token
+from  grammars.regex_grammar import get_regex_grammar
+from  parser.SLR1Parser import SLR1Parser
+from  parser.parsing_utils import evaluate_reverse_parse
+from  lexer.build_regex_automata import RegexAutomataBuilder
+from  utils.automata_utils import nfa_to_dfa, automata_minimization
+from  utils.utils import Token
 
 
 class Regex:

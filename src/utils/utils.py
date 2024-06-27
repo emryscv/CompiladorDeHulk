@@ -1,4 +1,4 @@
-from src.utils.pycompiler import Production, Sentence, Symbol, EOF, Epsilon
+from  utils.pycompiler import Production, Sentence, Symbol, EOF, Epsilon
 
 
 class ContainerSet:

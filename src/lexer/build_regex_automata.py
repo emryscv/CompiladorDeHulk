@@ -1,6 +1,6 @@
-import src.utils.visitor as visitor
-from src.ast_nodes.regex_nodes import *
-from src.utils.automata_operations import *
+import  utils.visitor as visitor
+from  ast_nodes.regex_nodes import *
+from  utils.automata_operations import *
 
 
 class RegexAutomataBuilder(object):

@@ -1,6 +1,6 @@
-from src.utils.utils import Token
-from src.lexer.regex import Regex
-from src.utils.automata import State
+from  utils.utils import Token
+from  lexer.regex import Regex
+from  utils.automata import State
 
 
 class Lexer:
