@@ -27,7 +27,7 @@ class ShiftReduceParser:
                 return None
 
             action, tag = self.action[state, lookahead]
-
+            print(action, tag)
             if action == ShiftReduceParser.SHIFT:
                 stack.append(tag)
                 cursor += 1
