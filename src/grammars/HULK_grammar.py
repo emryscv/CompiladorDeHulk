@@ -31,6 +31,7 @@ definition_list %= G.Epsilon, lambda h, s: []
 
 definition %= type_def, lambda h, s: s[1]
 definition %= func_def, lambda h, s: s[1]
+definition %= protocol_def, lambda h, s: s[1]
 
 expr_or_block %= ocurl + expr_list + ccurl, lambda h, s: BlockExprNode(s[2])
 expr_or_block %= expr, lambda h, s: s[1]
