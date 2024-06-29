@@ -130,6 +130,21 @@ class ProgramNode(Node):
         self.declarations = declarations
         self.mainExpression = mainExpression
 
+class TypeDefNode(Node):
+    def __init__(self, identifier, optional_args, base_identifier, base_optional_args, body):
+        super().__init__()
+        self.identifier = identifier
+        self.optional_args = optional_args
+        self.base_identifier = base_identifier
+        self.base_optional_args = base_optional_args
+        self.body = body
+    
+class NewInstanceNode(Node):
+    def __init__(self, identifier, expr):
+        super().__init__()
+        self.identifier = identifier
+        self.expr = expr
+
 def get_printer(AtomicNode=AtomicNode, BinaryNode=BinaryOperationNode, FuncCallNode=FuncCallNode):
 
     class PrintVisitor(object):

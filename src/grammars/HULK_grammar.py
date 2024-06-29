@@ -124,21 +124,21 @@ expr %= for_token + opar + id + in_token + expr_or_block + cpar + expr_or_block,
 
 ###types###
 
-type_def %= type_token + id + optional_args +  ocurl + type_body + ccurl, None
+type_def %= type_token + id + optional_args + optional_inherits + ocurl + type_body + ccurl, lambda h, s: TypeDefNode(s[2], s[3], s[4][0], s[4][1], s[6])
     
-optional_args %= opar + arg_def_list + cpar, None
-optional_args %= G.Epsilon, None
+optional_args %= opar + arg_def_list + cpar, lambda h, s: s[2]
+optional_args %= G.Epsilon, lambda h, s: []
 
-optional_inherits %= inherits + id + optional_inherits_args, None
-optional_inherits %= G.Epsilon, None
+optional_inherits %= inherits + id + optional_inherits_args, lambda h, s: (s[2], s[3])
+optional_inherits %= G.Epsilon, lambda h, s: ("", [])
 
-optional_inherits_args %= opar + arg_list + cpar, None
-optional_inherits_args %= G.Epsilon, None
+optional_inherits_args %= opar + arg_list + cpar, lambda h, s: s[2]
+optional_inherits_args %= G.Epsilon, lambda h, s: []
 
-type_body %= type_body_stat + semicolon + type_body, None
-type_body %= type_body_stat + semicolon, None
+type_body %= type_body + type_body_stat + semicolon, lambda h , s: s[1] + [s[3]]
+type_body %= type_body_stat + semicolon, lambda h , s: [s[1]]
 
-type_body_stat %= id + asign_equal + expr_or_block, None
-type_body_stat %= id + opar + arg_def_list + cpar + func_body, None
+type_body_stat %= id + asign_equal + expr_or_block, lambda h, s: VarDefNode(s[1], s[3]) 
+type_body_stat %= id + opar + arg_def_list + cpar + func_body, lambda h, s: FuncDefNode(s[1], s[3], s[5])
 
-expr %= new + id + opar + arg_list + cpar, None
+expr %= new + id + opar + arg_list + cpar, lambda h, s: NewInstanceNode(s[2], s[4])
