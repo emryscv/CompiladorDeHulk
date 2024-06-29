@@ -16,15 +16,15 @@ type_def, type_body, type_body_stat, optional_args, optional_inherits, optional_
 
 sum, sub, mul, div, pow1, pow2, num, id, opar, cpar, ocurl, ccurl, dot = G.Terminals(
     '+ - * / ^ ** num id ( ) { } .')
-coma, semicolon, at, function, arrow, let, in_token, asign_equal, asign = G.Terminals(
-     ', ; @ function => let in = :=')
+coma, semicolon, at, double_at, function, arrow, let, in_token, asign_equal, asign = G.Terminals(
+     ', ; @ @@ function => let in = :=')#añadir el simbolo @@
 if_token, elif_token, else_token, and_token, or_token = G.Terminals(
     'if elif else & |')
 lower, greater, lower_equal, greater_equal, equal, diferent = G.Terminals(
     '< > <= >= == !=')
 true, false, while_token, for_token, type_token, inherits, new = G.Terminals(
     'true false while for type inherits new')
-
+                          
 program %= definition_list + expr + semicolon, lambda h, s: ProgramNode(s[1], s[2])
 definition_list %= definition_list + definition, lambda h, s: s[1] + [s[2]]
 definition_list %= G.Epsilon, lambda h, s: []
@@ -42,6 +42,7 @@ expr_list %= expr_list + expr_or_block + semicolon, lambda h, s: s[1] + [s[2]]
 expr_list %= expr_or_block + semicolon, lambda h, s: [s[1]]
 
 arithmetic_expr %= arithmetic_expr + at + stringify, lambda h, s: BinaryOperationNode(s[1], s[3], s[2])
+arithmetic_expr %= arithmetic_expr + double_at + stringify, lambda h, s: BinaryOperationNode(s[1], s[3], s[2]) #esta linea es nueva
 arithmetic_expr %= stringify, lambda h, s: s[1]
 
 stringify %= stringify + sum + term, lambda h, s: BinaryOperationNode(s[1], s[3], s[2])
@@ -142,3 +143,4 @@ type_body_stat %= id + asign_equal + expr_or_block, lambda h, s: VarDefNode(s[1]
 type_body_stat %= id + opar + arg_def_list + cpar + func_body, lambda h, s: FuncDefNode(s[1], s[3], s[5])
 
 expr %= new + id + opar + arg_list + cpar, lambda h, s: NewInstanceNode(s[2], s[4])
+
