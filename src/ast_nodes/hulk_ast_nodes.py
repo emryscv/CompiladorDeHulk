@@ -42,14 +42,18 @@ class FuncCallNode(Node):
             return True
         return False
     
-class FuncDefNode(Node):
-    def __init__(self, identifier, args_list, type_annotation, body):
+class FuncDecNode(Node):
+    def __init__(self, identifier, args_list, type_annotation):
         super().__init__()
         self.identifier = identifier
         self.args_list = args_list
         self.type_annotation = type_annotation
+        
+class FuncDefNode(FuncDecNode):
+    def __init__(self, identifier, args_list, type_annotation, body):
+        super().__init__(identifier, args_list, type_annotation)
         self.body = body
-    
+
     def validate(self, context):
         if not context.Define(self.identifier, self.args):
             return False
@@ -146,6 +150,12 @@ class NewInstanceNode(Node):
         super().__init__()
         self.identifier = identifier
         self.expr = expr
+
+class ProtocolDefNode(Node):
+    def __init__(self, identifier, body):
+        super().__init__()
+        self.identifier = identifier
+        self.body = body
 
 def get_printer(AtomicNode=AtomicNode, BinaryNode=BinaryOperationNode, FuncCallNode=FuncCallNode):
 
