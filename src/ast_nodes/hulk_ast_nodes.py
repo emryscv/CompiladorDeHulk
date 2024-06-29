@@ -138,6 +138,12 @@ class TypeDefNode(Node):
         self.base_identifier = base_identifier
         self.base_optional_args = base_optional_args
         self.body = body
+    
+class NewInstanceNode(Node):
+    def __init__(self, identifier, expr):
+        super().__init__()
+        self.identifier = identifier
+        self.expr = expr
 
 def get_printer(AtomicNode=AtomicNode, BinaryNode=BinaryOperationNode, FuncCallNode=FuncCallNode):
 
