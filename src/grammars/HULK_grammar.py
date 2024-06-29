@@ -11,8 +11,10 @@ asign_simple, func_def, arg_def, arg_def_list, func_body = G.NonTerminals(
     '<asign-simple> <func-def> <arg_def? <arg-def-list> <func-body>')
 var_def, elif_expr, boolean_expr, boolean_term = G.NonTerminals(
     '<var-def> <elif_expr> boolean-expr> <boolean-term>')
-type_def, type_body, type_body_stat, optional_args, optional_inherits, optional_inherits_args, let_in, type_annotation, protocol_def, protocol_body = G.NonTerminals(
-    '<type-def> <type-body> <type-body-stat> <optional-args> <optional-inherits> <optional-inherits-args> <let-in> <type-annotation> <protocol-def> <protocol-body>')
+type_def, type_body, type_body_stat, optional_args, optional_inherits, optional_inherits_args, let_in, type_annotation = G.NonTerminals(
+    '<type-def> <type-body> <type-body-stat> <optional-args> <optional-inherits> <optional-inherits-args> <let-in> <type-annotation> <protocol-def> <protocol-body> <arg_def_list_protocol>')
+
+protocol_def, protocol_body, arg_def_list_protocol = G.NonTerminals('<protocol-def> <protocol-body> <arg_def_list_protocol>') 
 
 sum, sub, mul, div, pow1, pow2, num, id, opar, cpar, ocurl, ccurl, dot = G.Terminals(
     '+ - * / ^ ** num id ( ) { } .')
@@ -152,5 +154,8 @@ type_annotation %= G.Epsilon, lambda h, s: None # esto hace falta?
 
 protocol_def %= protocol + id + ocurl + protocol_body + ccurl, lambda h, s: ProtocolDefNode(s[2], s[4])
 
-protocol_body %= protocol_body + id + opar + arg_def_list + cpar + type_annotation + semicolon, lambda h, s: s[1] + [FuncDecNode(s[2], s[4], s[6])]
+protocol_body %= protocol_body + id + opar + arg_def_list_protocol + cpar + colon + id + semicolon, lambda h, s: s[1] + [FuncDecNode(s[2], s[4], s[6])]
 protocol_body %= G.Epsilon, lambda h, s: []
+
+arg_def_list_protocol %= arg_def_list_protocol + coma + id + colon + id, lambda h , s: s[1] + [(s[3], s[5])]
+arg_def_list_protocol %= id + colon + id, lambda h , s: [(s[1], s[3])]
