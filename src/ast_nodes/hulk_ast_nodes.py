@@ -147,6 +147,12 @@ class NewInstanceNode(Node):
         self.identifier = identifier
         self.expr = expr
 
+class ProtocolDefNode(Node):
+    def __init__(self, identifier, body):
+        super().__init__()
+        self.identifier = identifier
+        self.body = body
+
 def get_printer(AtomicNode=AtomicNode, BinaryNode=BinaryOperationNode, FuncCallNode=FuncCallNode):
 
     class PrintVisitor(object):
