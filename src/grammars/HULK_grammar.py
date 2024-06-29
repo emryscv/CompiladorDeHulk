@@ -17,7 +17,7 @@ type_def, type_body, type_body_stat, optional_args, optional_inherits, optional_
 sum, sub, mul, div, pow1, pow2, num, id, opar, cpar, ocurl, ccurl, dot = G.Terminals(
     '+ - * / ^ ** num id ( ) { } .')
 coma, semicolon, at, double_at, function, arrow, let, in_token, asign_equal, asign, colon = G.Terminals(
-     ', ; @ @@ function => let in = := :')#añadir el simbolo @@
+     ', ; @ @@ function => let in = := :')
 if_token, elif_token, else_token, and_token, or_token = G.Terminals(
     'if elif else & |')
 lower, greater, lower_equal, greater_equal, equal, diferent = G.Terminals(
@@ -42,7 +42,7 @@ expr_list %= expr_list + expr_or_block + semicolon, lambda h, s: s[1] + [s[2]]
 expr_list %= expr_or_block + semicolon, lambda h, s: [s[1]]
 
 arithmetic_expr %= arithmetic_expr + at + stringify, lambda h, s: BinaryOperationNode(s[1], s[3], s[2])
-arithmetic_expr %= arithmetic_expr + double_at + stringify, lambda h, s: BinaryOperationNode(s[1], s[3], s[2]) #esta linea es nueva
+arithmetic_expr %= arithmetic_expr + double_at + stringify, lambda h, s: BinaryOperationNode(s[1], s[3], s[2])
 arithmetic_expr %= stringify, lambda h, s: s[1]
 
 stringify %= stringify + sum + term, lambda h, s: BinaryOperationNode(s[1], s[3], s[2])
@@ -76,13 +76,13 @@ arg_list %= expr_or_block, lambda h, s: [s[1]]
 
 ###functions###
 
-func_def %= function + id + opar + arg_def_list + cpar + type_annotation + func_body, lambda h , s: FuncDefNode(s[2], s[4], s[6])
+func_def %= function + id + opar + arg_def_list + cpar + type_annotation + func_body, lambda h , s: FuncDefNode(s[2], s[4], s[6], s[7])
 
 arg_def %= arg_def_list, lambda h , s: s[1]
 arg_def %= G.Epsilon, lambda h , s: []
 
-arg_def_list %= arg_def_list + coma + id + type_annotation, lambda h , s: s[1] + [s[3]]
-arg_def_list %= id + type_annotation , lambda h ,s: [s[1]]
+arg_def_list %= arg_def_list + coma + id + type_annotation, lambda h , s: s[1] + [(s[3], s[4])]
+arg_def_list %= id + type_annotation , lambda h ,s: [(s[1], s[2])]
 
 func_body %= arrow + expr + semicolon, lambda h ,s: s[2]
 func_body %= ocurl + expr_list + ccurl, lambda h, s: BlockExprNode(s[2])
@@ -92,8 +92,8 @@ func_body %= ocurl + expr_list + ccurl, lambda h, s: BlockExprNode(s[2])
 let_in %= let + var_def + in_token + expr_or_block, lambda h, s: LetInNode(s[2], s[4])
 asign_simple %= id + asign + expr_or_block, lambda h, s: VarReAsignNode(s[1], s[3])
 
-var_def %= var_def + coma + id + type_annotation + asign_equal + expr_or_block, lambda h , s: s[1] + [VarDefNode(s[3], s[5])]
-var_def %= id + type_annotation + asign_equal + expr_or_block, lambda h , s: [VarDefNode(s[1], s[3])]
+var_def %= var_def + coma + id + type_annotation + asign_equal + expr_or_block, lambda h , s: s[1] + [VarDefNode(s[3], s[4], s[6])]
+var_def %= id + type_annotation + asign_equal + expr_or_block, lambda h , s: [VarDefNode(s[1], s[2], s[4])]
 
 ### if - else ###
 
@@ -139,10 +139,10 @@ optional_inherits_args %= G.Epsilon, lambda h, s: []
 type_body %= type_body + type_body_stat + semicolon, lambda h , s: s[1] + [s[3]]
 type_body %= type_body_stat + semicolon, lambda h , s: [s[1]]
 
-type_body_stat %= id + type_annotation + asign_equal + expr_or_block, lambda h, s: VarDefNode(s[1], s[3]) 
-type_body_stat %= id + opar + arg_def_list + cpar + type_annotation + func_body, lambda h, s: FuncDefNode(s[1], s[3], s[5])
+type_body_stat %= id + type_annotation + asign_equal + expr_or_block, lambda h, s: VarDefNode(s[1], s[2], s[4]) 
+type_body_stat %= id + opar + arg_def_list + cpar + type_annotation + func_body, lambda h, s: FuncDefNode(s[1], s[3], s[5], s[6])
 
 expr %= new + id + opar + arg_list + cpar, lambda h, s: NewInstanceNode(s[2], s[4])
 
-type_annotation %= colon + id, None
-type_annotation %= G.Epsilon, None
+type_annotation %= colon + id, lambda h, s: s[2]
+type_annotation %= G.Epsilon, lambda h, s: None # esto hace falta?

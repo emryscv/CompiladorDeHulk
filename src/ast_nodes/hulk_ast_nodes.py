@@ -43,10 +43,11 @@ class FuncCallNode(Node):
         return False
     
 class FuncDefNode(Node):
-    def __init__(self, identifier, args_list, body):
+    def __init__(self, identifier, args_list, type_annotation, body):
         super().__init__()
         self.identifier = identifier
         self.args_list = args_list
+        self.type_annotation = type_annotation
         self.body = body
     
     def validate(self, context):
@@ -100,9 +101,10 @@ class LetInNode(Node):
         return self.body.validate(innerContext)
 
 class VarDefNode(Node):
-    def __init__(self, identifier , expr):
+    def __init__(self, identifier, type_annotation, expr):
         super().__init__()        
         self.identifier = identifier
+        self.type_annotation = type_annotation
         self.expr = expr
     
     def validate(self, context):
