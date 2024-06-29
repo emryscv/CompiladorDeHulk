@@ -7,7 +7,7 @@ parser = LR1Parser(G, verbose=True)
 
 #derivation = parser([num, mul, num, equal, num, mul, num, G.EOF])
 # #print(derivation)
-derivation = parser([let, id, asign_equal, num, in_token, if_token, opar, id, equal, num, cpar, id, double_at, id, dot, id, opar, cpar, else_token, id, semicolon, G.EOF])
+derivation = parser([let, id, colon, id, asign_equal, num, in_token, if_token, opar, id, equal, num, cpar, id, double_at, id, dot, id, opar, cpar, else_token, id, semicolon, G.EOF])
 
 # derivation = parser([opar, let, id, asign_equal, num, in_token, id, cpar, equal, let, id, asign_equal, num, in_token, id, G.EOF])
 
