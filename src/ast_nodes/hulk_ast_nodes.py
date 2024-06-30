@@ -157,6 +157,29 @@ class ProtocolDefNode(Node):
         self.identifier = identifier
         self.body = body
 
+class WhileLoopNode(Node):
+    def __init__(self, condition, body):
+        self.condition = condition
+        self.body = body
+
+    def validate(self, context):
+        if not self.condition.validate(context):
+            return False
+        
+        innerContext = context.CreateChildContext()
+
+        return self.body.evaluate(innerContext)
+
+class ForLoopNode(LetInNode):
+     def __init__(self, var, iterable, body):
+         iter = VarDefNode("iterable", iterable)
+         condition = DotNotationNode(iter, FuncCallNode("next", []))
+         whileLoop = WhileLoopNode(condition, LetInNode([VarDefNode(var, DotNotationNode(iter, FuncCallNode("current", [])))], body))
+         
+         super().__init__([iter], whileLoop)
+
+
+
 def get_printer(AtomicNode=AtomicNode, BinaryNode=BinaryOperationNode, FuncCallNode=FuncCallNode):
 
     class PrintVisitor(object):
