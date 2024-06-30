@@ -170,10 +170,13 @@ class WhileLoopNode(Node):
 
         return self.body.evaluate(innerContext)
 
-# class ForLoopNode(LetInNode):
-#     def __init__(self, var, iterable, body):
-#         iter = VarDefNode("iterable", iterable)
-#         whileLoop = WhileLoopNode()
+class ForLoopNode(LetInNode):
+     def __init__(self, var, iterable, body):
+         iter = VarDefNode("iterable", iterable)
+         condition = DotNotationNode(iter, FuncCallNode("next", []))
+         whileLoop = WhileLoopNode(condition, LetInNode([VarDefNode(var, DotNotationNode(iter, FuncCallNode("current", [])))], body))
+         
+         super().__init__([iter], whileLoop)
 
 
 
