@@ -14,7 +14,7 @@ fixed_tokens = {
 
 class Regex:
     def __init__(self, regex):
-        self.parser = SLR1Parser(G, True)
+        self.parser = SLR1Parser(G)
         self.regex = regex
         self.dfa, self.errors = self.build_regex(self.regex)
 
@@ -22,12 +22,19 @@ class Regex:
         tokens = []
         errors = []
 
+        escape_caracter = False
         for i, c in enumerate(regex):
             token = []
-            try:
-                token.append(fixed_tokens[c])
-            except:
+            if c == '\\':
+                escape_caracter = True
+            elif escape_caracter:
                 token.append(Token(c, symbol))
+                escape_caracter = False
+            else:
+                try:
+                    token.append(fixed_tokens[c])
+                except:
+                    token.append(Token(c, symbol))
 
             if len(token) > 0:
                 tokens.append(token[0])

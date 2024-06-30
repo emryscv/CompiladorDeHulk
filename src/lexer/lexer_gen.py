@@ -36,7 +36,6 @@ class Lexer:
             try:
                 state = state.get(symbol)
                 if state.final:
-                    print(lex)
                     final = state
                     final_lex = lex
             except KeyError:
@@ -68,4 +67,4 @@ class Lexer:
         yield '$', self.eof, row, column
 
     def __call__(self, text):
-        return [Token(lex, ttype, row, column) for lex, ttype, row, column in self._tokenize(text)]
+        return [Token(lex, ttype, row, column) for lex, ttype, row, column in self._tokenize(text) if not ttype == 'space']

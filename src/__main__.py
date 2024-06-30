@@ -8,6 +8,7 @@ from lexer.regex_table import regex_table
 from parser.LR1Parser import LR1Parser
 from parser.SRParser import ShiftReduceParser
 from utils.error_manager import *
+from parser.parsing_utils import evaluate_reverse_parse
 
 def main(code_path):
     if not Path(code_path).suffix == ".hulk":
@@ -25,7 +26,11 @@ def main(code_path):
     lexer = Lexer(regex_table, G.EOF)
     tokens = lexer(code)
     print(tokens)
-    
+    parser = LR1Parser(G, verbose=False)
+    derivation, operations = parser([token.token_type for token in tokens])
+
+    ast = evaluate_reverse_parse(derivation, operations, tokens)
+
 if __name__ == "__main__":
     if not len(sys.argv) == 2:
         error = Argument_is_required()

@@ -12,7 +12,7 @@ asign_simple, func_def, arg_def, arg_def_list, func_body = G.NonTerminals(
 var_def, elif_expr, boolean_expr, boolean_term = G.NonTerminals(
     '<var-def> <elif_expr> boolean-expr> <boolean-term>')
 type_def, type_body, type_body_stat, optional_args, optional_inherits, optional_inherits_args, let_in, type_annotation = G.NonTerminals(
-    '<type-def> <type-body> <type-body-stat> <optional-args> <optional-inherits> <optional-inherits-args> <let-in> <type-annotation> <protocol-def> <protocol-body> <arg_def_list_protocol>')
+    '<type-def> <type-body> <type-body-stat> <optional-args> <optional-inherits> <optional-inherits-args> <let-in> <type-annotation>')
 
 protocol_def, protocol_body, arg_def_list_protocol = G.NonTerminals('<protocol-def> <protocol-body> <arg_def_list_protocol>') 
 
