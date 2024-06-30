@@ -180,10 +180,10 @@ def build_LR1_automaton(G):
     return automaton
 
 
-def build_LR0_automaton(self):
-    assert len(self.G.startSymbol.productions) == 1, 'Grammar must be augmented'
+def build_LR0_automaton(G):
+    assert len(G.startSymbol.productions) == 1, 'Grammar must be augmented'
 
-    start_production = self.G.startSymbol.productions[0]
+    start_production = G.startSymbol.productions[0]
     start_item = Item(start_production, 0)
 
     automaton = State(start_item, True)
@@ -207,7 +207,7 @@ def build_LR0_automaton(self):
         current_state.add_transition(next_symbol.Name, visited[next_item])
 
         if next_symbol.IsNonTerminal:
-            for production in self.G.Productions:
+            for production in G.Productions:
                 if next_symbol == production.Left:
                     item = Item(production, 0)
                     if item not in visited.keys():

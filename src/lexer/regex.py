@@ -1,15 +1,20 @@
-from  grammars.regex_grammar import get_regex_grammar
+from  grammars.regex_grammar import *
 from  parser.SLR1Parser import SLR1Parser
 from  parser.parsing_utils import evaluate_reverse_parse
 from  lexer.build_regex_automata import RegexAutomataBuilder
 from  utils.automata_utils import nfa_to_dfa, automata_minimization
 from  utils.utils import Token
 
+fixed_tokens = {
+        '|': Token('|', pipe),
+        '*': Token('*', star),
+        '(': Token('(', opar),
+        ')': Token(')', cpar)
+    }
 
 class Regex:
     def __init__(self, regex):
-        self.G = get_regex_grammar()
-        self.parser = SLR1Parser(self.G)
+        self.parser = SLR1Parser(G)
         self.regex = regex
         self.dfa, self.errors = self.build_regex(self.regex)
 
@@ -17,17 +22,27 @@ class Regex:
         tokens = []
         errors = []
 
+        escape_caracter = False
         for i, c in enumerate(regex):
+            token = []
+            if c == '\\':
+                escape_caracter = True
+            elif escape_caracter:
+                token.append(Token(c, symbol))
+                escape_caracter = False
+            else:
+                try:
+                    token.append(fixed_tokens[c])
+                except:
+                    token.append(Token(c, symbol))
 
-            token = [x for x in self.G.terminals if x.Name == c]
             if len(token) > 0:
                 tokens.append(token[0])
             else:
                 errors.append(f"Invalid character {c} on column {i}")
 
-        tokens.append(self.G.EOF)
-        derivation, operations = self.parser(tokens)
-        tokens = [Token(x.Name, x, 0) for x in tokens]
+        tokens.append(Token('$', G.EOF))
+        derivation, operations = self.parser([t.token_type for t in tokens])
         ast = evaluate_reverse_parse(derivation, operations, tokens)
         evaluator = RegexAutomataBuilder()
 

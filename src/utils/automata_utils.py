@@ -1,5 +1,5 @@
-from utils import DisjointSet, ContainerSet
-from automata import DFA
+from utils.utils import DisjointSet, ContainerSet
+from utils.automata import DFA
 
 
 def distinguish_states(group, automaton, partition):

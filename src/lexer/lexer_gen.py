@@ -44,20 +44,28 @@ class Lexer:
         return final, final_lex
 
     def _tokenize(self, text):
+        row = column = 1
         while text:
+            print(text[0])
+            match text[0]:
+                case '\n':
+                    row += 1
+                    column = 0
+
             final_state, lex = self._walk(text)
 
             assert len(lex) != 0, 'Error'
 
             priority = [state.tag for state in final_state.state if state.tag]
             priority.sort()
-
             idx, token_type = priority[0]
 
             text = text[len(lex):]
-            yield lex, token_type
+            yield lex, token_type, row, column
 
-        yield '$', self.eof
+            column += len(lex)
+
+        yield '$', self.eof, row, column
 
     def __call__(self, text):
-        return [Token(lex, ttype) for lex, ttype in self._tokenize(text)]
+        return [Token(lex, ttype, row, column) for lex, ttype, row, column in self._tokenize(text) if not ttype == 'space']
