@@ -1,5 +1,5 @@
-from SRParser import ShiftReduceParser
-from parsing_utils import build_LR0_automaton, compute_firsts, compute_follows
+from parser.SRParser import ShiftReduceParser
+from parser.parsing_utils import build_LR0_automaton, compute_firsts, compute_follows
 
 
 class SLR1Parser(ShiftReduceParser):

@@ -17,7 +17,7 @@ class ShiftReduceParser:
         stack = [0]
         cursor = 0
         output = []
-
+        operations = []
         while True:
             state = stack[-1]
             lookahead = w[cursor]
@@ -29,18 +29,19 @@ class ShiftReduceParser:
             action, tag = self.action[state, lookahead]
             print(action, tag)
             if action == ShiftReduceParser.SHIFT:
+                operations.append(ShiftReduceParser.SHIFT)
                 stack.append(tag)
                 cursor += 1
 
             elif action == ShiftReduceParser.REDUCE:
+                operations.append(ShiftReduceParser.REDUCE)
                 for i in range(len(tag.Right)):
                     stack.pop()
                 stack.append(self.goto[stack[-1], tag.Left])
                 output.append(tag)
-                print(output)
 
             elif action == ShiftReduceParser.OK:
-                return output
+                return output, operations
 
             else:
                 raise ValueError

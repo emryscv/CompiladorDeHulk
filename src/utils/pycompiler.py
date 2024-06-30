@@ -317,7 +317,6 @@ class Grammar():
 
         if len(self.Productions) == 0:
             self.pType = type(production)
-            print(self.pType)
 
         assert type(production) == self.pType, "The Productions most be of only 1 type."
 

@@ -1,4 +1,4 @@
-from automata import NFA
+from utils.automata import NFA
 
 
 def automata_closure(a1):
@@ -24,7 +24,6 @@ def automata_closure(a1):
 
 def automata_union(automata_1, automata_2):
     transitions = {}
-
     start = 0
     d1 = 1
     d2 = automata_1.states + d1
