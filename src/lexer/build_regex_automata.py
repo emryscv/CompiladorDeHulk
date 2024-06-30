@@ -17,7 +17,7 @@ class RegexAutomataBuilder(object):
 
     @visitor.when(ConcatNode)
     def visit(self, node):
-        l_automata = self.visit(node.lef)
+        l_automata = self.visit(node.left)
         r_automata = self.visit(node.right)
         return automata_concatenation(l_automata, r_automata)
 
