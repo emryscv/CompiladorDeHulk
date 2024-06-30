@@ -1,1 +1,3 @@
-let y=5354634 in (x * 89) ** 67;
+let y=5354634   in
+    let x = y * 7 in
+        print(x);

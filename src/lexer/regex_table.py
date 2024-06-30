@@ -7,8 +7,8 @@ upper_letters = '|'.join(chr(n) for n in range(ord('A'), ord('Z') + 1))
 
 IDENTIFIER = f"({lower_letters}{upper_letters}|_)({lower_letters}{upper_letters}{digits}|_)*"
 NUMBER = f'({nonzero_digits}{digits})*'
+SPACE_CHARACTERS = f'( |\n|\t)*'
 regex_table = [
-    ('space', ' '),
     (let, 'let'),
     (if_token, 'if' ), 
     (elif_token, 'elif'), 
@@ -52,4 +52,5 @@ regex_table = [
     (semicolon, ';'),
     (num, NUMBER),
     (id, IDENTIFIER)
+    ('space', SPACE_CHARACTERS),
 ]

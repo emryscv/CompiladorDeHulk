@@ -46,6 +46,7 @@ class Lexer:
     def _tokenize(self, text):
         row = column = 1
         while text:
+            print(text[0])
             match text[0]:
                 case '\n':
                     row += 1
