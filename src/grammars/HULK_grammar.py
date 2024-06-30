@@ -14,7 +14,7 @@ var_def, elif_expr, boolean_expr, boolean_term = G.NonTerminals(
 type_def, type_body, type_body_stat, optional_args, optional_inherits, optional_inherits_args, let_in, type_annotation = G.NonTerminals(
     '<type-def> <type-body> <type-body-stat> <optional-args> <optional-inherits> <optional-inherits-args> <let-in> <type-annotation> <protocol-def> <protocol-body> <arg_def_list_protocol>')
 protocol_def, protocol_body, arg_def_list_protocol = G.NonTerminals('<protocol-def> <protocol-body> <arg_def_list_protocol>') 
-vector = G.NonTerminals('<vector>')
+vector, explicit_body = G.NonTerminals('<vector> <explicit-body>')
 
 sum, sub, mul, div, pow1, pow2, num, id, opar, cpar, ocurl, ccurl, osquare, csquare, dot = G.Terminals(
     '+ - * / ^ ** num id ( ) { } [ ] .')
@@ -163,3 +163,6 @@ arg_def_list_protocol %= id + colon + id, lambda h , s: [(s[1], s[3])]
 ###vectors###
 
 vector %= osquare + expr_or_block + separator + id + in_token + expr_or_block + csquare, None
+vector %= osquare + explicit_body + csquare, None
+explicit_body %= explicit_body + coma + expr, None
+explicit_body %= expr, None
