@@ -51,6 +51,6 @@ regex_table = [
     (arrow, '=>'),  
     (semicolon, ';'),
     (num, NUMBER),
-    (id, IDENTIFIER)
-    ('space', SPACE_CHARACTERS),
+    (id, IDENTIFIER),
+    ('space', SPACE_CHARACTERS)
 ]
