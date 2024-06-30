@@ -42,13 +42,18 @@ class FuncCallNode(Node):
             return True
         return False
     
-class FuncDefNode(Node):
-    def __init__(self, identifier, args_list, body):
+class FuncDecNode(Node):
+    def __init__(self, identifier, args_list, type_annotation):
         super().__init__()
         self.identifier = identifier
         self.args_list = args_list
+        self.type_annotation = type_annotation
+        
+class FuncDefNode(FuncDecNode):
+    def __init__(self, identifier, args_list, type_annotation, body):
+        super().__init__(identifier, args_list, type_annotation)
         self.body = body
-    
+
     def validate(self, context):
         if not context.Define(self.identifier, self.args):
             return False
@@ -100,9 +105,10 @@ class LetInNode(Node):
         return self.body.validate(innerContext)
 
 class VarDefNode(Node):
-    def __init__(self, identifier , expr):
+    def __init__(self, identifier, type_annotation, expr):
         super().__init__()        
         self.identifier = identifier
+        self.type_annotation = type_annotation
         self.expr = expr
     
     def validate(self, context):
@@ -123,6 +129,56 @@ class DotNotationNode(Node):
         super().__init__()
         self.object = object
         self.member = member
+        
+class ProgramNode(Node):
+    def __init__(self, declarations, mainExpression):
+        super().__init__()
+        self.declarations = declarations
+        self.mainExpression = mainExpression
+
+class TypeDefNode(Node):
+    def __init__(self, identifier, optional_args, base_identifier, base_optional_args, body):
+        super().__init__()
+        self.identifier = identifier
+        self.optional_args = optional_args
+        self.base_identifier = base_identifier
+        self.base_optional_args = base_optional_args
+        self.body = body
+    
+class NewInstanceNode(Node):
+    def __init__(self, identifier, expr):
+        super().__init__()
+        self.identifier = identifier
+        self.expr = expr
+
+class ProtocolDefNode(Node):
+    def __init__(self, identifier, body):
+        super().__init__()
+        self.identifier = identifier
+        self.body = body
+
+class WhileLoopNode(Node):
+    def __init__(self, condition, body):
+        self.condition = condition
+        self.body = body
+
+    def validate(self, context):
+        if not self.condition.validate(context):
+            return False
+        
+        innerContext = context.CreateChildContext()
+
+        return self.body.evaluate(innerContext)
+
+class ForLoopNode(LetInNode):
+     def __init__(self, var, iterable, body):
+         iter = VarDefNode("iterable", iterable)
+         condition = DotNotationNode(iter, FuncCallNode("next", []))
+         whileLoop = WhileLoopNode(condition, LetInNode([VarDefNode(var, DotNotationNode(iter, FuncCallNode("current", [])))], body))
+         
+         super().__init__([iter], whileLoop)
+
+
 
 def get_printer(AtomicNode=AtomicNode, BinaryNode=BinaryOperationNode, FuncCallNode=FuncCallNode):
 

@@ -26,8 +26,6 @@ def main(code_path):
     tokens = lexer(code)
     print(tokens)
     
-
-
 if __name__ == "__main__":
     if not len(sys.argv) == 2:
         error = Argument_is_required()
