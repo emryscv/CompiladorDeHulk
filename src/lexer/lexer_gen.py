@@ -46,11 +46,9 @@ class Lexer:
     def _tokenize(self, text):
         row = column = 1
         while text:
-            print(text[0])
-            match text[0]:
-                case '\n':
-                    row += 1
-                    column = 0
+            if text[0] == '\n':
+                row += 1
+                column = 0
 
             final_state, lex = self._walk(text)
 
