@@ -15,11 +15,12 @@ type_def, type_body, type_body_stat, optional_args, optional_inherits, optional_
     '<type-def> <type-body> <type-body-stat> <optional-args> <optional-inherits> <optional-inherits-args> <let-in> <type-annotation>')
 
 protocol_def, protocol_body, arg_def_list_protocol = G.NonTerminals('<protocol-def> <protocol-body> <arg_def_list_protocol>') 
+vector = G.NonTerminals('<vector>')
 
-sum, sub, mul, div, pow1, pow2, num, id, opar, cpar, ocurl, ccurl, dot = G.Terminals(
-    '+ - * / ^ ** num id ( ) { } .')
-coma, semicolon, at, double_at, function, arrow, let, in_token, asign_equal, asign, colon = G.Terminals(
-     ', ; @ @@ function => let in = := :')
+sum, sub, mul, div, pow1, pow2, num, id, opar, cpar, ocurl, ccurl, osquare, csquare, dot = G.Terminals(
+    '+ - * / ^ ** num id ( ) { } [ ] .')
+coma, semicolon, at, double_at, function, arrow, let, in_token, asign_equal, asign, colon, separator = G.Terminals(
+     ', ; @ @@ function => let in = := : ||')
 if_token, elif_token, else_token, and_token, or_token = G.Terminals(
     'if elif else & |')
 lower, greater, lower_equal, greater_equal, equal, diferent = G.Terminals(
@@ -159,3 +160,7 @@ protocol_body %= G.Epsilon, lambda h, s: []
 
 arg_def_list_protocol %= arg_def_list_protocol + coma + id + colon + id, lambda h , s: s[1] + [(s[3], s[5])]
 arg_def_list_protocol %= id + colon + id, lambda h , s: [(s[1], s[3])]
+
+###vectors###
+
+vector %= osquare + expr_or_block + separator + id + in_token + expr_or_block + csquare, None
