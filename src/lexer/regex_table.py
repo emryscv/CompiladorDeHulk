@@ -27,6 +27,7 @@ regex_table = [
     (inherits, 'inherits'), 
     (new, 'new'), 
     (protocol, 'protocol'), 
+    (extends, 'extends'), 
     (and_token, '&'), 
     (or_token, '\\|'),
     (sum, '+'), 

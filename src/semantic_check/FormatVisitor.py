@@ -27,7 +27,7 @@ class FormatVisitor(object):
     def visit(self, node, tabs=0):
         inheritance = f' extends {node.base_identifier}' if node.base_identifier else ""
         
-        ans = '\t' * tabs + f'\\__ProtocolDefNode: {node.identifier} {inheritance} {"{ <func-dec>; ... <func-dec>; }"}'
+        ans = '\t' * tabs + f'\\__ProtocolDefNode: {node.identifier}{inheritance} {"{ <func-dec>; ... <func-dec>; }"}'
         body = '\n'.join(f'{self.visit(stat, tabs + 1)}' for stat in node.body)
         return f'{ans}\n{body}'
     

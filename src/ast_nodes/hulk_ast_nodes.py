@@ -23,8 +23,7 @@ class TypeDefNode(DeclarationNode):
 
 class ProtocolDefNode(DeclarationNode):
     def __init__(self, identifier, base_identifier, body):
-        super().__init__()
-        self.identifier = identifier
+        super().__init__(identifier)
         self.base_identifier = base_identifier
         self.body = body
 
