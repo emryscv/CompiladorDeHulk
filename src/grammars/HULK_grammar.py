@@ -16,8 +16,8 @@ type_def, type_body, type_body_stat, optional_args, optional_inherits, optional_
 
 protocol_def, protocol_body, arg_def_list_protocol = G.NonTerminals('<protocol-def> <protocol-body> <arg_def_list_protocol>') 
 
-sum, sub, mul, div, pow1, pow2, num, id, opar, cpar, ocurl, ccurl, dot = G.Terminals(
-    '+ - * / ^ ** num id ( ) { } .')
+sum, sub, mul, div, pow1, pow2, num, string_literal, id, opar, cpar, ocurl, ccurl, dot = G.Terminals(
+    '+ - * / ^ ** num string id ( ) { } .')
 coma, semicolon, at, double_at, function, arrow, let, in_token, asign_equal, asign, colon = G.Terminals(
      ', ; @ @@ function => let in = := :')
 if_token, elif_token, else_token, and_token, or_token = G.Terminals(
@@ -60,6 +60,7 @@ factor %= atom + pow1 + factor, lambda h, s: BinaryOperationNode(s[1], s[3], s[2
 factor %= atom + pow2 + factor, lambda h, s: BinaryOperationNode(s[1], s[3], s[2])
 factor %= atom, lambda h, s: s[1]
 
+atom %= string_literal, lambda h, s: ConstantNode(s[1])
 atom %= num, lambda h, s: ConstantNode(s[1]) #TODO cambiar num por constante
 atom %= opar + expr_or_block + cpar, lambda h, s: s[2]
 atom %= dot_notation_expr,  lambda h, s: s[1]

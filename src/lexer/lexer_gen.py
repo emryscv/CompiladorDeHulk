@@ -1,6 +1,9 @@
+import sys
+
 from  utils.utils import Token
 from  lexer.regex import Regex
 from  utils.automata import State
+from utils.error_manager import TokenNotRecognized
 
 
 class Lexer:
@@ -45,25 +48,35 @@ class Lexer:
 
     def _tokenize(self, text):
         row = column = 1
+        errors = []
         while text:
             if text[0] == '\n':
                 row += 1
                 column = 0
 
             final_state, lex = self._walk(text)
+            if len(lex) == 0:
+                errors.append(TokenNotRecognized(row, column))
+                text = text[1:]
+                column += 1
+                
+            else:
+                priority = [state.tag for state in final_state.state if state.tag]
+                priority.sort()
+                idx, token_type = priority[0]
 
-            assert len(lex) != 0, 'Error'
+                text = text[len(lex):]
+                yield lex, token_type, row, column, errors
 
-            priority = [state.tag for state in final_state.state if state.tag]
-            priority.sort()
-            idx, token_type = priority[0]
+                column += len(lex)
 
-            text = text[len(lex):]
-            yield lex, token_type, row, column
-
-            column += len(lex)
-
-        yield '$', self.eof, row, column
+        yield '$', self.eof, row, column, errors 
 
     def __call__(self, text):
-        return [Token(lex, ttype, row, column) for lex, ttype, row, column in self._tokenize(text) if not ttype == 'space']
+        tokens = []
+        errors = []
+        for lex, ttype, row, column, errors in self._tokenize(text):
+            if not ttype == 'space':
+                tokens.append(Token(lex, ttype, row, column))
+                errors = errors
+        return tokens, errors
