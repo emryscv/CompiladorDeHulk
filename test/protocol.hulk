@@ -1,0 +1,8 @@
+protocol Animal{
+    MakeSomeNoise(): String
+}
+protocol Dolphin extends Animal{
+    Swim(): Void
+}
+
+print("hola");

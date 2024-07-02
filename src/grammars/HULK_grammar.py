@@ -28,6 +28,8 @@ true, false, while_token, for_token, type_token, inherits, new, protocol, extend
     'true false while for type inherits new protocol extends')
                           
 program %= definition_list + expr + semicolon, lambda h, s: ProgramNode(s[1], s[2])
+program %= definition_list + ocurl + expr_list + ccurl + optional_semicolon, lambda h, s: ProgramNode(s[1], BlockExprNode(s[3]))
+
 definition_list %= definition_list + definition, lambda h, s: s[1] + [s[2]]
 definition_list %= G.Epsilon, lambda h, s: []
 
@@ -80,7 +82,7 @@ arg_list %= expr_or_block, lambda h, s: [s[1]]
 
 ###functions###
 
-func_def %= function + id + opar + arg_def_list + cpar + type_annotation + func_body, lambda h , s: FuncDefNode(s[2], s[4], s[6], s[7])
+func_def %= function + id + opar + arg_def + cpar + type_annotation + func_body, lambda h , s: FuncDefNode(s[2], s[4], s[6], s[7])
 
 arg_def %= arg_def_list, lambda h , s: s[1]
 arg_def %= G.Epsilon, lambda h , s: []
@@ -165,5 +167,5 @@ protocol_body %= G.Epsilon, lambda h, s: []
 arg_def_list_protocol %= arg_def_list_protocol + coma + id + colon + id, lambda h , s: s[1] + [(s[3], s[5])]
 arg_def_list_protocol %= id + colon + id, lambda h , s: [(s[1], s[3])]
 
-optional_semicolon %= optional_semicolon, None
-optional_semicolon %= G.Epsilon, None
+optional_semicolon %= semicolon, lambda h, s: None
+optional_semicolon %= G.Epsilon, lambda h, s: None
