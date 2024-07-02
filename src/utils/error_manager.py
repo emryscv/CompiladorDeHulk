@@ -19,5 +19,5 @@ class Cannot_open_file(HULK_error):
         super().__init__(f"Cannot open file", "File Error")
 
 class TokenNotRecognized(HULK_error):
-    def __init__(self, row, column):
-        super().__init__(f"Token not recognized in Line: {row}, Column: {column}", "Lexer Error")
+    def __init__(self, token, row, column):
+        super().__init__(f"Token {token} not recognized in Line: {row}, Column: {column}", "Lexer Error")
