@@ -14,13 +14,13 @@ class FormatVisitor(object):
     
     @visitor.when(TypeDefNode)
     def visit(self, node, tabs=0):
-        params = ', '.join(f'{arg[0]}: {arg[1]}' for arg in node.args_list)
-        base_params = ', '.join(f'{arg[0]}: {arg[1]}' for arg in node.base_optional_args)
+        params = ', '.join(f'{arg[0]}: {arg[1]}' for arg in node.optional_args)
+        base_params = ',\n'.join(f'{self.visit(arg, tabs + 1)}' for arg in node.base_optional_args)
         
-        inheritance = f'inherits {node.base_identifier} {"(" + base_params + ")" if base_params else ""}' if node.base_identifier else ""
+        inheritance = f' inherits {node.base_identifier} {"(\n" + base_params + "\n" + "\t" * tabs + ")" if base_params else ""}' if node.base_identifier else ""
         
-        ans = '\t' * tabs + f'\\__optional_args: {node.identifier} {"(" + params + ")" if params else ""} {inheritance} -> <expr>'
-        body = self.visit(node.body, tabs + 1)
+        ans = '\t' * tabs + f'\\__Type: {node.identifier}{"(" + params + ")" if params else ""}{inheritance} {"{ <stat>; ... ;<stat>; }"}'
+        body = '\n'.join(f'{self.visit(stat, tabs + 1)}' for stat in node.body)
         return f'{ans}\n{body}'
     
     @visitor.when(FuncDecNode)

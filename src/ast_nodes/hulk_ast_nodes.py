@@ -21,7 +21,7 @@ class TypeDefNode(DeclarationNode):
         self.base_optional_args = base_optional_args
         self.body = body
 
-class ProtocolDefNode(Node):
+class ProtocolDefNode(DeclarationNode):
     def __init__(self, identifier, base_identifier, body):
         super().__init__()
         self.identifier = identifier

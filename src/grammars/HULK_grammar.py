@@ -165,5 +165,5 @@ protocol_body %= G.Epsilon, lambda h, s: []
 arg_def_list_protocol %= arg_def_list_protocol + coma + id + colon + id, lambda h , s: s[1] + [(s[3], s[5])]
 arg_def_list_protocol %= id + colon + id, lambda h , s: [(s[1], s[3])]
 
-optional_semicolon %= optional_semicolon, None
-optional_semicolon %= G.Epsilon, None
+optional_semicolon %= semicolon, lambda h, s: None
+optional_semicolon %= G.Epsilon, lambda h, s: None
