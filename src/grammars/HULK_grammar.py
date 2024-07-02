@@ -5,8 +5,8 @@ G = Grammar()
 
 program = G.NonTerminal('<program>', startSymbol=True)
 
-definition_list, definition, arithmetic_expr, expr, expr_or_block, expr_list, stringify, term, factor, atom, func_call, arguments, arg_list, dot_notation_expr = G.NonTerminals(
-    '<definition-list> <definition> <arithmetic-expr> <expr> <expr-or-block> <expr-list> <stringify> <term> <factor> <atom> <func-call> <arguments> <arg-list> <dot-notation-expr>')
+definition_list, definition, arithmetic_expr, expr, expr_or_block, expr_list, stringify, term, factor, atom, func_call, arguments, arg_list, dot_notation_expr, optional_semicolon= G.NonTerminals(
+    '<definition-list> <definition> <arithmetic-expr> <expr> <expr-or-block> <expr-list> <stringify> <term> <factor> <atom> <func-call> <arguments> <arg-list> <dot-notation-expr> <optional-semicolon>')
 asign_simple, func_def, arg_def, arg_def_list, func_body = G.NonTerminals(
     '<asign-simple> <func-def> <arg_def? <arg-def-list> <func-body>')
 var_def, elif_expr, boolean_expr, boolean_term = G.NonTerminals(
@@ -89,7 +89,7 @@ arg_def_list %= arg_def_list + coma + id + type_annotation, lambda h , s: s[1] +
 arg_def_list %= id + type_annotation , lambda h ,s: [(s[1], s[2])]
 
 func_body %= arrow + expr + semicolon, lambda h ,s: s[2]
-func_body %= ocurl + expr_list + ccurl, lambda h, s: BlockExprNode(s[2])
+func_body %= ocurl + expr_list + ccurl + optional_semicolon, lambda h, s: BlockExprNode(s[2])
 
 ###variables###
 
@@ -140,10 +140,11 @@ optional_inherits %= G.Epsilon, lambda h, s: ("", [])
 optional_inherits_args %= opar + arg_list + cpar, lambda h, s: s[2]
 optional_inherits_args %= G.Epsilon, lambda h, s: []
 
-type_body %= type_body + type_body_stat + semicolon, lambda h , s: s[1] + [s[3]]
-type_body %= type_body_stat + semicolon, lambda h , s: [s[1]]
+type_body %= type_body + type_body_stat, lambda h , s: s[1] + [s[2]]
+type_body %= type_body_stat, lambda h , s: [s[1]]
 
-type_body_stat %= id + type_annotation + asign_equal + expr_or_block, lambda h, s: VarDefNode(s[1], s[2], s[4]) 
+type_body_stat %= id + type_annotation + asign_equal + expr + semicolon, lambda h, s: VarDefNode(s[1], s[2], s[4]) 
+type_body_stat %= id + type_annotation + asign_equal + ocurl + expr_list + ccurl + optional_semicolon, lambda h, s: VarDefNode(s[1], s[2], s[5])
 type_body_stat %= id + opar + arg_def + cpar + type_annotation + func_body, lambda h, s: FuncDefNode(s[1], s[3], s[5], s[6])
 
 expr %= new + id + opar + arg_list + cpar, lambda h, s: NewInstanceNode(s[2], s[4])
@@ -163,3 +164,6 @@ protocol_body %= G.Epsilon, lambda h, s: []
 
 arg_def_list_protocol %= arg_def_list_protocol + coma + id + colon + id, lambda h , s: s[1] + [(s[3], s[5])]
 arg_def_list_protocol %= id + colon + id, lambda h , s: [(s[1], s[3])]
+
+optional_semicolon %= optional_semicolon, None
+optional_semicolon %= G.Epsilon, None
