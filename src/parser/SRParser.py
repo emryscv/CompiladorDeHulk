@@ -21,10 +21,12 @@ class ShiftReduceParser:
         while True:
             state = stack[-1]
             lookahead = w[cursor]
-            if self.verbose: print(stack, '<---||--->', w[cursor:])
+            if self.verbose: print(stack, '<---||--->', w[cursor:], output)
 
             if (state, lookahead) not in self.action:
-                return None
+                print("Error")
+                print(state, lookahead)
+                return None, None
 
             action, tag = self.action[state, lookahead]
             

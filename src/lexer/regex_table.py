@@ -1,13 +1,18 @@
+import string
 from  grammars.HULK_grammar import *
 
 nonzero_digits = '|'.join(str(n) for n in range(1, 10))
 digits = '|'.join(str(n) for n in range(10))
 lower_letters = '|'.join(chr(n) for n in range(ord('a'), ord('z') + 1))
 upper_letters = '|'.join(chr(n) for n in range(ord('A'), ord('Z') + 1))
+all_characters = '|'.join(n for n in string.printable[:-7])
+# print(all_characters)
 
-IDENTIFIER = f"({lower_letters}{upper_letters}|_)({lower_letters}{upper_letters}{digits}|_)*"
+IDENTIFIER = f"({lower_letters}|{upper_letters}|_)({upper_letters}|{lower_letters}{digits}|_)*"
 NUMBER = f'({nonzero_digits}{digits})*'
 SPACE_CHARACTERS = f'( |\n|\t)'
+STRING = f'"({all_characters})"'
+
 regex_table = [
     (let, 'let'),
     (if_token, 'if' ), 

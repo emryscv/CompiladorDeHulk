@@ -4,7 +4,7 @@ class HULK_error:
         self.type = type
 
     def __str__(self):
-        return f"Error: {self.type}, Type: {self.message}"
+        return f"Error: {self.message}, Type: {self.type}"
     
 class Argument_is_required(HULK_error):
     def __init__(self):
@@ -17,3 +17,7 @@ class Invalid_file_extension(HULK_error):
 class Cannot_open_file(HULK_error):
     def __init__(self):
         super().__init__(f"Cannot open file", "File Error")
+
+class TokenNotRecognized(HULK_error):
+    def __init__(self, row, column):
+        super().__init__(f"Token not recognized in Line: {row}, Column: {column}", "Lexer Error")

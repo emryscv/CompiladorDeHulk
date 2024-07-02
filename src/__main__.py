@@ -24,11 +24,20 @@ def main(code_path):
         sys.exit(1)
     
     lexer = Lexer(regex_table, G.EOF)
-    tokens = lexer(code)
+    tokens, lexer_errors = lexer(code)
+    if lexer_errors:
+        for error in lexer_errors:
+            print(error)
+        sys.exit(1)
+
     print(tokens)
+    
     parser = LR1Parser(G, verbose=False)
     derivation, operations = parser([token.token_type for token in tokens])
 
+    if not derivation:
+        sys.exit(1) 
+        
     ast = evaluate_reverse_parse(derivation, operations, tokens)
 
 if __name__ == "__main__":
