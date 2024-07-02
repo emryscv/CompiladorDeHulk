@@ -80,7 +80,7 @@ arg_list %= expr_or_block, lambda h, s: [s[1]]
 
 ###functions###
 
-func_def %= function + id + opar + arg_def_list + cpar + type_annotation + func_body, lambda h , s: FuncDefNode(s[2], s[4], s[6], s[7])
+func_def %= function + id + opar + arg_def + cpar + type_annotation + func_body, lambda h , s: FuncDefNode(s[2], s[4], s[6], s[7])
 
 arg_def %= arg_def_list, lambda h , s: s[1]
 arg_def %= G.Epsilon, lambda h , s: []

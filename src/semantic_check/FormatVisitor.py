@@ -12,10 +12,27 @@ class FormatVisitor(object):
         statements = '\n'.join(self.visit(definition, tabs + 1) for definition in node.definitions)
         return f'{ans}\n{statements}\n{self.visit(node.mainExpression, tabs + 1)}'
     
+    @visitor.when(TypeDefNode)
+    def visit(self, node, tabs=0):
+        params = ', '.join(f'{arg[0]}: {arg[1]}' for arg in node.args_list)
+        base_params = ', '.join(f'{arg[0]}: {arg[1]}' for arg in node.base_optional_args)
+        
+        inheritance = f'inherits {node.base_identifier} {"(" + base_params + ")" if base_params else ""}' if node.base_identifier else ""
+        
+        ans = '\t' * tabs + f'\\__optional_args: {node.identifier} {"(" + params + ")" if params else ""} {inheritance} -> <expr>'
+        body = self.visit(node.body, tabs + 1)
+        return f'{ans}\n{body}'
+    
+    @visitor.when(FuncDecNode)
+    def visit(self, node, tabs=0):
+        params = ', '.join(f'{arg[0]}: {arg[1]}' for arg in node.args_list)
+        ans = '\t' * tabs + f'\\__FuncDecNode: {node.identifier}({params}): {node.type_annotation}'
+        return f'{ans}'
+    
     @visitor.when(FuncDefNode)
     def visit(self, node, tabs=0):
         params = ', '.join(f'{arg[0]}: {arg[1]}' for arg in node.args_list)
-        ans = '\t' * tabs + f'\\__FuncDeclarationNode: {node.identifier}({params}): {node.type_annotation} -> <expr>'
+        ans = '\t' * tabs + f'\\__FuncDefNode: {node.identifier}({params}): {node.type_annotation} -> <expr>'
         body = self.visit(node.body, tabs + 1)
         return f'{ans}\n{body}'
     
