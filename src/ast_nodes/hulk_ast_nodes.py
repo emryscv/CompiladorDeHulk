@@ -152,9 +152,10 @@ class NewInstanceNode(Node):
         self.expr = expr
 
 class ProtocolDefNode(Node):
-    def __init__(self, identifier, body):
+    def __init__(self, identifier, base_identifier, body):
         super().__init__()
         self.identifier = identifier
+        self.base_identifier = base_identifier
         self.body = body
 
 class WhileLoopNode(Node):

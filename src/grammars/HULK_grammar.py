@@ -14,7 +14,7 @@ var_def, elif_expr, boolean_expr, boolean_term = G.NonTerminals(
 type_def, type_body, type_body_stat, optional_args, optional_inherits, optional_inherits_args, let_in, type_annotation = G.NonTerminals(
     '<type-def> <type-body> <type-body-stat> <optional-args> <optional-inherits> <optional-inherits-args> <let-in> <type-annotation>')
 
-protocol_def, protocol_body, arg_def_list_protocol = G.NonTerminals('<protocol-def> <protocol-body> <arg_def_list_protocol>') 
+protocol_def, optional_extends, protocol_body, arg_def_list_protocol = G.NonTerminals('<protocol-def> <optional-extends> <protocol-body> <arg_def_list_protocol>') 
 
 sum, sub, mul, div, pow1, pow2, num, string_literal, id, opar, cpar, ocurl, ccurl, dot = G.Terminals(
     '+ - * / ^ ** num string id ( ) { } .')
@@ -24,8 +24,8 @@ if_token, elif_token, else_token, and_token, or_token = G.Terminals(
     'if elif else & |')
 lower, greater, lower_equal, greater_equal, equal, diferent = G.Terminals(
     '< > <= >= == !=')
-true, false, while_token, for_token, type_token, inherits, new, protocol = G.Terminals(
-    'true false while for type inherits new protocol')
+true, false, while_token, for_token, type_token, inherits, new, protocol, extends = G.Terminals(
+    'true false while for type inherits new protocol extends')
                           
 program %= definition_list + expr + semicolon, lambda h, s: ProgramNode(s[1], s[2])
 definition_list %= definition_list + definition, lambda h, s: s[1] + [s[2]]
@@ -153,7 +153,10 @@ type_annotation %= G.Epsilon, lambda h, s: None # esto hace falta?
 
 ###protocols###
 
-protocol_def %= protocol + id + ocurl + protocol_body + ccurl, lambda h, s: ProtocolDefNode(s[2], s[4])
+protocol_def %= protocol + id + optional_extends + ocurl + protocol_body + ccurl, lambda h, s: ProtocolDefNode(s[2], s[3], s[5])
+
+optional_extends %= extends + id, lambda h, s: s[2] 
+optional_extends %= G.Epsilon, lambda h, s: None
 
 protocol_body %= protocol_body + id + opar + arg_def_list_protocol + cpar + colon + id + semicolon, lambda h, s: s[1] + [FuncDecNode(s[2], s[4], s[6])]
 protocol_body %= G.Epsilon, lambda h, s: []
