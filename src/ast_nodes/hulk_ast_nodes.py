@@ -131,9 +131,9 @@ class DotNotationNode(Node):
         self.member = member
         
 class ProgramNode(Node):
-    def __init__(self, declarations, mainExpression):
+    def __init__(self, definitions, mainExpression):
         super().__init__()
-        self.declarations = declarations
+        self.definitions = definitions
         self.mainExpression = mainExpression
 
 class TypeDefNode(Node):
@@ -178,35 +178,3 @@ class ForLoopNode(LetInNode):
          whileLoop = WhileLoopNode(condition, LetInNode([VarDefNode(var, DotNotationNode(iter, FuncCallNode("current", [])))], body))
          
          super().__init__([iter], whileLoop)
-
-
-
-def get_printer(AtomicNode=AtomicNode, BinaryNode=BinaryOperationNode, FuncCallNode=FuncCallNode):
-
-    class PrintVisitor(object):
-        @visitor.on('node')
-        def visit(self, node, tabs):
-            pass
-
-        @visitor.when(BinaryNode)
-        def visit(self, node, tabs=0):
-            ans = '\t' * tabs + f'\\__<expr> {node.__class__.__name__}  {node.operator} <expr>'
-            left = self.visit(node.left, tabs + 1)
-            right = self.visit(node.right, tabs + 1)
-            return f'{ans}\n{left}\n{right}'
-
-        @visitor.when(AtomicNode)
-        def visit(self, node, tabs=0):
-                
-            return '\t' * tabs + f'\\__ {node.__class__.__name__}: {node.lex}'
-
-        
-        @visitor.when(FuncCallNode)
-        def visit(self, node, tabs=0):
-            arg = ""
-            for expr in node.arg_list:
-               arg += self.visit(expr, tabs+1) + f'\n {"\t" * (tabs+1)};\n'
-            return '\t' * tabs + f'\\__ {node.__class__.__name__}: {node.identifier} args: {{ \n   {arg}{"\t" * tabs}}}'
-
-    printer = PrintVisitor()
-    return (lambda ast: printer.visit(ast))

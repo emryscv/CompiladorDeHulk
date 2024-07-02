@@ -1,7 +1,3 @@
-type Perro{
-    nombre = "gato";
-}
-
 let y=5354634   in
     let x = y * 7 in
         print(x);
