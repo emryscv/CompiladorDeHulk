@@ -3,4 +3,4 @@ function test2(x, y){
     x + y;
 }
 
-print(text(5, 5));
+print(text(5, 5) + test2(4, 5));
