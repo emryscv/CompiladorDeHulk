@@ -9,6 +9,7 @@ type Perro inherits Animal{
 
 function test2(x, y){
     x + y;
+    x - y;
 }
 
 type Point(x, y) {
