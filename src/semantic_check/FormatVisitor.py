@@ -10,7 +10,7 @@ class FormatVisitor(object):
     def visit(self, node, tabs=0):
         ans = '\t' * tabs + f'\\__ProgramNode [<definition>; ... <definition>;] expr;'
         statements = '\n'.join(self.visit(definition, tabs + 1) for definition in node.definitions)
-        return f'{ans}\n{statements}\n{self.visit(node.mainExpression, tabs + 1)}'
+        return f'{ans}{"\n" + statements if statements else ""}\n{self.visit(node.mainExpression, tabs + 1)}'
     
     @visitor.when(TypeDefNode)
     def visit(self, node, tabs=0):
@@ -19,7 +19,15 @@ class FormatVisitor(object):
         
         inheritance = f' inherits {node.base_identifier} {"(\n" + base_params + "\n" + "\t" * tabs + ")" if base_params else ""}' if node.base_identifier else ""
         
-        ans = '\t' * tabs + f'\\__Type: {node.identifier}{"(" + params + ")" if params else ""}{inheritance} {"{ <stat>; ... ;<stat>; }"}'
+        ans = '\t' * tabs + f'\\__TypeDefNode: {node.identifier}{"(" + params + ")" if params else ""}{inheritance} {"{ <stat>; ... ;<stat>; }"}'
+        body = '\n'.join(f'{self.visit(stat, tabs + 1)}' for stat in node.body)
+        return f'{ans}\n{body}'
+    
+    @visitor.when(ProtocolDefNode)
+    def visit(self, node, tabs=0):
+        inheritance = f' extends {node.base_identifier}' if node.base_identifier else ""
+        
+        ans = '\t' * tabs + f'\\__ProtocolDefNode: {node.identifier} {inheritance} {"{ <func-dec>; ... <func-dec>; }"}'
         body = '\n'.join(f'{self.visit(stat, tabs + 1)}' for stat in node.body)
         return f'{ans}\n{body}'
     

@@ -28,6 +28,8 @@ true, false, while_token, for_token, type_token, inherits, new, protocol, extend
     'true false while for type inherits new protocol extends')
                           
 program %= definition_list + expr + semicolon, lambda h, s: ProgramNode(s[1], s[2])
+program %= definition_list + ocurl + expr_list + ccurl + optional_semicolon, lambda h, s: ProgramNode(s[1], BlockExprNode(s[3]))
+
 definition_list %= definition_list + definition, lambda h, s: s[1] + [s[2]]
 definition_list %= G.Epsilon, lambda h, s: []
 
