@@ -5,8 +5,8 @@ G = Grammar()
 
 program = G.NonTerminal('<program>', startSymbol=True)
 
-definition_list, definition, arithmetic_expr, expr, expr_or_block, expr_list, stringify, term, factor, atom, func_call, arguments, arg_list, dot_notation_expr = G.NonTerminals(
-    '<definition-list> <definition> <arithmetic-expr> <expr> <expr-or-block> <expr-list> <stringify> <term> <factor> <atom> <func-call> <arguments> <arg-list> <dot-notation-expr>')
+definition_list, definition, arithmetic_expr, expr, expr_or_block, expr_list, stringify, term, factor, atom, func_call, arguments, arg_list, dot_notation_expr, optional_semicolon= G.NonTerminals(
+    '<definition-list> <definition> <arithmetic-expr> <expr> <expr-or-block> <expr-list> <stringify> <term> <factor> <atom> <func-call> <arguments> <arg-list> <dot-notation-expr> <optional-semicolon>')
 asign_simple, func_def, arg_def, arg_def_list, func_body = G.NonTerminals(
     '<asign-simple> <func-def> <arg_def? <arg-def-list> <func-body>')
 var_def, elif_expr, boolean_expr, boolean_term = G.NonTerminals(
@@ -14,7 +14,7 @@ var_def, elif_expr, boolean_expr, boolean_term = G.NonTerminals(
 type_def, type_body, type_body_stat, optional_args, optional_inherits, optional_inherits_args, let_in, type_annotation = G.NonTerminals(
     '<type-def> <type-body> <type-body-stat> <optional-args> <optional-inherits> <optional-inherits-args> <let-in> <type-annotation>')
 
-protocol_def, protocol_body, arg_def_list_protocol = G.NonTerminals('<protocol-def> <protocol-body> <arg_def_list_protocol>') 
+protocol_def, optional_extends, protocol_body, arg_def_list_protocol = G.NonTerminals('<protocol-def> <optional-extends> <protocol-body> <arg_def_list_protocol>') 
 
 sum, sub, mul, div, pow1, pow2, num, string_literal, id, opar, cpar, ocurl, ccurl, dot = G.Terminals(
     '+ - * / ^ ** num string id ( ) { } .')
@@ -24,8 +24,8 @@ if_token, elif_token, else_token, and_token, or_token = G.Terminals(
     'if elif else & |')
 lower, greater, lower_equal, greater_equal, equal, diferent = G.Terminals(
     '< > <= >= == !=')
-true, false, while_token, for_token, type_token, inherits, new, protocol = G.Terminals(
-    'true false while for type inherits new protocol')
+true, false, while_token, for_token, type_token, inherits, new, protocol, extends = G.Terminals(
+    'true false while for type inherits new protocol extends')
                           
 program %= definition_list + expr + semicolon, lambda h, s: ProgramNode(s[1], s[2])
 definition_list %= definition_list + definition, lambda h, s: s[1] + [s[2]]
@@ -89,7 +89,7 @@ arg_def_list %= arg_def_list + coma + id + type_annotation, lambda h , s: s[1] +
 arg_def_list %= id + type_annotation , lambda h ,s: [(s[1], s[2])]
 
 func_body %= arrow + expr + semicolon, lambda h ,s: s[2]
-func_body %= ocurl + expr_list + ccurl, lambda h, s: BlockExprNode(s[2])
+func_body %= ocurl + expr_list + ccurl + optional_semicolon, lambda h, s: BlockExprNode(s[2])
 
 ###variables###
 
@@ -140,10 +140,11 @@ optional_inherits %= G.Epsilon, lambda h, s: ("", [])
 optional_inherits_args %= opar + arg_list + cpar, lambda h, s: s[2]
 optional_inherits_args %= G.Epsilon, lambda h, s: []
 
-type_body %= type_body + type_body_stat + semicolon, lambda h , s: s[1] + [s[3]]
-type_body %= type_body_stat + semicolon, lambda h , s: [s[1]]
+type_body %= type_body + type_body_stat, lambda h , s: s[1] + [s[2]]
+type_body %= type_body_stat, lambda h , s: [s[1]]
 
-type_body_stat %= id + type_annotation + asign_equal + expr_or_block, lambda h, s: VarDefNode(s[1], s[2], s[4]) 
+type_body_stat %= id + type_annotation + asign_equal + expr + semicolon, lambda h, s: VarDefNode(s[1], s[2], s[4]) 
+type_body_stat %= id + type_annotation + asign_equal + ocurl + expr_list + ccurl + optional_semicolon, lambda h, s: VarDefNode(s[1], s[2], s[5])
 type_body_stat %= id + opar + arg_def + cpar + type_annotation + func_body, lambda h, s: FuncDefNode(s[1], s[3], s[5], s[6])
 
 expr %= new + id + opar + arg_list + cpar, lambda h, s: NewInstanceNode(s[2], s[4])
@@ -153,10 +154,16 @@ type_annotation %= G.Epsilon, lambda h, s: None # esto hace falta?
 
 ###protocols###
 
-protocol_def %= protocol + id + ocurl + protocol_body + ccurl, lambda h, s: ProtocolDefNode(s[2], s[4])
+protocol_def %= protocol + id + optional_extends + ocurl + protocol_body + ccurl, lambda h, s: ProtocolDefNode(s[2], s[3], s[5])
+
+optional_extends %= extends + id, lambda h, s: s[2] 
+optional_extends %= G.Epsilon, lambda h, s: None
 
 protocol_body %= protocol_body + id + opar + arg_def_list_protocol + cpar + colon + id + semicolon, lambda h, s: s[1] + [FuncDecNode(s[2], s[4], s[6])]
 protocol_body %= G.Epsilon, lambda h, s: []
 
 arg_def_list_protocol %= arg_def_list_protocol + coma + id + colon + id, lambda h , s: s[1] + [(s[3], s[5])]
 arg_def_list_protocol %= id + colon + id, lambda h , s: [(s[1], s[3])]
+
+optional_semicolon %= optional_semicolon, None
+optional_semicolon %= G.Epsilon, None
