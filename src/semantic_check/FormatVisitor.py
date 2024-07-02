@@ -12,7 +12,7 @@ class FormatVisitor(object):
         statements = '\n'.join(self.visit(definition, tabs + 1) for definition in node.definitions)
         return f'{ans}\n{statements}\n{self.visit(node.mainExpression, tabs + 1)}'
     
-    @visitor.when(FuncDecNode)
+    @visitor.when(FuncDefNode)
     def visit(self, node, tabs=0):
         params = ', '.join(f'{arg[0]}: {arg[1]}' for arg in node.args_list)
         ans = '\t' * tabs + f'\\__FuncDeclarationNode: {node.identifier}({params}): {node.type_annotation} -> <expr>'
