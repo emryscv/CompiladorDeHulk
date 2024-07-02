@@ -9,6 +9,7 @@ from parser.LR1Parser import LR1Parser
 from parser.SRParser import ShiftReduceParser
 from utils.error_manager import *
 from parser.parsing_utils import evaluate_reverse_parse
+from semantic_check.FormatVisitor import FormatVisitor
 
 def main(code_path):
     if not Path(code_path).suffix == ".hulk":
@@ -31,6 +32,9 @@ def main(code_path):
 
     ast = evaluate_reverse_parse(derivation, operations, tokens)
 
+    formatter = FormatVisitor()
+    print(formatter.visit(ast))
+    
 if __name__ == "__main__":
     if not len(sys.argv) == 2:
         error = Argument_is_required()
