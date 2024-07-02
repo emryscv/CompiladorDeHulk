@@ -1,0 +1,6 @@
+function test(x, y) => x + y;
+function test2(x, y){
+    x + y;
+}
+
+print(text(5, 5));
