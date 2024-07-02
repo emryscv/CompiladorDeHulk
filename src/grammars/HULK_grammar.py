@@ -144,7 +144,7 @@ type_body %= type_body + type_body_stat + semicolon, lambda h , s: s[1] + [s[3]]
 type_body %= type_body_stat + semicolon, lambda h , s: [s[1]]
 
 type_body_stat %= id + type_annotation + asign_equal + expr_or_block, lambda h, s: VarDefNode(s[1], s[2], s[4]) 
-type_body_stat %= id + opar + arg_def_list + cpar + type_annotation + func_body, lambda h, s: FuncDefNode(s[1], s[3], s[5], s[6])
+type_body_stat %= id + opar + arg_def + cpar + type_annotation + func_body, lambda h, s: FuncDefNode(s[1], s[3], s[5], s[6])
 
 expr %= new + id + opar + arg_list + cpar, lambda h, s: NewInstanceNode(s[2], s[4])
 
