@@ -1,5 +1,5 @@
 type Perro{
-    nombre = "gato";
+    nombre = "ga|to";
 }
 
 let y=5354634   in
