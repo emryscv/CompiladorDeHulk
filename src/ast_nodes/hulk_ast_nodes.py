@@ -21,9 +21,11 @@ class TypeDefNode(DeclarationNode):
         self.base_optional_args = base_optional_args
         self.body = body
 
-class ProtocolDefNode(DeclarationNode):
-    def __init__(self, identifier, body):
-        super().__init__(identifier)
+class ProtocolDefNode(Node):
+    def __init__(self, identifier, base_identifier, body):
+        super().__init__()
+        self.identifier = identifier
+        self.base_identifier = base_identifier
         self.body = body
 
 class FuncDecNode(DeclarationNode):
@@ -95,43 +97,18 @@ class IfElseNode(ExpressionNode):
         self.body_List = body_List
         
     def validate(self, context):
-        return context.IsDefine(self.identifier) and self.expr.validate(context) 
-
-class DotNotationNode(Node):
-    def __init__(self, object, member):
-        super().__init__()
-        self.object = object
-        self.member = member
+        for boolExpr in self.boolExpr_List:
+            if not boolExpr.validate(context):
+                return False
         
-class ProgramNode(Node):
-    def __init__(self, definitions, mainExpression):
-        super().__init__()
-        self.definitions = definitions
-        self.mainExpression = mainExpression
+        for body in self.body_List:
+            innerContext = context.CreateChildContext()
+            if not body.validate(innerContext):
+                return False
+        
+        return True
 
-class TypeDefNode(Node):
-    def __init__(self, identifier, optional_args, base_identifier, base_optional_args, body):
-        super().__init__()
-        self.identifier = identifier
-        self.optional_args = optional_args
-        self.base_identifier = base_identifier
-        self.base_optional_args = base_optional_args
-        self.body = body
-    
-class NewInstanceNode(Node):
-    def __init__(self, identifier, expr):
-        super().__init__()
-        self.identifier = identifier
-        self.expr = expr
-
-class ProtocolDefNode(Node):
-    def __init__(self, identifier, base_identifier, body):
-        super().__init__()
-        self.identifier = identifier
-        self.base_identifier = base_identifier
-        self.body = body
-
-class WhileLoopNode(Node):
+class WhileLoopNode(ExpressionNode):
     def __init__(self, condition, body):
         self.condition = condition
         self.body = body
