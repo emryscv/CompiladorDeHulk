@@ -3,7 +3,6 @@ from Type import Type
 class Context:
     def __init__(self):
         self.types = {}
-        self.functions = {}
 
     def create_type(self, name:str):
         if name in self.types:

@@ -28,11 +28,3 @@ class TypeCollector(object):
         for definition in node.definitions:
             self.visit(definition)
         return self.context
-    
-    @visitor.when(FuncDefNode)
-    def visit(self, node):
-        self.context = Context()
-        for definition in node.definitions:
-            self.visit(definition)
-        return self.context
-    
