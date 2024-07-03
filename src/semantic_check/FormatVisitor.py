@@ -111,3 +111,9 @@ class FormatVisitor(object):
     def visit(self, node, tabs=0):
         return '\t' * tabs + f'\\__{node.__class__.__name__}: {node.lex}'
     
+    @visitor.when(NewInstanceNode)
+    def visit(self, node, tabs=0):
+        ans = '\t' * tabs + f'\\__NewInstanceNode: {node.identifier}(<expr>, ..., <expr>)'
+        args = '\n'.join(self.visit(expr, tabs + 1) for expr in node.expr_list)
+        
+        return f'{ans}{"\n" + args if args else ""}'

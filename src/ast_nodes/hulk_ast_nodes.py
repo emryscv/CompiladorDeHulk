@@ -184,8 +184,8 @@ class VariableNode(AtomicNode):
     def validate(self, context):
         return context.IsDefine(self.lex)
 
-class NewInstanceNode(ExpressionNode): #TODO ver si es function call
-    def __init__(self, identifier, expr): #TODO expr es una lista de argumentos
+class NewInstanceNode(ExpressionNode):
+    def __init__(self, identifier, expr_list): #TODO expr es una lista de argumentos
         super().__init__()
         self.identifier = identifier
-        self.expr = expr
+        self.expr_list = expr_list

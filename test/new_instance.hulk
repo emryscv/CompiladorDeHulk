@@ -1,0 +1,9 @@
+type Animal(name) {
+    name = name;
+    MakeSomeNoise() => x;
+}
+type Perro inherits Animal{
+    test() => x - y;
+}
+
+let scooby: Animal = new Perro(1) in scooby.MakeSomeNoise();
