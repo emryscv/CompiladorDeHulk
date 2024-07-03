@@ -71,6 +71,12 @@ class FormatVisitor(object):
         body = self.visit(node.body, tabs + 1)
         return f'{ans}\n{condition}\n{body}'
     
+    @visitor.when(VarReAsignNode)
+    def visit(self, node, tabs=0):
+        ans = '\t' * tabs + f'\\__VarReAsignNode: {node.identifier} := <expr>'
+        expr = self.visit(node.expr, tabs + 1)
+        return f'{ans}\n{expr}'
+    
     @visitor.when(FuncCallNode)
     def visit(self, node, tabs=0):
         ans = '\t' * tabs + f'\\__FuncCallNode: {node.identifier}(<expr>, ..., <expr>)'
