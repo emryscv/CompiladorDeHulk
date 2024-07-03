@@ -105,9 +105,9 @@ var_def %= id + type_annotation + asign_equal + expr_or_block, lambda h , s: [Va
 
 ### if - else ###
 
-expr %= if_token + opar + boolean_expr + cpar + expr_or_block + elif_expr + else_token + expr_or_block, lambda h, s: IfElseNode([s[3]] + s[6][0], [s[5]] + s[6][1] + s[8])
+expr %= if_token + opar + boolean_expr + cpar + expr_or_block + elif_expr + else_token + expr_or_block, lambda h, s: IfElseNode([s[3]] + s[6][0], [s[5]] + s[6][1] + [s[8]])
 
-elif_expr %= elif_expr + elif_token + opar + boolean_expr + cpar + expr_or_block, lambda h, s: (s[6][0] + [s[3]], s[6][1] + [s[5]])
+elif_expr %= elif_expr + elif_token + opar + boolean_expr + cpar + expr_or_block, lambda h, s: (s[1][0] + [s[4]], s[1][1] + [s[6]])
 elif_expr %= G.Epsilon, lambda h, s: ([], [])
 
 expr %= boolean_expr, lambda h, s: s[1]

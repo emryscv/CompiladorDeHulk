@@ -64,12 +64,28 @@ class FormatVisitor(object):
         expr = self.visit(node.expr, tabs + 1)
         return f'{ans}\n{expr}'
     
+    @visitor.when(IfElseNode)
+    def visit(self, node, tabs=0):
+        ans = '\t' * tabs + f'\\__IfElseNode: if(<boolean-expr>){"{<expr>}"} elif(<boolean-expr>){"{<expr>}"} ... else{"{<expr>}"}'
+        
+        conditions = '\n'.join(self.visit(expr, tabs + 1) for expr in node.boolExpr_List)
+        bodies = '\n'.join(self.visit(expr, tabs + 1) for expr in node.body_List)
+        
+        return f'{ans}\n{"\t" * (tabs + 1)}Conditions:\n{conditions}\n{"\t" * (tabs + 1)}Expressions:\n{bodies}'
+    
     @visitor.when(WhileLoopNode)
     def visit(self, node, tabs=0):
         ans = '\t' * tabs + f'\\__WhileLoopNode: while (<boolean-expr>) -> <expr>'
         condition = self.visit(node.condition, tabs + 1)
         body = self.visit(node.body, tabs + 1)
         return f'{ans}\n{condition}\n{body}'
+    
+    @visitor.when(BinaryOperationNode)
+    def visit(self, node, tabs=0):
+        ans = '\t' * tabs + f'\\__{node.__class__.__name__}: <expr> {node.operator} <expr>'
+        left = self.visit(node.left, tabs + 1)
+        right = self.visit(node.right, tabs + 1)
+        return f'{ans}\n{left}\n{right}'
     
     @visitor.when(VarReAsignNode)
     def visit(self, node, tabs=0):
@@ -83,13 +99,6 @@ class FormatVisitor(object):
         object = self.visit(node.object, tabs + 1)
         member = self.visit(node.member, tabs + 1)
         return f'{ans}\n{object}\n{member}'
-    
-    @visitor.when(BinaryOperationNode)
-    def visit(self, node, tabs=0):
-        ans = '\t' * tabs + f'\\__{node.__class__.__name__}: <expr> {node.operator} <expr>'
-        left = self.visit(node.left, tabs + 1)
-        right = self.visit(node.right, tabs + 1)
-        return f'{ans}\n{left}\n{right}'
     
     @visitor.when(FuncCallNode)
     def visit(self, node, tabs=0):

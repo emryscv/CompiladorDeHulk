@@ -92,7 +92,7 @@ class VarDefNode(DeclarationNode):
 class IfElseNode(ExpressionNode):
     def __init__(self, boolExpr_List, body_List):
         super().__init__()
-        self.boolExpr_lsit = boolExpr_List
+        self.boolExpr_List = boolExpr_List
         self.body_List = body_List
         
     def validate(self, context):
