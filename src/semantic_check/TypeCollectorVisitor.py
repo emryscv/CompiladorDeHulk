@@ -20,10 +20,7 @@ class TypeCollector(object):
 
     @visitor.when(TypeDefNode)
     def visit(self, node):
-        self.context = Context()
-        for definition in node.definitions:
-            self.visit(definition)
-        return self.context
+        self.context.create_type(node.identifier)
     
     @visitor.when(ProtocolDefNode)
     def visit(self, node):
