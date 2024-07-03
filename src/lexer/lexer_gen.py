@@ -36,7 +36,6 @@ class Lexer:
 
         for symbol in string:
             lex += symbol
-            print(symbol)
             try:
                 state = state.get(symbol)
                 if state.final:
@@ -56,7 +55,6 @@ class Lexer:
                 column = 0
 
             final_state, lex = self._walk(text)
-            print(text)
             if len(lex) == 0:
                 errors.append(TokenNotRecognized(text[0], row, column))
                 text = text[1:]

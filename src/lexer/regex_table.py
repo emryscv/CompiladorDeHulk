@@ -1,8 +1,8 @@
 import string
 from  grammars.HULK_grammar import *
 
-regex_grammar_characters = ['"', '|', '*', '(', ')']
-regex_grammar_characters_scapes = '\\"|\\||\\*|\\(|\\)'
+regex_grammar_characters = ['"', '|', '*', '(', ')', '\\']
+regex_grammar_characters_scapes = '\\\"|\\||\\*|\\(|\\)'
 
 nonzero_digits = '|'.join(str(n) for n in range(1, 10))
 digits = '|'.join(str(n) for n in range(10))
@@ -11,10 +11,9 @@ upper_letters = '|'.join(chr(n) for n in range(ord('A'), ord('Z') + 1))
 all_characters = '|'.join(n for n in string.printable if not n in regex_grammar_characters)
 
 IDENTIFIER = f"({lower_letters}|{upper_letters}|_)({upper_letters}|{lower_letters}|{digits}|_)*"
-NUMBER = f'({nonzero_digits}|{digits})*'
+NUMBER = f'({nonzero_digits})({digits})*|({nonzero_digits})({digits})*.({digits})*|0.({digits})*|0'
 SPACE_CHARACTERS = f'( |\n|\t)'
 STRING = f'"({all_characters}|{regex_grammar_characters_scapes})*"'
-print(STRING)
 
 regex_table = [
     (let, 'let'),
@@ -32,9 +31,6 @@ regex_table = [
     (protocol, 'protocol'), 
     (extends, 'extends'), 
     (and_token, '&'), 
-    (num, NUMBER),
-    (id, IDENTIFIER),
-    (string_literal, STRING),
     (or_token, '\\|'),
     (sum, '+'), 
     (sub, '-'),
@@ -62,5 +58,8 @@ regex_table = [
     (equal, '=='), 
     (arrow, '=>'),  
     (semicolon, ';'),
+    (num, NUMBER),
+    (id, IDENTIFIER),
+    (string_literal, STRING),
     ('space', SPACE_CHARACTERS)
 ]

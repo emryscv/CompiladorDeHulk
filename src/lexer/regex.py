@@ -1,5 +1,5 @@
 from  grammars.regex_grammar import *
-from  parser.SLR1Parser import SLR1Parser
+from  parser.LR1Parser import LR1Parser
 from  parser.parsing_utils import evaluate_reverse_parse
 from  lexer.build_regex_automata import RegexAutomataBuilder
 from  utils.automata_utils import nfa_to_dfa, automata_minimization
@@ -14,7 +14,7 @@ fixed_tokens = {
 
 class Regex:
     def __init__(self, regex):
-        self.parser = SLR1Parser(G)
+        self.parser = LR1Parser(G)
         self.regex = regex
         self.dfa, self.errors = self.build_regex(self.regex)
 
@@ -28,8 +28,13 @@ class Regex:
             if c == '\\':
                 escape_caracter = True
             elif escape_caracter:
-                token.append(Token(c, symbol))
-                escape_caracter = False
+                if c == '"':
+                    tokens.append(Token('\\', symbol))
+                    tokens.append(Token('"', symbol))
+                    escape_caracter = False
+                else:
+                    token.append(Token(c, symbol))
+                    escape_caracter = False
             else:
                 try:
                     token.append(fixed_tokens[c])
