@@ -1,35 +1,21 @@
 class Context:
-    def __init__(self, parent = None) -> None:
-        self.parent = parent
-        self.variables = set()
-        self.functions = {}
-        
-    def IsDefine(self, variable):
-        return variable in self.variables or (self.parent != None and self.parent.IsDefine(variable))
-    
-    def IsDefine(self, function, args):
-        if function in self.functions:
-            if len(self.functions[function]) == args:
-                return (True, True)
-            else:
-                return (True, False)
-        elif self.parent != None:
-            return self.parent.IsDefine(function, args)
-        else:
-            return (False, False)
-        
-    def Define(self, variable):
-        size = len(self.variables)
-        self.variables.add(variable)
-        return size == len(self.variables)
-    
-    def Define(self, function, args):
-        if function in self.functions:
-            return False
-        
-        self.functions[function] = args
-        return True
+    def __init__(self):
+        self.types = {}
 
-    def CreateChildContext(self):
-        return Context(self)
-    
+    def create_type(self, name:str):
+        if name in self.types:
+            raise SemanticError(f'Type with the same name ({name}) already in context.')
+        typex = self.types[name] = Type(name)
+        return typex
+
+    def get_type(self, name:str):
+        try:
+            return self.types[name]
+        except KeyError:
+            raise SemanticError(f'Type "{name}" is not defined.')
+
+    def __str__(self):
+        return '{\n\t' + '\n\t'.join(y for x in self.types.values() for y in str(x).split('\n')) + '\n}'
+
+    def __repr__(self):
+        return str(self)
