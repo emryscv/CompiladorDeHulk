@@ -37,7 +37,7 @@ definition %= type_def, lambda h, s: s[1]
 definition %= func_def, lambda h, s: s[1]
 definition %= protocol_def, lambda h, s: s[1]
 
-###expressionS###
+###expressions###
 
 expr_or_block %= ocurl + expr_list + ccurl, lambda h, s: BlockExprNode(s[2])
 expr_or_block %= expr, lambda h, s: s[1]
@@ -116,12 +116,12 @@ boolean_expr %= boolean_expr + and_token + boolean_term, lambda h, s: BooleanExp
 boolean_expr %= boolean_expr + or_token + boolean_term, lambda h, s: BooleanExprNode(s[1], s[3], s[2])
 boolean_expr %= boolean_term, lambda h, s: s[1]
 
-boolean_term %= boolean_term + lower + arithmetic_expr, lambda h, s: BinaryOperationNode(s[1], s[3], s[2])
-boolean_term %= boolean_term + greater + arithmetic_expr, lambda h, s: BinaryOperationNode(s[1], s[3], s[2])
-boolean_term %= boolean_term + lower_equal + arithmetic_expr, lambda h, s: BinaryOperationNode(s[1], s[3], s[2])
-boolean_term %= boolean_term + greater_equal + arithmetic_expr, lambda h, s: BinaryOperationNode(s[1], s[3], s[2])
-boolean_term %= boolean_term + equal + arithmetic_expr, lambda h, s: BinaryOperationNode(s[1], s[3], s[2])
-boolean_term %= boolean_term + diferent + arithmetic_expr, lambda h, s: BinaryOperationNode(s[1], s[3], s[2])
+boolean_term %= boolean_term + lower + arithmetic_expr, lambda h, s: BooleanExprNode(s[1], s[3], s[2])
+boolean_term %= boolean_term + greater + arithmetic_expr, lambda h, s: BooleanExprNode(s[1], s[3], s[2])
+boolean_term %= boolean_term + lower_equal + arithmetic_expr, lambda h, s: BooleanExprNode(s[1], s[3], s[2])
+boolean_term %= boolean_term + greater_equal + arithmetic_expr, lambda h, s: BooleanExprNode(s[1], s[3], s[2])
+boolean_term %= boolean_term + equal + arithmetic_expr, lambda h, s: BooleanExprNode(s[1], s[3], s[2])
+boolean_term %= boolean_term + diferent + arithmetic_expr, lambda h, s: BooleanExprNode(s[1], s[3], s[2])
 boolean_term %= true, lambda h, s: ConstantNode(s[1])
 boolean_term %= false, lambda h, s: ConstantNode(s[1])
 boolean_term %= arithmetic_expr, lambda h, s: s[1]

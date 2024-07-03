@@ -122,9 +122,9 @@ class WhileLoopNode(ExpressionNode):
 
 class ForLoopNode(LetInNode):
      def __init__(self, var, iterable, body):
-         iter = VarDefNode("iterable", iterable)
+         iter = VarDefNode("iterable", "Iterable", iterable)
          condition = DotNotationNode(iter, FuncCallNode("next", []))
-         whileLoop = WhileLoopNode(condition, LetInNode([VarDefNode(var, DotNotationNode(iter, FuncCallNode("current", [])))], body))
+         whileLoop = WhileLoopNode(condition, LetInNode([VarDefNode(var, "", DotNotationNode(VariableNode("iterable"), FuncCallNode("current", [])))], body))
          
          super().__init__([iter], whileLoop)
          

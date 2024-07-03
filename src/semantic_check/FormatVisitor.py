@@ -66,7 +66,7 @@ class FormatVisitor(object):
     
     @visitor.when(WhileLoopNode)
     def visit(self, node, tabs=0):
-        ans = '\t' * tabs + f'\\__ WhileLoopNode: while (<boolean-expr>) -> <expr>'
+        ans = '\t' * tabs + f'\\__WhileLoopNode: while (<boolean-expr>) -> <expr>'
         condition = self.visit(node.condition, tabs + 1)
         body = self.visit(node.body, tabs + 1)
         return f'{ans}\n{condition}\n{body}'
@@ -77,21 +77,28 @@ class FormatVisitor(object):
         expr = self.visit(node.expr, tabs + 1)
         return f'{ans}\n{expr}'
     
+    @visitor.when(DotNotationNode)
+    def visit(self, node, tabs=0):
+        ans = '\t' * tabs + f'\\__DotNotationNode: <dot-notation-expr>.(id | <func-call>)'
+        object = self.visit(node.object, tabs + 1)
+        member = self.visit(node.member, tabs + 1)
+        return f'{ans}\n{object}\n{member}'
+    
+    @visitor.when(BinaryOperationNode)
+    def visit(self, node, tabs=0):
+        ans = '\t' * tabs + f'\\__{node.__class__.__name__}: <expr> {node.operator} <expr>'
+        left = self.visit(node.left, tabs + 1)
+        right = self.visit(node.right, tabs + 1)
+        return f'{ans}\n{left}\n{right}'
+    
     @visitor.when(FuncCallNode)
     def visit(self, node, tabs=0):
         ans = '\t' * tabs + f'\\__FuncCallNode: {node.identifier}(<expr>, ..., <expr>)'
         args = '\n'.join(self.visit(arg, tabs + 1) for arg in node.arg_list)
         
-        return f'{ans}\n{args}'
-
-    @visitor.when(BinaryOperationNode)
-    def visit(self, node, tabs=0):
-        ans = '\t' * tabs + f'\\__ {node.__class__.__name__}: <expr> {node.operator} <expr>'
-        left = self.visit(node.left, tabs + 1)
-        right = self.visit(node.right, tabs + 1)
-        return f'{ans}\n{left}\n{right}'
+        return f'{ans}{"\n" + args if args else ""}'
 
     @visitor.when(AtomicNode)
     def visit(self, node, tabs=0):
-        return '\t' * tabs + f'\\__ {node.__class__.__name__}: {node.lex}'
+        return '\t' * tabs + f'\\__{node.__class__.__name__}: {node.lex}'
     
