@@ -14,7 +14,7 @@ fixed_tokens = {
 
 class Regex:
     def __init__(self, regex):
-        self.parser = LR1Parser(G)
+        self.parser = LR1Parser(G, False)
         self.regex = regex
         self.dfa, self.errors = self.build_regex(self.regex)
 
@@ -47,7 +47,7 @@ class Regex:
                 errors.append(f"Invalid character {c} on column {i}")
 
         tokens.append(Token('$', G.EOF))
-        derivation, operations = self.parser([t.token_type for t in tokens])
+        derivation, operations = self.parser(tokens)
         ast = evaluate_reverse_parse(derivation, operations, tokens)
         evaluator = RegexAutomataBuilder()
 
