@@ -23,8 +23,7 @@ class TypeDefNode(DeclarationNode):
 
 class ProtocolDefNode(DeclarationNode):
     def __init__(self, identifier, base_identifier, body):
-        super().__init__()
-        self.identifier = identifier
+        super().__init__(identifier)
         self.base_identifier = base_identifier
         self.body = body
 
@@ -93,7 +92,7 @@ class VarDefNode(DeclarationNode):
 class IfElseNode(ExpressionNode):
     def __init__(self, boolExpr_List, body_List):
         super().__init__()
-        self.boolExpr_lsit = boolExpr_List
+        self.boolExpr_List = boolExpr_List
         self.body_List = body_List
         
     def validate(self, context):
@@ -123,9 +122,9 @@ class WhileLoopNode(ExpressionNode):
 
 class ForLoopNode(LetInNode):
      def __init__(self, var, iterable, body):
-         iter = VarDefNode("iterable", iterable)
+         iter = VarDefNode("iterable", "Iterable", iterable)
          condition = DotNotationNode(iter, FuncCallNode("next", []))
-         whileLoop = WhileLoopNode(condition, LetInNode([VarDefNode(var, DotNotationNode(iter, FuncCallNode("current", [])))], body))
+         whileLoop = WhileLoopNode(condition, LetInNode([VarDefNode(var, "", DotNotationNode(VariableNode("iterable"), FuncCallNode("current", [])))], body))
          
          super().__init__([iter], whileLoop)
          
@@ -185,8 +184,8 @@ class VariableNode(AtomicNode):
     def validate(self, context):
         return context.IsDefine(self.lex)
 
-class NewInstanceNode(ExpressionNode): #TODO ver si es function call
-    def __init__(self, identifier, expr): #TODO expr es una lista de argumentos
+class NewInstanceNode(ExpressionNode):
+    def __init__(self, identifier, expr_list): #TODO expr es una lista de argumentos
         super().__init__()
         self.identifier = identifier
-        self.expr = expr
+        self.expr_list = expr_list
