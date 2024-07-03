@@ -1,5 +1,11 @@
-from ast_nodes.ast_base_nodes import Node
 import utils.visitor as visitor
+
+class Node:
+    def evaluate(self):
+        raise NotImplementedError()
+
+    def validate(self, context):
+        raise NotImplementedError()
 
 class ProgramNode(Node):
     def __init__(self, definitions, mainExpression):
