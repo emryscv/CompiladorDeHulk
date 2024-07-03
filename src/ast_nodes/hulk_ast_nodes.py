@@ -173,17 +173,15 @@ class FuncCallNode(ExpressionNode):
         return False        
 
 class AtomicNode(ExpressionNode):
-    def __init__(self, lex):
+    def __init__(self, lex, type=None):
         self.lex = lex
+        self.type = type
         
 class ConstantNode(AtomicNode):
-    def __init__(self, lex, type):
-        super().__init__(lex)
-        self.type = type
+    pass
 
 class VariableNode(AtomicNode):
-    def validate(self, context):
-        return context.IsDefine(self.lex)
+    pass
 
 class NewInstanceNode(ExpressionNode):
     def __init__(self, identifier, expr_list): #TODO expr es una lista de argumentos
