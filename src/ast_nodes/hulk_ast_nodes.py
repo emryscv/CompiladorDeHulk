@@ -28,14 +28,14 @@ class ProtocolDefNode(DeclarationNode):
         self.body = body
 
 class FuncDecNode(DeclarationNode):
-    def __init__(self, identifier, args_list, type_annotation):
+    def __init__(self, identifier, args_list, type):
         super().__init__(identifier)
         self.args_list = args_list
-        self.type_annotation = type_annotation
+        self.type = type
         
 class FuncDefNode(FuncDecNode):
-    def __init__(self, identifier, args_list, type_annotation, body):
-        super().__init__(identifier, args_list, type_annotation)
+    def __init__(self, identifier, args_list, type, body):
+        super().__init__(identifier, args_list, type)
         self.body = body
 
     def validate(self, context):
@@ -80,9 +80,9 @@ class LetInNode(ExpressionNode):
         return self.body.validate(innerContext)
 
 class VarDefNode(DeclarationNode):
-    def __init__(self, identifier, type_annotation, expr):
+    def __init__(self, identifier, type, expr):
         super().__init__(identifier)     
-        self.type_annotation = type_annotation
+        self.type = type
         self.expr = expr
     
     def validate(self, context):
@@ -177,8 +177,9 @@ class AtomicNode(ExpressionNode):
         self.lex = lex
         
 class ConstantNode(AtomicNode):
-    def validate(self, context):
-        return True
+    def __init__(self, lex, type):
+        super().__init__(lex)
+        self.type = type
 
 class VariableNode(AtomicNode):
     def validate(self, context):

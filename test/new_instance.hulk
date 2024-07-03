@@ -1,9 +1,9 @@
 type Animal(name) {
     name = name;
-    MakeSomeNoise() => x;
+    MakeSomeNoise() => "My name is: " @ name;
 }
 type Perro inherits Animal{
-    test() => x - y;
+    MakeSomeNoise() => base.MakeSomeNoise() @ "Jau Jau";    
 }
 
-let scooby: Animal = new Perro(1) in scooby.MakeSomeNoise();
+let scooby: Animal = new Perro("Rex") in scooby.MakeSomeNoise();

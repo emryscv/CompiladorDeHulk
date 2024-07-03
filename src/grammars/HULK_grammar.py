@@ -55,6 +55,7 @@ arithmetic_expr %= stringify, lambda h, s: s[1]
 stringify %= stringify + sum + term, lambda h, s: BinaryOperationNode(s[1], s[3], s[2])
 stringify %= stringify + sub + term, lambda h, s: BinaryOperationNode(s[1], s[3], s[2])
 stringify %= term, lambda h, s: s[1]
+stringify %= string_literal, lambda h, s: ConstantNode(s[1], "String")
 
 term %= term + mul + factor, lambda h, s: BinaryOperationNode(s[1], s[3], s[2])
 term %= term + div + factor, lambda h, s: BinaryOperationNode(s[1], s[3], s[2])
@@ -64,8 +65,7 @@ factor %= atom + pow1 + factor, lambda h, s: BinaryOperationNode(s[1], s[3], s[2
 factor %= atom + pow2 + factor, lambda h, s: BinaryOperationNode(s[1], s[3], s[2])
 factor %= atom, lambda h, s: s[1]
 
-atom %= string_literal, lambda h, s: ConstantNode(s[1])
-atom %= num, lambda h, s: ConstantNode(s[1]) #TODO cambiar num por constante
+atom %= num, lambda h, s: ConstantNode(s[1], "Number") #TODO cambiar num por constante
 atom %= opar + expr_or_block + cpar, lambda h, s: s[2]
 atom %= dot_notation_expr,  lambda h, s: s[1]
 
@@ -122,8 +122,8 @@ boolean_term %= boolean_term + lower_equal + arithmetic_expr, lambda h, s: Boole
 boolean_term %= boolean_term + greater_equal + arithmetic_expr, lambda h, s: BooleanExprNode(s[1], s[3], s[2])
 boolean_term %= boolean_term + equal + arithmetic_expr, lambda h, s: BooleanExprNode(s[1], s[3], s[2])
 boolean_term %= boolean_term + diferent + arithmetic_expr, lambda h, s: BooleanExprNode(s[1], s[3], s[2])
-boolean_term %= true, lambda h, s: ConstantNode(s[1])
-boolean_term %= false, lambda h, s: ConstantNode(s[1])
+boolean_term %= true, lambda h, s: ConstantNode(s[1], "Boolean")
+boolean_term %= false, lambda h, s: ConstantNode(s[1], "Boolean")
 boolean_term %= arithmetic_expr, lambda h, s: s[1]
 
 ###loops###
