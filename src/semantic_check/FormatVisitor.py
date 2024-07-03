@@ -64,6 +64,13 @@ class FormatVisitor(object):
         expr = self.visit(node.expr, tabs + 1)
         return f'{ans}\n{expr}'
     
+    @visitor.when(WhileLoopNode)
+    def visit(self, node, tabs=0):
+        ans = '\t' * tabs + f'\\__ WhileLoopNode: while (<boolean-expr>) -> <expr>'
+        condition = self.visit(node.condition, tabs + 1)
+        body = self.visit(node.body, tabs + 1)
+        return f'{ans}\n{condition}\n{body}'
+    
     @visitor.when(FuncCallNode)
     def visit(self, node, tabs=0):
         ans = '\t' * tabs + f'\\__FuncCallNode: {node.identifier}(<expr>, ..., <expr>)'
