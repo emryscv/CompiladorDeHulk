@@ -14,7 +14,7 @@ var_def, elif_expr, boolean_expr, boolean_term = G.NonTerminals(
 type_def, type_body, type_body_stat, optional_args, optional_inherits, optional_inherits_args, let_in, type_annotation = G.NonTerminals(
     '<type-def> <type-body> <type-body-stat> <optional-args> <optional-inherits> <optional-inherits-args> <let-in> <type-annotation>')
 
-protocol_def, optional_extends, protocol_body, arg_def_list_protocol = G.NonTerminals('<protocol-def> <optional-extends> <protocol-body> <arg_def_list_protocol>') 
+protocol_def, optional_extends, protocol_body, arg_def_protocol, arg_def_list_protocol = G.NonTerminals('<protocol-def> <optional-extends> <protocol-body> <arg-def-protocol> <arg-def-list-protocol>') 
 
 sum, sub, mul, div, pow1, pow2, num, string_literal, id, opar, cpar, ocurl, ccurl, dot = G.Terminals(
     '+ - * / ^ ** num string id ( ) { } .')
@@ -36,6 +36,8 @@ definition_list %= G.Epsilon, lambda h, s: []
 definition %= type_def, lambda h, s: s[1]
 definition %= func_def, lambda h, s: s[1]
 definition %= protocol_def, lambda h, s: s[1]
+
+###expressions###
 
 expr_or_block %= ocurl + expr_list + ccurl, lambda h, s: BlockExprNode(s[2])
 expr_or_block %= expr, lambda h, s: s[1]
@@ -68,7 +70,7 @@ atom %= opar + expr_or_block + cpar, lambda h, s: s[2]
 atom %= dot_notation_expr,  lambda h, s: s[1]
 
 dot_notation_expr %= dot_notation_expr + dot + id, lambda h, s: DotNotationNode(s[1], VariableNode(s[3]))
-dot_notation_expr %= dot_notation_expr + dot + func_call, lambda h, s: DotNotationNode(s[1], FuncCallNode(s[3]))
+dot_notation_expr %= dot_notation_expr + dot + func_call, lambda h, s: DotNotationNode(s[1], s[3])
 dot_notation_expr %= id, lambda h, s: VariableNode(s[1])
 dot_notation_expr %= func_call, lambda h, s: s[1]
 
@@ -103,9 +105,9 @@ var_def %= id + type_annotation + asign_equal + expr_or_block, lambda h , s: [Va
 
 ### if - else ###
 
-expr %= if_token + opar + boolean_expr + cpar + expr_or_block + elif_expr + else_token + expr_or_block, lambda h, s: IfElseNode([s[3]] + s[6][0], [s[5]] + s[6][1] + s[8])
+expr %= if_token + opar + boolean_expr + cpar + expr_or_block + elif_expr + else_token + expr_or_block, lambda h, s: IfElseNode([s[3]] + s[6][0], [s[5]] + s[6][1] + [s[8]])
 
-elif_expr %= elif_expr + elif_token + opar + boolean_expr + cpar + expr_or_block, lambda h, s: (s[6][0] + [s[3]], s[6][1] + [s[5]])
+elif_expr %= elif_expr + elif_token + opar + boolean_expr + cpar + expr_or_block, lambda h, s: (s[1][0] + [s[4]], s[1][1] + [s[6]])
 elif_expr %= G.Epsilon, lambda h, s: ([], [])
 
 expr %= boolean_expr, lambda h, s: s[1]
@@ -114,12 +116,12 @@ boolean_expr %= boolean_expr + and_token + boolean_term, lambda h, s: BooleanExp
 boolean_expr %= boolean_expr + or_token + boolean_term, lambda h, s: BooleanExprNode(s[1], s[3], s[2])
 boolean_expr %= boolean_term, lambda h, s: s[1]
 
-boolean_term %= boolean_term + lower + arithmetic_expr, lambda h, s: BinaryOperationNode(s[1], s[3], s[2])
-boolean_term %= boolean_term + greater + arithmetic_expr, lambda h, s: BinaryOperationNode(s[1], s[3], s[2])
-boolean_term %= boolean_term + lower_equal + arithmetic_expr, lambda h, s: BinaryOperationNode(s[1], s[3], s[2])
-boolean_term %= boolean_term + greater_equal + arithmetic_expr, lambda h, s: BinaryOperationNode(s[1], s[3], s[2])
-boolean_term %= boolean_term + equal + arithmetic_expr, lambda h, s: BinaryOperationNode(s[1], s[3], s[2])
-boolean_term %= boolean_term + diferent + arithmetic_expr, lambda h, s: BinaryOperationNode(s[1], s[3], s[2])
+boolean_term %= boolean_term + lower + arithmetic_expr, lambda h, s: BooleanExprNode(s[1], s[3], s[2])
+boolean_term %= boolean_term + greater + arithmetic_expr, lambda h, s: BooleanExprNode(s[1], s[3], s[2])
+boolean_term %= boolean_term + lower_equal + arithmetic_expr, lambda h, s: BooleanExprNode(s[1], s[3], s[2])
+boolean_term %= boolean_term + greater_equal + arithmetic_expr, lambda h, s: BooleanExprNode(s[1], s[3], s[2])
+boolean_term %= boolean_term + equal + arithmetic_expr, lambda h, s: BooleanExprNode(s[1], s[3], s[2])
+boolean_term %= boolean_term + diferent + arithmetic_expr, lambda h, s: BooleanExprNode(s[1], s[3], s[2])
 boolean_term %= true, lambda h, s: ConstantNode(s[1])
 boolean_term %= false, lambda h, s: ConstantNode(s[1])
 boolean_term %= arithmetic_expr, lambda h, s: s[1]
@@ -149,7 +151,7 @@ type_body_stat %= id + type_annotation + asign_equal + expr + semicolon, lambda 
 type_body_stat %= id + type_annotation + asign_equal + ocurl + expr_list + ccurl + optional_semicolon, lambda h, s: VarDefNode(s[1], s[2], s[5])
 type_body_stat %= id + opar + arg_def + cpar + type_annotation + func_body, lambda h, s: FuncDefNode(s[1], s[3], s[5], s[6])
 
-expr %= new + id + opar + arg_list + cpar, lambda h, s: NewInstanceNode(s[2], s[4])
+expr %= new + id + opar + arguments + cpar, lambda h, s: NewInstanceNode(s[2], s[4])
 
 type_annotation %= colon + id, lambda h, s: s[2]
 type_annotation %= G.Epsilon, lambda h, s: None # esto hace falta?
@@ -161,8 +163,11 @@ protocol_def %= protocol + id + optional_extends + ocurl + protocol_body + ccurl
 optional_extends %= extends + id, lambda h, s: s[2] 
 optional_extends %= G.Epsilon, lambda h, s: None
 
-protocol_body %= protocol_body + id + opar + arg_def_list_protocol + cpar + colon + id + semicolon, lambda h, s: s[1] + [FuncDecNode(s[2], s[4], s[6])]
+protocol_body %= protocol_body + id + opar + arg_def_protocol + cpar + colon + id + semicolon, lambda h, s: s[1] + [FuncDecNode(s[2], s[4], s[7])]
 protocol_body %= G.Epsilon, lambda h, s: []
+
+arg_def_protocol %= arg_def_list_protocol, lambda h, s: s[1]
+arg_def_protocol %= G.Epsilon, lambda h, s: []
 
 arg_def_list_protocol %= arg_def_list_protocol + coma + id + colon + id, lambda h , s: s[1] + [(s[3], s[5])]
 arg_def_list_protocol %= id + colon + id, lambda h , s: [(s[1], s[3])]
