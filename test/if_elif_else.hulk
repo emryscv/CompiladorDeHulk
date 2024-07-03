@@ -1,0 +1,19 @@
+let x = 5 in 
+if(x > 11) {
+    print(true);
+}
+else{
+    if(x > 11) {
+        print(true);
+    }
+    elif(x > 8){
+        print(1);
+    }
+    elif(x > 5){
+        print(2);
+    }
+    else{
+        print(false);
+    };  
+    print(false);
+};

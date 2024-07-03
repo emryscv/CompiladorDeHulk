@@ -3,7 +3,7 @@ class ShiftReduceParser:
     REDUCE = 'REDUCE'
     OK = 'OK'
 
-    def __init__(self, G, verbose=False):
+    def __init__(self, G, verbose=True):
         self.G = G
         self.verbose = verbose
         self.action = {}
@@ -41,6 +41,8 @@ class ShiftReduceParser:
                     stack.pop()
                 stack.append(self.goto[stack[-1], tag.Left])
                 output.append(tag)
+                print(output)
+                print(stack, '<---||--->', w[cursor:], output)
 
             elif action == ShiftReduceParser.OK:
                 return output, operations
