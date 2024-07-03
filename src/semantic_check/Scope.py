@@ -1,9 +1,10 @@
 from Function import Function
+from Variable import Variable
 
 class Scope:
     def __init__(self, parent = None) -> None:
         self.parent = parent
-        self.variables = set()
+        self.variables = {}
         self.functions = {}
         
     def IsDefine(self, vname):
@@ -20,10 +21,12 @@ class Scope:
         else:
             return (False, False)
         
-    def Define(self, vname):
-        size = len(self.variables)
-        self.variables.add(vname)
-        return size == len(self.variables)
+    def Define(self, vname, vtype=None):
+        if vname in self.variables:
+            return False
+        
+        self.variables[vname] = Variable(vname, vtype)
+        return True
     
     def Define(self, fname, params, return_type):
         if fname in self.functions:
