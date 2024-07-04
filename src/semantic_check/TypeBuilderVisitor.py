@@ -27,6 +27,9 @@ class TypeBuilder(object):
         type = self.context.get_type(node.identifier)
         type.parent = parent
         
+        for definition in node.body:
+            self.visit(definition, type)
+                
     @visitor.when(ProtocolDefNode)
     def visit(self, node):
         pass
@@ -35,7 +38,8 @@ class TypeBuilder(object):
     def visit(self, node):
         pass
     
-    @visitor.when(ProtocolDefNode)
-    def visit(self, node):
-        pass
+    @visitor.when(MethodDefNode)
+    def visit(self, node, type):
+        type
+        
     

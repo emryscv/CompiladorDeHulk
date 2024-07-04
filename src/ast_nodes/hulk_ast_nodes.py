@@ -49,6 +49,10 @@ class FuncDefNode(FuncDecNode):
             
         return self.body.validate(innerContext)
 
+class MethodDefNode(FuncDefNode):
+    def __init__(self, identifier, params_list, type, body):
+        super().__init__(identifier, params_list, type, body)
+
 ### expressions ###
 class ExpressionNode(Node):
     pass
