@@ -1,6 +1,6 @@
 import utils.visitor as visitor
 from  ast_nodes.hulk_ast_nodes import *
-from semantic_check.Context import Context
+from semantic_check.context import Context
 from semantic_check.Scope import Scope
 
 class TypeBuilder(object):
