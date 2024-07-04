@@ -24,8 +24,7 @@ class Context:
         try:
             return self.types[name]
         except KeyError:
-              
-            return (f'Type "{name}" is not defined.') #arreglar esta historia
+            return (f'Type "{name}" is not defined.') #TODO arreglar esta historia
 
     def __str__(self):
         return '{\n\t' + '\n\t'.join(str(x) for x in self.types.values()) + '\n}'
