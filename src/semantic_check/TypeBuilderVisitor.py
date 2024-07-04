@@ -21,11 +21,11 @@ class TypeBuilder(object):
     @visitor.when(TypeDefNode)
     def visit(self, node):
         parent = self.context.get_type(node.base_identifier if node.base_identifier else "Object")
-        type = self.context.get_type(node.identifier)
-        type.parent = parent
+        self.current_type = self.context.get_type(node.identifier)
+        self.current_type.parent = parent
         
         for definition in node.body:
-            self.visit(definition, type)
+            self.visit(definition)
                 
     @visitor.when(ProtocolDefNode)
     def visit(self, node):
@@ -36,12 +36,12 @@ class TypeBuilder(object):
         pass
     
     @visitor.when(MethodDefNode)
-    def visit(self, node, type):
-        self.errors += type.define_method(node.identifier, node.params_list, node.return_type)
+    def visit(self, node):
+        self.errors += self.current_type.define_method(node.identifier, node.params_list, node.return_type)
      
     @visitor.when(VarDefNode)
-    def visit(self, node, type):
-        self.errors += type.define_attribute(node.identifier, node.type)
+    def visit(self, node):
+        self.errors += self.current_type.define_attribute(node.identifier, node.type)
     
         
     

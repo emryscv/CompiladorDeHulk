@@ -2,7 +2,17 @@ from semantic_check.utils.Type import Type
 
 class Context:
     def __init__(self):
-        self.types = {}
+        self.types = {
+            "Object" : Type("Object"), 
+            "String": Type("String"),
+            "Number": Type("Number"),
+            "Boolean": Type("Boolean"),
+            }
+        
+        object = self.get_type("Object")
+        self.get_type("String").parent = object
+        self.get_type("Number").parent = object
+        self.get_type("Boolean").parent = object
 
     def create_type(self, name:str):
         if name in self.types:

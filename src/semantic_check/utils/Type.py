@@ -25,6 +25,7 @@ class Type:
         return []
     
     def __str__(self):
-        return f'{self.name} inherits {self.parent.name} [\n{",\n".join(self.attributes)}\n] {self.methods}'
+        return f'{self.name}{(" inherits " + self.parent.name) if self.parent else ""} {self.attributes} {self.methods}'
+    
     def __rep__(self):
         return __str__()

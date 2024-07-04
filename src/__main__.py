@@ -47,10 +47,7 @@ def main(code_path):
     formatter = FormatVisitor()
     type_and_function_collector = TypeAndFunctionCollector(errors)
     print(formatter.visit(ast))
-    context, scope = type_and_function_collector.visit(ast)
-
-    print("context:", context)
-    
+    context, scope = type_and_function_collector.visit(ast)    
     type_builder = TypeBuilder(context, errors)
     type_builder.visit(ast)
             
