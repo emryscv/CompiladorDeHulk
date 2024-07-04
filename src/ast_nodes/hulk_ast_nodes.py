@@ -75,7 +75,7 @@ class BlockExprNode(ExpressionNode):
         return True
 
 class LetInNode(ExpressionNode):
-    def __init__(self,var_list, body):
+    def __init__(self, var_list, body):
         super().__init__()        
         self.var_list = var_list
         self.body = body
@@ -194,7 +194,7 @@ class VariableNode(AtomicNode):
     pass
 
 class NewInstanceNode(ExpressionNode):
-    def __init__(self, identifier, expr_list): #TODO expr es una lista de argumentos
+    def __init__(self, identifier, expr_list):
         super().__init__()
         self.identifier = identifier
         self.expr_list = expr_list

@@ -12,6 +12,7 @@ from parser.parsing_utils import evaluate_reverse_parse
 from semantic_check.FormatVisitor import FormatVisitor 
 from semantic_check.TypeAndFunctionCollectorVisitor import TypeAndFunctionCollector
 from semantic_check.TypeBuilderVisitor import TypeBuilder
+from semantic_check.SemeanticCheckerVisitor import SemeanticChecker
 
 def main(code_path):
     if not Path(code_path).suffix == ".hulk":
@@ -44,13 +45,19 @@ def main(code_path):
         
     ast = evaluate_reverse_parse(derivation, operations_or_error, tokens)
 
-    errors = []
     formatter = FormatVisitor()
-    type_and_function_collector = TypeAndFunctionCollector(errors)
     print(formatter.visit(ast))
+    
+    errors = []    
+    
+    type_and_function_collector = TypeAndFunctionCollector(errors)
     context, scope = type_and_function_collector.visit(ast)    
+    
     type_builder = TypeBuilder(context, errors)
     type_builder.visit(ast)
+    
+    semantic_checker = SemeanticChecker(errors, context)
+    semantic_checker.visit(ast, scope)
             
     print("context:", context)
     print("scope:", scope)
