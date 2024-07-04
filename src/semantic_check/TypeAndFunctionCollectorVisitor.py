@@ -17,8 +17,10 @@ class TypeAndFunctionCollector(object):
     def visit(self, node):
         self.context = Context()
         self.scope = Scope()
+        
         for definition in node.definitions:
             self.visit(definition)
+        
         return self.context, self.scope
 
     @visitor.when(TypeDefNode)
@@ -32,3 +34,4 @@ class TypeAndFunctionCollector(object):
     @visitor.when(FuncDefNode)
     def visit(self, node):
         self.errors += self.scope.define(node.identifier, node.params_list, node.return_type)
+        

@@ -6,3 +6,6 @@ class Function:
         
     def __str__(self):
         return f'{self.name}({self.params}) -> {self.return_type}'
+    
+    def __repr__(self) -> str:
+        return self.__str__()
