@@ -5,7 +5,7 @@ class Scope:
     def __init__(self, parent = None):
         self.parent = parent
         self.variables = {}
-        self.functions = {}
+        self.functions = {"print": Function("print", [("string", "String")], "Object")}
         
     def is_defined(self, vname:str):
         return [] if vname in self.variables or (self.parent != None and self.parent.IsDefine(vname)) else [f'Variable "{vname}" is not defined.']
@@ -15,7 +15,7 @@ class Scope:
             if len(self.functions[fname].params) == args:
                 return []
             else:
-                return [f'Function ({fname}): {len(self.functions[fname].params)} expected but {args} were given.']
+                return [f'Function ({fname}): {len(self.functions[fname].params)} params expected but {args} were given.']
         elif self.parent != None:
             return self.parent.IsDefine(fname, args)
         else:
