@@ -35,12 +35,13 @@ def main(code_path):
     print(tokens)
     
     parser = LR1Parser(G, verbose=False)
-    derivation, operations = parser([token.token_type for token in tokens])
+    derivation, operations_or_error = parser(tokens)
 
     if not derivation:
+        print(operations_or_error)
         sys.exit(1) 
         
-    ast = evaluate_reverse_parse(derivation, operations, tokens)
+    ast = evaluate_reverse_parse(derivation, operations_or_error, tokens)
 
     errors = []
     formatter = FormatVisitor()

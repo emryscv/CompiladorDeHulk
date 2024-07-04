@@ -1,3 +1,5 @@
+from utils.error_manager import UnexspectedSequenceTokens
+
 class ShiftReduceParser:
     SHIFT = 'SHIFT'
     REDUCE = 'REDUCE'
@@ -13,22 +15,22 @@ class ShiftReduceParser:
     def _build_parsing_table(self):
         raise NotImplementedError()
 
-    def __call__(self, w):
+    def __call__(self, tokens):
+        w = [token.token_type for token in tokens]
         stack = [0]
         cursor = 0
         output = []
         operations = []
         while True:
             state = stack[-1]
-            lookahead = w[cursor]
+            lookahead = tokens[cursor]
             if self.verbose: print(stack, '<---||--->', w[cursor:], output)
 
-            if (state, lookahead) not in self.action:
-                print("Error")
-                print(state, lookahead)
-                return None, None
+            if (state, lookahead.token_type) not in self.action:
+                error = UnexspectedSequenceTokens(lookahead, tokens[cursor - 1])
+                return None, error
 
-            action, tag = self.action[state, lookahead]
+            action, tag = self.action[state, lookahead.token_type]
             
             if action == ShiftReduceParser.SHIFT:
                 operations.append(ShiftReduceParser.SHIFT)
