@@ -1,4 +1,4 @@
-from Type import Type
+from semantic_check.utils.Type import Type
 
 class Context:
     def __init__(self):
@@ -6,7 +6,7 @@ class Context:
 
     def create_type(self, name:str):
         if name in self.types:
-            return [(f'Type with the same name ({name}) already in context.')]   
+            return [f'Type with the same name ({name}) already in context.']   
         self.types[name] = Type(name)
         return []
         

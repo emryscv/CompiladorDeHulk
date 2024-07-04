@@ -28,14 +28,14 @@ class ProtocolDefNode(DeclarationNode):
         self.body = body
 
 class FuncDecNode(DeclarationNode):
-    def __init__(self, identifier, args_list, type):
+    def __init__(self, identifier, params_list, return_type):
         super().__init__(identifier)
-        self.args_list = args_list
-        self.type = type
+        self.params_list = params_list
+        self.return_type = return_type
         
 class FuncDefNode(FuncDecNode):
-    def __init__(self, identifier, args_list, type, body):
-        super().__init__(identifier, args_list, type)
+    def __init__(self, identifier, params_list, type, body):
+        super().__init__(identifier, params_list, type)
         self.body = body
 
     def validate(self, context):

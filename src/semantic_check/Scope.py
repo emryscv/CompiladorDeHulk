@@ -1,16 +1,16 @@
-from Function import Function
-from Variable import Variable
+from semantic_check.utils.Variable import Variable
+from semantic_check.utils.Function import Function
 
 class Scope:
-    def __init__(self, parent = None) -> None:
+    def __init__(self, parent = None):
         self.parent = parent
         self.variables = {}
         self.functions = {}
         
-    def IsDefine(self, vname):
+    def is_define(self, vname:str):
         return vname in self.variables or (self.parent != None and self.parent.IsDefine(vname))
     
-    def IsDefine(self, fname, args):
+    def is_define(self, fname:str, args):
         if fname in self.functions:
             if len(self.functions[fname]) == args:
                 return (True, True)
@@ -21,20 +21,25 @@ class Scope:
         else:
             return (False, False)
         
-    def Define(self, vname, vtype=None):
+    def define(self, vname:str, vtype=None):
         if vname in self.variables:
-            return False
+            return [f'Variable with the same name ({vname}) is already defined']
         
         self.variables[vname] = Variable(vname, vtype)
-        return True
+        return []
     
-    def Define(self, fname, params, return_type):
+    def define(self, fname, params, return_type):
         if fname in self.functions:
-            return False
+            return [f'Function with the same name ({fname}) is already defined']
         
         self.functions[fname] = Function(fname, params, return_type)
-        return True
+        return []
 
-    def CreateChildScope(self):
+    def create_child_scope(self):
         return Scope(self)
     
+    def __str__(self):
+        return '{\n\t' + '\n\t'.join(y for x in self.functions.values() for y in str(x).split('\n')) + '\n}'
+
+    def __repr__(self):
+        return str(self)

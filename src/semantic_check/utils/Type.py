@@ -4,3 +4,6 @@ class Type:
         self.attributes = []
         self.methods = []
         self.parent = None
+        
+    def __str__(self):
+        return f'{self.name} inherits {self.parent}'

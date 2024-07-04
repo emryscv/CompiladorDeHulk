@@ -33,14 +33,14 @@ class FormatVisitor(object):
     
     @visitor.when(FuncDecNode)
     def visit(self, node, tabs=0):
-        params = ', '.join(f'{arg[0]}: {arg[1]}' for arg in node.args_list)
-        ans = '\t' * tabs + f'\\__FuncDecNode: {node.identifier}({params}): {node.type}'
+        params = ', '.join(f'{arg[0]}: {arg[1]}' for arg in node.params_list)
+        ans = '\t' * tabs + f'\\__FuncDecNode: {node.identifier}({params}): {node.return_type}'
         return f'{ans}'
     
     @visitor.when(FuncDefNode)
     def visit(self, node, tabs=0):
-        params = ', '.join(f'{arg[0]}: {arg[1]}' for arg in node.args_list)
-        ans = '\t' * tabs + f'\\__FuncDefNode: {node.identifier}({params}): {node.type} -> <expr>'
+        params = ', '.join(f'{arg[0]}: {arg[1]}' for arg in node.params_list)
+        ans = '\t' * tabs + f'\\__FuncDefNode: {node.identifier}({params}): {node.return_type} -> <expr>'
         body = self.visit(node.body, tabs + 1)
         return f'{ans}\n{body}'
     
