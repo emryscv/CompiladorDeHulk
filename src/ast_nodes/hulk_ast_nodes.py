@@ -34,8 +34,8 @@ class FuncDecNode(DeclarationNode):
         self.return_type = return_type
         
 class FuncDefNode(FuncDecNode):
-    def __init__(self, identifier, params_list, type, body):
-        super().__init__(identifier, params_list, type)
+    def __init__(self, identifier, params_list, return_type, body):
+        super().__init__(identifier, params_list, return_type)
         self.body = body
 
     def validate(self, context):
@@ -50,8 +50,8 @@ class FuncDefNode(FuncDecNode):
         return self.body.validate(innerContext)
 
 class MethodDefNode(FuncDefNode):
-    def __init__(self, identifier, params_list, type, body):
-        super().__init__(identifier, params_list, type, body)
+    def __init__(self, identifier, params_list, return_type, body):
+        super().__init__(identifier, params_list, return_type, body)
 
 ### expressions ###
 class ExpressionNode(Node):

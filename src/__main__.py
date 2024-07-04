@@ -11,6 +11,7 @@ from utils.error_manager import *
 from parser.parsing_utils import evaluate_reverse_parse
 from semantic_check.FormatVisitor import FormatVisitor 
 from semantic_check.TypeAndFunctionCollectorVisitor import TypeAndFunctionCollector
+from semantic_check.TypeBuilderVisitor import TypeBuilder
 
 def main(code_path):
     if not Path(code_path).suffix == ".hulk":
@@ -47,6 +48,12 @@ def main(code_path):
     type_and_function_collector = TypeAndFunctionCollector(errors)
     print(formatter.visit(ast))
     context, scope = type_and_function_collector.visit(ast)
+
+    print("context:", context)
+    
+    type_builder = TypeBuilder(context, errors)
+    type_builder.visit(ast)
+            
     print("context:", context)
     print("scope:", scope)
     print("errors:", errors)

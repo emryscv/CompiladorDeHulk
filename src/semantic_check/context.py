@@ -14,10 +14,11 @@ class Context:
         try:
             return self.types[name]
         except KeyError:
+              
             return (f'Type "{name}" is not defined.') #arreglar esta historia
 
     def __str__(self):
-        return '{\n\t' + '\n\t'.join(y for x in self.types.values() for y in str(x).split('\n')) + '\n}'
+        return '{\n\t' + '\n\t'.join(str(x) for x in self.types.values()) + '\n}'
 
     def __repr__(self):
         return str(self)

@@ -15,11 +15,8 @@ class TypeBuilder(object):
     
     @visitor.when(ProgramNode)
     def visit(self, node):
-        self.context = Context()
-        self.scope = Scope()
         for definition in node.definitions:
             self.visit(definition)
-        return self.context, self.scope
 
     @visitor.when(TypeDefNode)
     def visit(self, node):
@@ -40,6 +37,11 @@ class TypeBuilder(object):
     
     @visitor.when(MethodDefNode)
     def visit(self, node, type):
-        type
+        self.errors += type.define_method(node.identifier, node.params_list, node.return_type)
+     
+    @visitor.when(VarDefNode)
+    def visit(self, node, type):
+        self.errors += type.define_attribute(node.identifier, node.type)
+    
         
     
