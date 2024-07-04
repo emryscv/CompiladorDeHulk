@@ -44,6 +44,13 @@ class FormatVisitor(object):
         body = self.visit(node.body, tabs + 1)
         return f'{ans}\n{body}'
     
+    @visitor.when(MethodDefNode)
+    def visit(self, node, tabs=0):
+        params = ', '.join(f'{arg[0]}: {arg[1]}' for arg in node.params_list)
+        ans = '\t' * tabs + f'\\__MethodDefNode: {node.identifier}({params}): {node.return_type} -> <expr>'
+        body = self.visit(node.body, tabs + 1)
+        return f'{ans}\n{body}'
+    
     @visitor.when(BlockExprNode)
     def visit(self, node, tabs=0):
         ans = '\t' * tabs + f'\\__BlockExprNode {"{<expr>; ... <expr>;}"}'
