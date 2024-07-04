@@ -33,14 +33,14 @@ class FormatVisitor(object):
     
     @visitor.when(FuncDecNode)
     def visit(self, node, tabs=0):
-        params = ', '.join(f'{arg[0]}: {arg[1]}' for arg in node.args_list)
-        ans = '\t' * tabs + f'\\__FuncDecNode: {node.identifier}({params}): {node.type_annotation}'
+        params = ', '.join(f'{arg[0]}: {arg[1]}' for arg in node.params_list)
+        ans = '\t' * tabs + f'\\__FuncDecNode: {node.identifier}({params}): {node.return_type}'
         return f'{ans}'
     
     @visitor.when(FuncDefNode)
     def visit(self, node, tabs=0):
-        params = ', '.join(f'{arg[0]}: {arg[1]}' for arg in node.args_list)
-        ans = '\t' * tabs + f'\\__FuncDefNode: {node.identifier}({params}): {node.type_annotation} -> <expr>'
+        params = ', '.join(f'{arg[0]}: {arg[1]}' for arg in node.params_list)
+        ans = '\t' * tabs + f'\\__FuncDefNode: {node.identifier}({params}): {node.return_type} -> <expr>'
         body = self.visit(node.body, tabs + 1)
         return f'{ans}\n{body}'
     
@@ -60,7 +60,7 @@ class FormatVisitor(object):
     
     @visitor.when(VarDefNode)
     def visit(self, node, tabs=0):
-        ans = '\t' * tabs + f'\\__VarDefNode: {node.identifier}: {node.type_annotation} = <expr>'
+        ans = '\t' * tabs + f'\\__VarDefNode: {node.identifier}: {node.type} = <expr>'
         expr = self.visit(node.expr, tabs + 1)
         return f'{ans}\n{expr}'
     
@@ -109,7 +109,7 @@ class FormatVisitor(object):
 
     @visitor.when(AtomicNode)
     def visit(self, node, tabs=0):
-        return '\t' * tabs + f'\\__{node.__class__.__name__}: {node.lex}'
+        return '\t' * tabs + f'\\__{node.__class__.__name__}: {node.lex}: {node.type}'
     
     @visitor.when(NewInstanceNode)
     def visit(self, node, tabs=0):

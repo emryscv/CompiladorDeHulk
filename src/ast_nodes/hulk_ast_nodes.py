@@ -28,14 +28,14 @@ class ProtocolDefNode(DeclarationNode):
         self.body = body
 
 class FuncDecNode(DeclarationNode):
-    def __init__(self, identifier, args_list, type_annotation):
+    def __init__(self, identifier, params_list, return_type):
         super().__init__(identifier)
-        self.args_list = args_list
-        self.type_annotation = type_annotation
+        self.params_list = params_list
+        self.return_type = return_type
         
 class FuncDefNode(FuncDecNode):
-    def __init__(self, identifier, args_list, type_annotation, body):
-        super().__init__(identifier, args_list, type_annotation)
+    def __init__(self, identifier, params_list, type, body):
+        super().__init__(identifier, params_list, type)
         self.body = body
 
     def validate(self, context):
@@ -80,9 +80,9 @@ class LetInNode(ExpressionNode):
         return self.body.validate(innerContext)
 
 class VarDefNode(DeclarationNode):
-    def __init__(self, identifier, type_annotation, expr):
+    def __init__(self, identifier, type, expr):
         super().__init__(identifier)     
-        self.type_annotation = type_annotation
+        self.type = type
         self.expr = expr
     
     def validate(self, context):
@@ -173,16 +173,15 @@ class FuncCallNode(ExpressionNode):
         return False        
 
 class AtomicNode(ExpressionNode):
-    def __init__(self, lex):
+    def __init__(self, lex, type=None):
         self.lex = lex
+        self.type = type
         
 class ConstantNode(AtomicNode):
-    def validate(self, context):
-        return True
+    pass
 
 class VariableNode(AtomicNode):
-    def validate(self, context):
-        return context.IsDefine(self.lex)
+    pass
 
 class NewInstanceNode(ExpressionNode):
     def __init__(self, identifier, expr_list): #TODO expr es una lista de argumentos
