@@ -21,11 +21,11 @@ class Scope:
         else:
             return [f'Function "{fname}" is not defined.']
         
-    def define_variable(self, vname:str, vtype=None, check=True):
+    def define_variable(self, vname:str, vtype=None, check=True, value=None):
         if check and vname in self.variables:
             return [f'Variable with the same name ({vname}) is already defined']
         
-        self.variables[vname] = Variable(vname, vtype)
+        self.variables[vname] = Variable(vname, vtype, value)
         return []
     
     def define_function(self, fname, params, return_type):
