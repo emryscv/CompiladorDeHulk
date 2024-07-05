@@ -13,8 +13,8 @@ function test2(x, y){
 }
 
 type Point(x, y) {
-    x = x;
-    y = y;
+    x: Number = x;
+    y: Number = y;
 }
 type PolarPoint(phi, rho) inherits Point(rho * sin(phi), rho * cos(phi)) {
     phi = phi;
