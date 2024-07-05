@@ -44,7 +44,7 @@ def main(code_path):
         print(operations_or_error)
         sys.exit(1) 
         
-    ast = evaluate_reverse_parse(derivation, operations_or_error, tokens)
+    ast = evaluate_reverse_parse(derivation, operations_or_error, tokens, true)
 
     formatter = FormatVisitor()
     print(formatter.visit(ast))
