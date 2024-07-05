@@ -90,9 +90,9 @@ class LetInNode(ExpressionNode):
         return self.body.validate(innerContext)
 
 class VarDefNode(DeclarationNode):
-    def __init__(self, identifier, type, expr):
+    def __init__(self, identifier, vtype, expr):
         super().__init__(identifier)     
-        self.type = type
+        self.vtype = vtype
         self.expr = expr
     
     def validate(self, context):
@@ -183,12 +183,13 @@ class FuncCallNode(ExpressionNode):
         return False        
 
 class AtomicNode(ExpressionNode):
-    def __init__(self, lex, type=None):
+    def __init__(self, lex):
         self.lex = lex
-        self.type = type
         
 class ConstantNode(AtomicNode):
-    pass
+    def __init__(self, lex, type):
+        super().__init__(lex)
+        self.type = type
 
 class VariableNode(AtomicNode):
     pass
