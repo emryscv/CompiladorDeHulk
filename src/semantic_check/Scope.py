@@ -21,14 +21,14 @@ class Scope:
         else:
             return [f'Function "{fname}" is not defined.']
         
-    def define(self, vname:str, vtype=None, check=True):
+    def define_variable(self, vname:str, vtype=None, check=True):
         if check and vname in self.variables:
             return [f'Variable with the same name ({vname}) is already defined']
         
         self.variables[vname] = Variable(vname, vtype)
         return []
     
-    def define(self, fname, params, return_type):
+    def define_method(self, fname, params, return_type):
         if fname in self.functions:
             return [f'Function with the same name ({fname}) is already defined']
         
@@ -39,7 +39,7 @@ class Scope:
         return Scope(self)
     
     def __str__(self):
-        return '{\n\t' + '\n\t'.join(y for x in self.functions.values() for y in str(x).split('\n')) + '\n}'
+        return '{\n\t' + '\n\t'.join(y for x in self.functions.values() for y in str(x).split('\n')) + '\n\t' + '\n\t'.join(y for x in self.variables.values() for y in str(x).split('\n')) + '\n}'
 
     def __repr__(self):
         return str(self)

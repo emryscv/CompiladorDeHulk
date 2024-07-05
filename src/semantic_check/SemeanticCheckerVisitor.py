@@ -17,10 +17,32 @@ class SemeanticChecker(object):
 
         self.visit(node.mainExpression, scope)
 
-    @visitor.when(TypeDefNode)
+    # @visitor.when(TypeDefNode)
+    # def visit(self, node, scope):
+    #     type = self.context.get_type(node.identifier)
+    #     for attribute in type.attributes:
+    #         scope.define_variable(attribute.name, attribute.vtype)
+            
+    #     for method in type.methods:
+    #         scope.define_method(method.name, method.params, method.return_type)
+        
+    #     #TODO añadir self y base
+        
+    #     for definition in node.body:
+    #         self.visit(definition, scope)
+            
+    @visitor.when(FuncDefNode)
     def visit(self, node, scope):
-        pass
-    
+        if node.return_type and not node.return_type in self.context.types: #TODO arreglar esta vaina
+                self.errors.append(f'Type "{node.return_type}" is not defined.')
+                
+        for param in node.params_list:
+            if not param[1] in self.context.types: #TODO arreglar esta vaina
+                self.errors.append(f'Type "{node.return_type}" is not defined.')
+            scope.define_variable(param[0], param[1])
+        
+        self.visit(node.body, scope)
+
     @visitor.when(BlockExprNode)
     def visit(self, node, scope):
         for expr in node.expr_list:
@@ -37,7 +59,7 @@ class SemeanticChecker(object):
     
     @visitor.when(VarDefNode)
     def visit(self, node, scope):
-        self.errors += scope.define(node.identifier, node.type, check=False)
+        self.errors += scope.define_variable(node.identifier, node.type, check=False)
         
         if node.type and not node.type in self.context.types: #TODO arreglar esta vaina
                 self.errors.append(f'Type "{node.type}" is not defined.')
@@ -77,6 +99,6 @@ class SemeanticChecker(object):
     @visitor.when(AtomicNode)
     def visit(self, node, scope):
         if node.type and not node.type in self.context.types: #TODO arreglar esta vaina
-                self.errors.append(f'Type "{node.type}" is not defined.')
+            self.errors.append(f'Type "{node.type}" is not defined.')
                 
             
