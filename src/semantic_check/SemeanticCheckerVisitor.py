@@ -45,8 +45,10 @@ class SemeanticChecker(object):
 
     @visitor.when(BlockExprNode)
     def visit(self, node, scope):
-        for expr in node.expr_list:
-            self.visit(expr, scope)
+        for i, expr in enumerate(node.expr_list):
+            expr_type = self.visit(expr, scope)
+            if i == len(node.expr_list) - 1:
+                return expr_type
             
     @visitor.when(LetInNode)
     def visit(self, node, scope):
@@ -55,7 +57,7 @@ class SemeanticChecker(object):
         for var in node.var_list: 
             self.visit(var, inner_scope)
             
-        self.visit(node.body, inner_scope)
+        return self.visit(node.body, inner_scope)
     
     @visitor.when(VarDefNode)
     def visit(self, node, scope):
@@ -87,7 +89,7 @@ class SemeanticChecker(object):
         if not condition_type == "Boolean":
             self.errors.append(f'Boolean expression expected but {condition_type} was given')
 
-        return self.visit(node.body, scope)
+        return self.visit(node.body, scope) #TODO esta vaina tiene q retornar lo de la ultima iteracion o None
     
     @visitor.when(BinaryOperationNode)
     def visit(self, node, scope):
@@ -97,7 +99,7 @@ class SemeanticChecker(object):
         if node.operator in ['+', '-', '*', '/', '^', '**']:
             if not (left_type == "Number" and right_type == "Number"):
                 self.errors.append(f'Operator: ({node.operator}) can\' be applied to {left_type} and {right_type}')
-                
+                return None
             else:
                 return "Number"
         elif node.operator in ['@', '@@']:
@@ -106,19 +108,21 @@ class SemeanticChecker(object):
                 return None
             else:
                 return "String"
-        elif node.operator in ['<', '>', '<=', '>=', '==', '!=']:
-            if not (left_type == "Number" and right_type == "Number"):
-                self.errors.append(f'Operator: ({node.operator}) can\'t be applied to {left_type} and {right_type}')
-                return None
-            else:
-                return "Boolean"
-        elif node.operator in ['&', '|']:
-            if not (left_type == "Boolean" and right_type == "Boolean"):
-                self.errors.append(f'Operator: ({node.operator}) can\'t be applied to {left_type} and {right_type}')
-                return None
-            else:
-                return "Boolean"
+    
+    @visitor.when(BooleanExprNode)
+    def visit(self, node, scope):
+        left_type = self.visit(node.left, scope)
+        right_type = self.visit(node.right, scope)
         
+        if node.operator in ['<', '>', '<=', '>=', '==', '!='] and not (left_type == "Number" and right_type == "Number"):
+                self.errors.append(f'Operator: ({node.operator}) can\'t be applied to {left_type} and {right_type}')
+                return None
+        elif node.operator in ['&', '|'] and not (left_type == "Boolean" and right_type == "Boolean"):
+                self.errors.append(f'Operator: ({node.operator}) can\'t be applied to {left_type} and {right_type}')
+                return None
+        
+        return "Boolean"
+    
     @visitor.when(VarReAsignNode)
     def visit(self, node, scope):
         message = scope.is_variable_defined(node.identifier)
@@ -144,8 +148,10 @@ class SemeanticChecker(object):
         
         for i, arg in enumerate(node.arg_list):
             arg_type = self.visit(arg, scope)
-            if len(message) == 0 and not function.params[i][1] == arg_type:
+            if len(message) == 0 and function.params[i][1] != arg_type:
                 self.errors.append(f'Argument number: {i} in ({node.identifier}) has type ({function.params[i][1]}) but ({arg_type}) was given.')
+                
+        return function.return_type
 
     @visitor.when(AtomicNode)
     def visit(self, node, scope):

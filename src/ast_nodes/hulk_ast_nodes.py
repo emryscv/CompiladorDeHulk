@@ -1,12 +1,10 @@
 import utils.visitor as visitor
 
 class Node:
-    def evaluate(self):
-        raise NotImplementedError()
-
-    def validate(self, context):
-        raise NotImplementedError()
-
+    def __init__(self, ) -> None:
+        pass
+    
+    
 class ProgramNode(Node):
     def __init__(self, definitions, mainExpression):
         super().__init__()
@@ -44,17 +42,6 @@ class FuncDefNode(FuncDecNode):
         super().__init__(identifier, params_list, return_type)
         self.body = body
 
-    def validate(self, context):
-        if not context.Define(self.identifier, self.args):
-            return False
-        
-        innerContext = context.CreateChildContext()
-        
-        for arg in self.args_list:
-            innerContext.Define(arg)
-            
-        return self.body.validate(innerContext)
-
 class MethodDefNode(FuncDefNode):
     def __init__(self, identifier, params_list, return_type, body):
         super().__init__(identifier, params_list, return_type, body)
@@ -79,15 +66,6 @@ class LetInNode(ExpressionNode):
         super().__init__()        
         self.var_list = var_list
         self.body = body
-    
-    def validate(self, context):
-
-        innerContext = context.CreateChildContext()
-
-        for var in self.var_list:
-            if not var.validate(innerContext):
-                return False
-        return self.body.validate(innerContext)
 
 class VarDefNode(DeclarationNode):
     def __init__(self, identifier, vtype, expr):
@@ -95,40 +73,16 @@ class VarDefNode(DeclarationNode):
         self.vtype = vtype
         self.expr = expr
     
-    def validate(self, context):
-
-        return self.expr.validate(context) and context.define(self.identifier)
-    
 class IfElseNode(ExpressionNode):
     def __init__(self, boolExpr_List, body_List):
         super().__init__()
         self.boolExpr_List = boolExpr_List
         self.body_List = body_List
-        
-    def validate(self, context):
-        for boolExpr in self.boolExpr_List:
-            if not boolExpr.validate(context):
-                return False
-        
-        for body in self.body_List:
-            innerContext = context.CreateChildContext()
-            if not body.validate(innerContext):
-                return False
-        
-        return True
 
 class WhileLoopNode(ExpressionNode):
     def __init__(self, condition, body):
         self.condition = condition
         self.body = body
-
-    def validate(self, context):
-        if not self.condition.validate(context):
-            return False
-        
-        innerContext = context.CreateChildContext()
-
-        return self.body.evaluate(innerContext)
 
 class ForLoopNode(LetInNode):
      def __init__(self, var, iterable, body):
@@ -144,9 +98,6 @@ class BinaryOperationNode(ExpressionNode):
         self.left = left
         self.right = right
         
-    def validate(self, context):
-        return self.left.validate(context) and self.right.validate(context)
-        
 class BooleanExprNode(BinaryOperationNode):
     def __init__(self, left, right, operator):
         super().__init__(left, right, operator)
@@ -158,9 +109,6 @@ class VarReAsignNode(ExpressionNode):
         super().__init__()
         self.identifier = identifier
         self.expr = expr
-    
-    def validate(self, context):
-        return context.IsDefine(self.identifier) and self.expr.validate(context) 
 
 class DotNotationNode(ExpressionNode):
     def __init__(self, object, member):
@@ -173,14 +121,6 @@ class FuncCallNode(ExpressionNode):
         super().__init__()
         self.identifier = identifier
         self.arg_list = arg_list
-    
-    def validate(self, context):
-        if context.IsDefine(self.identifier, len(self.arg_list)):
-            for expr in self.arg_list:
-                if not expr.validate(context):
-                    return False    
-            return True
-        return False        
 
 class AtomicNode(ExpressionNode):
     def __init__(self, lex):
