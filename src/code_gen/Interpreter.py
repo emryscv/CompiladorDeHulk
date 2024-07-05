@@ -6,7 +6,7 @@ from ast_nodes.hulk_ast_nodes import *
 class Interpreter:
     def __init__(self,context):
         self.context = context
-        built_in_functions = {
+        self.built_in_functions = {
             "print": lambda x: print(x[0]),
             "sen": lambda x: math.sin(x[0]),
             "cos": lambda x: math.cos(x[0]),
@@ -23,13 +23,12 @@ class Interpreter:
         pass
 
     @visitor.when(ProgramNode)
-    def visit(self, node):
-        program_scope = {}
+    def visit(self, node, scope):
 
         for definition in node.definitions:
-            self.visit(definition, program_scope)
+            self.visit(definition, scope)
         
-        self.visit(node.mainExpression, program_scope)
+        self.visit(node.mainExpression, scope)
         
     @visitor.when(DeclarationNode)
     def visit(self, node, scope):
@@ -53,6 +52,7 @@ class Interpreter:
 
     @visitor.when(ExpressionNode)
     def visit(self, node, scope):
+        print(node)
         pass
 
     @visitor.when(BlockExprNode)
@@ -61,11 +61,16 @@ class Interpreter:
 
     @visitor.when(LetInNode)
     def visit(self, node, scope):
-        pass
+        child_scope = scope.create_child_scope()
+        for var in node.var_list:
+            var_value = self.visit(var, child_scope)
+        return self.visit(node.body, child_scope)
 
     @visitor.when(VarDefNode)
     def visit(self, node, scope):
-        pass
+        value = self.visit(node.expr, scope)
+        # scope.define(node.identifier) #TODO: poner lex en el scope
+        return value
 
     @visitor.when(IfElseNode)
     def visit(self, node, scope):
@@ -97,7 +102,9 @@ class Interpreter:
 
     @visitor.when(FuncCallNode)
     def visit(self, node, scope):
-        pass
+        if node.identifier in self.built_in_functions:
+            args = [self.visit(arg, scope) for arg in node.arg_list]
+            return self.built_in_functions[node.identifier](args)
 
     @visitor.when(AtomicNode)
     def visit(self, node, scope):
@@ -105,12 +112,23 @@ class Interpreter:
 
     @visitor.when(ConstantNode)
     def visit(self, node, scope):
-        pass
-
+        if node.type == 'Number':
+            if '.' in node.lex:
+                return float(node.lex)
+            else:
+                return int(node.lex)
+        if node.type == 'Boolean':
+            match node.lex:
+                case 'true':
+                    return True
+                case 'false':
+                    return False
+        return str(node.lex)
+        
     @visitor.when(VariableNode)
     def visit(self, node, scope):
-        pass
-
+        return "hello" #TODO: sacar la variable del scope
+    
     @visitor.when(NewInstanceNode)
     def visit(self, node, scope):
         pass

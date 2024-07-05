@@ -42,6 +42,7 @@ class ShiftReduceParser:
                 for i in range(len(tag.Right)):
                     stack.pop()
                 stack.append(self.goto[stack[-1], tag.Left])
+                print(tag)
                 output.append(tag)
 
             elif action == ShiftReduceParser.OK:
