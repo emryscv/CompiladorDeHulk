@@ -67,7 +67,7 @@ class FormatVisitor(object):
     
     @visitor.when(VarDefNode)
     def visit(self, node, tabs=0):
-        ans = '\t' * tabs + f'\\__VarDefNode: {node.identifier}: {node.type} = <expr>'
+        ans = '\t' * tabs + f'\\__VarDefNode: {node.identifier}: {node.vtype} = <expr>'
         expr = self.visit(node.expr, tabs + 1)
         return f'{ans}\n{expr}'
     
@@ -115,6 +115,10 @@ class FormatVisitor(object):
         return f'{ans}{"\n" + args if args else ""}'
 
     @visitor.when(AtomicNode)
+    def visit(self, node, tabs=0):
+        return '\t' * tabs + f'\\__{node.__class__.__name__}: {node.lex}'
+    
+    @visitor.when(ConstantNode)
     def visit(self, node, tabs=0):
         return '\t' * tabs + f'\\__{node.__class__.__name__}: {node.lex}: {node.type}'
     

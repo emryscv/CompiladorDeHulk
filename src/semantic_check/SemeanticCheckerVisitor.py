@@ -59,13 +59,20 @@ class SemeanticChecker(object):
     
     @visitor.when(VarDefNode)
     def visit(self, node, scope):
-        self.errors += scope.define_variable(node.identifier, node.type, check=False)
+        self.errors += scope.define_variable(node.identifier, node.vtype, check=False)
         
-        if node.type and not node.type in self.context.types: #TODO arreglar esta vaina
-                self.errors.append(f'Type "{node.type}" is not defined.')
+        expr_type = self.visit(node.expr, scope)
         
-        self.visit(node.expr, scope)
-        
+        if node.vtype:
+            if not node.vtype in self.context.types: #TODO arreglar esta vaina
+                self.errors.append(f'Type "{node.vtype}" is not defined.')
+            if node.vtype != expr_type:
+                self.errors.append(f'Variable: ({node.identifier}) has type {node.vtype} and {expr_type} was given')
+            return node.vtype
+        else:
+            scope.get_variable(node.identifier).vtype = expr_type
+            return expr_type
+            
     @visitor.when(IfElseNode)
     def visit(self, node, scope):
         for expr in node.boolExpr_List:
@@ -76,29 +83,84 @@ class SemeanticChecker(object):
         
     @visitor.when(WhileLoopNode)
     def visit(self, node, scope):
-        self.visit(node.condition, scope)
-        self.visit(node.body, scope)
+        condition_type = self.visit(node.condition, scope)
+        if not condition_type == "Boolean":
+            self.errors.append(f'Boolean expression expected but {condition_type} was given')
+
+        return self.visit(node.body, scope)
     
     @visitor.when(BinaryOperationNode)
     def visit(self, node, scope):
-        self.visit(node.left, scope)
-        self.visit(node.right, scope)
-    
+        left_type = self.visit(node.left, scope)
+        right_type = self.visit(node.right, scope)
+
+        if node.operator in ['+', '-', '*', '/', '^', '**']:
+            if not (left_type == "Number" and right_type == "Number"):
+                self.errors.append(f'Operator: ({node.operator}) can\' be applied to {left_type} and {right_type}')
+                
+            else:
+                return "Number"
+        elif node.operator in ['@', '@@']:
+            if not (left_type in ["Number", "String", "Boolean"] and right_type  in ["Number", "String", "Boolean"]):
+                self.errors.append(f'Operator: ({node.operator}) can\' be applied to {left_type} and {right_type}')
+                return None
+            else:
+                return "String"
+        elif node.operator in ['<', '>', '<=', '>=', '==', '!=']:
+            if not (left_type == "Number" and right_type == "Number"):
+                self.errors.append(f'Operator: ({node.operator}) can\'t be applied to {left_type} and {right_type}')
+                return None
+            else:
+                return "Boolean"
+        elif node.operator in ['&', '|']:
+            if not (left_type == "Boolean" and right_type == "Boolean"):
+                self.errors.append(f'Operator: ({node.operator}) can\'t be applied to {left_type} and {right_type}')
+                return None
+            else:
+                return "Boolean"
+        
     @visitor.when(VarReAsignNode)
     def visit(self, node, scope):
-        self.errors += scope.is_defined(node.identifier)
-        self.visit(node.expr, scope)
+        message = scope.is_variable_defined(node.identifier)
+        self.errors += message
         
+        expr_type = self.visit(node.expr, scope)
+        
+        if len(message) == 0:
+            variable = scope.get_variable(node.identifier)
+            if variable.vtype != expr_type:
+                self.errors.append(f'Variable: ({node.identifier}) has type {variable.vtype} and {expr_type} was given')
+            return variable.vtype
+
+        return None
+            
     @visitor.when(FuncCallNode)
     def visit(self, node, scope):
-        self.errors += scope.is_defined(node.identifier, len(node.arg_list))
+        message = scope.is_function_defined(node.identifier, len(node.arg_list))
+        self.errors += message
         
-        for arg in node.arg_list:
-            self.visit(arg, scope)
+        if len(message) == 0:
+            function = scope.get_function(node.identifier)
         
+        for i, arg in enumerate(node.arg_list):
+            arg_type = self.visit(arg, scope)
+            if len(message) == 0 and not function.params[i][1] == arg_type:
+                self.errors.append(f'Argument number: {i} in ({node.identifier}) has type ({function.params[i][1]}) but ({arg_type}) was given.')
+
     @visitor.when(AtomicNode)
     def visit(self, node, scope):
-        if node.type and not node.type in self.context.types: #TODO arreglar esta vaina
+        if not node.type in self.context.types: #TODO arreglar esta vaina
             self.errors.append(f'Type "{node.type}" is not defined.')
+        return node.type
+    
+    @visitor.when(VariableNode)
+    def visit(self, node, scope):
+        message = scope.is_variable_defined(node.lex)
+        self.errors += message
+        
+        if len(message) == 0:
+            return scope.get_variable(node.lex).vtype
+        
+        return None #TODO ver como hacemos con los errores aqui
                 
             
