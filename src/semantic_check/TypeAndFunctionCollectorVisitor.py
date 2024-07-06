@@ -33,5 +33,5 @@ class TypeAndFunctionCollector(object):
     
     @visitor.when(FuncDefNode)
     def visit(self, node):
-        self.errors += self.scope.define_function(node.identifier, node.params_list, node.return_type)
+        self.errors += self.scope.define_function(node.identifier, [(param[0], param[1].lex if param[1] else "Object") for param in node.params_list], node.return_type_token.lex if node.return_type_token else "Object")
         
