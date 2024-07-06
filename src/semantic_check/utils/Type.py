@@ -30,6 +30,14 @@ class Type:
                 return self.parent.get_params()
         return self.params
     
+    def conformed_by(self, name:str) -> bool:
+        if self.name == name:
+            return True
+        elif self.parent:
+            return self.parent.conformed_by(name)
+        else:
+            return False    
+    
     def __str__(self):
         print(self.parent)
         return f'{self.name}{(" inherits " + self.parent.name) if self.parent else ""} {self.attributes} {self.methods}'

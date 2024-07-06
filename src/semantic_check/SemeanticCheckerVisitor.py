@@ -23,8 +23,9 @@ class SemeanticChecker(object):
         self.visit(node.mainExpression, scope)
 
     @visitor.when(TypeDefNode)
-    def visit(self, node, scope):
+    def visit(self, node: TypeDefNode, scope: Scope):#TODO hecarle un ojo al parent y que no puede heredar de Object, Number, etx..
         self.current_type = self.context.get_type(node.identifier)
+        
         for param in self.current_type.params:
             scope.define_variable(param[0], param[1].lex if param[1] else None)
             
@@ -38,6 +39,8 @@ class SemeanticChecker(object):
         
         for definition in node.body:
             self.visit(definition, scope)
+        
+        return node.identifier
             
     @visitor.when(FuncDefNode)
     def visit(self, node:FuncDefNode, scope: Scope):
@@ -77,20 +80,20 @@ class SemeanticChecker(object):
     def visit(self, node:VarDefNode, scope:Scope):
         self.errors += scope.define_variable(node.identifier, node.vtype_token.lex if node.vtype_token else None, check=False)
         
-        expr_type = self.visit(node.expr, scope)
-        
+        expr_type = self.context.get_type(self.visit(node.expr, scope))
+
         if node.identifier == "self":
             scope.is_self_asignable = True
         
         if node.vtype_token:
             if not node.vtype_token.lex in self.context.types: #TODO arreglar esta vaina
                 self.errors.append(Invalid_Type(node.vtype_token.lex, node.vtype_token.row, node.vtype_token.column))
-            if node.vtype_token.lex != expr_type:
-                self.errors.append(Invalid_Initialize_type(node.identifier, node.vtype_token.lex, expr_type, node.expr.row, node.expr.col))
+            if not expr_type.conformed_by(node.vtype_token.lex):
+                self.errors.append(Invalid_Initialize_type(node.identifier, node.vtype_token.lex, expr_type.name, node.expr.row, node.expr.col))
             return node.vtype_token.lex
         else:
-            scope.get_variable(node.identifier).vtype = expr_type
-            return expr_type
+            scope.get_variable(node.identifier).vtype = expr_type.name
+            return expr_type.name
             
     @visitor.when(IfElseNode)
     def visit(self, node, scope):
@@ -106,7 +109,7 @@ class SemeanticChecker(object):
     @visitor.when(WhileLoopNode)
     def visit(self, node, scope):
         condition_type = self.visit(node.condition, scope)
-        if not condition_type == "Boolean":
+        if condition_type != "Boolean":
             self.errors.append(Boolean_Expected(condition_type, node.condition.row, node.condition.col))
 
         return self.visit(node.body, scope) #TODO esta vaina tiene q retornar lo de la ultima iteracion o None
@@ -153,12 +156,12 @@ class SemeanticChecker(object):
             message = scope.is_variable_defined(node.identifier)
             self.errors += message
         
-        expr_type = self.visit(node.expr, scope)
+        expr_type = self.context.get_type(self.visit(node.expr, scope))
         
         if len(message) == 0:
             variable = scope.get_variable(node.identifier)
-            if variable.vtype != expr_type:
-                self.errors.append(Invalid_Initialize_type(node.identifier, variable.vtype, expr_type, node.expr.row, node.expr.col))
+            if not expr_type.conformed_by(variable.vtype):
+                self.errors.append(Invalid_Initialize_type(node.identifier, variable.vtype, expr_type.name, node.expr.row, node.expr.col))
             return variable.vtype
 
         return None
@@ -175,9 +178,9 @@ class SemeanticChecker(object):
                 self.errors.append(Invalid_Arg_Count(node.identifier, len(function.params), len(node.args_list, node.row, node.col)))
             else:
                 for i, arg in enumerate(node.arg_list):
-                    arg_type = self.visit(arg, scope)
-                    if function.params[i][1] != arg_type:
-                        self.errors.append(Invalid_Argument_Type(i, node.identifier, function.params[i][1], arg_type, arg.row, arg.col))
+                    arg_type = self.context.get_type(self.visit(arg, scope))
+                    if not arg_type.conformed_by(function.params[i][1]):
+                        self.errors.append(Invalid_Argument_Type(i, node.identifier, function.params[i][1], arg_type.name, arg.row, arg.col))
             
             return function.return_type
         return None
@@ -210,9 +213,9 @@ class SemeanticChecker(object):
                 self.errors.append(Invalid_Arg_Count(node.identifier, len(params), len(node.args_list, node.row, node.col)))
             else:    
                 for i, arg in enumerate(node.args_list): 
-                    arg_type = self.visit(arg, scope)
-                    if params[i][1] != arg_type:
-                        self.errors.append(Invalid_Argument_Type(i, node.identifier, params[i][1], arg_type, arg.row, arg.col))
+                    arg_type = self.context.get_type(self.visit(arg, scope))
+                    if not arg_type.conformed_by(params[i][1]):
+                        self.errors.append(Invalid_Argument_Type(i, node.identifier, params[i][1], arg_type.name, arg.row, arg.col))
                         
             return type.name
         return None
