@@ -5,7 +5,7 @@ class Scope:
     def __init__(self, parent = None):
         self.parent: Scope = parent
         self.variables = {}
-        self.functions = {"print": Function("print", [("string", "String")], "Object", print)}
+        self.functions = {"print": Function("print", [("string", "String")], "Object")}
         self.is_self_asignable:bool  = False
         
     def is_variable_defined(self, vname:str):
