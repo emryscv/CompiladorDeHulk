@@ -1,6 +1,6 @@
 import utils.visitor as visitor
 from  ast_nodes.hulk_ast_nodes import *
-from utils.error_manager import Invalid_Type, Invalid_Argument_Type, Invalid_Initialize_type, Invalid_Operation, Self_Not_Target, Boolean_Expected, Invalid_Arg_Count
+from utils.error_manager import Not_Defined, Invalid_Argument_Type, Invalid_Initialize_type, Invalid_Operation, Self_Not_Target, Boolean_Expected, Invalid_Arg_Count, Already_Defined, Already_Denfined_In_Type
 from semantic_check.Scope import Scope
 from semantic_check.context import Context
 from semantic_check.utils.Type import Type
@@ -26,12 +26,12 @@ class SemeanticChecker(object):
     def visit(self, node: TypeDefNode, scope: Scope):#TODO hecarle un ojo al parent y que no puede heredar de Object, Number, etx..
         self.current_type = self.context.get_type(node.identifier)
         
+        print(node.identifier)
+        
+        
         for param in self.current_type.params:
-            scope.define_variable(param[0], param[1])
-            
-        for attribute in self.current_type.attributes:
-            scope.define_variable(attribute.name, attribute.vtype)
-            
+            if not scope.define_variable(param[0], param[1]):
+                self.errors.append(Already_Defined("Parameter", param[1], node.row, node.col))
         for method in self.current_type.methods:
             scope.define_function(method.name, method.params, method.return_type)
         
@@ -46,11 +46,12 @@ class SemeanticChecker(object):
     def visit(self, node:FuncDefNode, scope: Scope):
         for param in node.params_list:
             if param[1] and not param[1].lex in self.context.types: #TODO arreglar esta vaina
-                self.errors.append(Invalid_Type(param[1].lex, param[1].row, param[1].column))
-            scope.define_variable(param[0], param[1])
+                self.errors.append(Not_Defined("Type", param[1].lex, param[1].row, param[1].column))
+            if not scope.define_variable(param[0], param[1]):
+                self.errors.append(Already_Denfined_In_Type("Param", param[0], node.identifier, param[1].row, param[1].col))
         
         if node.return_type_token and not node.return_type_token.lex in self.context.types: #TODO arreglar esta vaina
-                self.errors.append(Invalid_Type(node.return_type_token.lex, node.return_type_token.row, node.return_type_token.column))        
+                self.errors.append(Not_Defined("Type", node.return_type_token.lex, node.return_type_token.row, node.return_type_token.column))        
         
         base = scope.get_function(node.identifier) #TODO Esto no me cuadra
         
@@ -65,6 +66,7 @@ class SemeanticChecker(object):
     def visit(self, node, scope):
         for i, expr in enumerate(node.expr_list):
             expr_type = self.visit(expr, scope)
+
             if i == len(node.expr_list) - 1:
                 return expr_type
             
@@ -79,18 +81,27 @@ class SemeanticChecker(object):
     
     @visitor.when(VarDefNode)
     def visit(self, node:VarDefNode, scope:Scope):
-        self.errors += scope.define_variable(node.identifier, node.vtype_token.lex if node.vtype_token else "Object", check=False)
+        if not scope.define_variable(node.identifier, node.vtype_token.lex if node.vtype_token else "Object", check=False):
+            self.errors.append()
         
         expr_type = self.context.get_type(self.visit(node.expr, scope))
 
+        
         if node.identifier == "self":
             scope.is_self_asignable = True
         
         if node.vtype_token:
             if not node.vtype_token.lex in self.context.types: #TODO arreglar esta vaina
-                self.errors.append(Invalid_Type(node.vtype_token.lex, node.vtype_token.row, node.vtype_token.column))
+                self.errors.append(Not_Defined("Type", node.vtype_token.lex, node.vtype_token.row, node.vtype_token.column))
+                
             if not expr_type.conformed_by(node.vtype_token.lex):
-                self.errors.append(Invalid_Initialize_type(node.identifier, node.vtype_token.lex, expr_type.name, node.expr.row, node.expr.col))
+                if self.context.is_protocol_defined(node.vtype_token.lex):
+                    protocol = self.context.get_protocol(node.vtype_token.lex)
+                    if not expr_type.implements(protocol):
+                        self.errors.append(Invalid_Initialize_type(node.identifier, node.vtype_token.lex, expr_type.name, node.expr.row, node.expr.col))
+                else:
+                    self.errors.append(Invalid_Initialize_type(node.identifier, node.vtype_token.lex, expr_type.name, node.expr.row, node.expr.col))
+                    
             return node.vtype_token.lex
         else:
             scope.get_variable(node.identifier).vtype = expr_type.name
@@ -123,15 +134,12 @@ class SemeanticChecker(object):
         if node.operator in ['+', '-', '*', '/', '^', '**']:
             if not (left_type == "Number" and right_type == "Number"):
                 self.errors.append(Invalid_Operation(node.operator, left_type, right_type, node.row, node.col))
-                return "Object"
-            else:
-                return "Number"
+            return "Number"
+        
         elif node.operator in ['@', '@@']:
             if not (left_type in ["Number", "String", "Boolean"] and right_type  in ["Number", "String", "Boolean"]):
                 self.errors.append(Invalid_Operation(node.operator, left_type, right_type, node.row, node.col))
-                return "Object"
-            else:
-                return "String"
+            return "String"
     
     @visitor.when(BooleanExprNode)
     def visit(self, node, scope):
@@ -140,11 +148,9 @@ class SemeanticChecker(object):
         
         if node.operator in ['<', '>', '<=', '>=', '==', '!='] and not (left_type == "Number" and right_type == "Number"):
                 self.errors.append(Invalid_Operation(node.operator, left_type, right_type, node.row, node.col))
-                return "Object"
         elif node.operator in ['&', '|'] and not (left_type == "Boolean" and right_type == "Boolean"):
                 self.errors.append(Invalid_Operation(node.operator, left_type, right_type, node.row, node.col))
-                return "Object"
-        
+
         return "Boolean"
     
     @visitor.when(VarReAsignNode)
@@ -161,21 +167,27 @@ class SemeanticChecker(object):
         
         if len(message) == 0:
             variable = scope.get_variable(node.identifier)
+            
             if not expr_type.conformed_by(variable.vtype):
-                self.errors.append(Invalid_Initialize_type(node.identifier, variable.vtype, expr_type.name, node.expr.row, node.expr.col))
+                if self.context.is_protocol_defined(node.vtype_token.lex):
+                    protocol = self.context.get_protocol(variable.vtype)
+                    if not expr_type.implements(protocol):
+                        self.errors.append(Invalid_Initialize_type(node.identifier, variable.vtype, expr_type.name, node.expr.row, node.expr.col))
+                else:
+                    self.errors.append(Invalid_Initialize_type(node.identifier, variable.vtype, expr_type.name, node.expr.row, node.expr.col))
+            
             return variable.vtype
 
         return "Object"
             
     @visitor.when(FuncCallNode)
     def visit(self, node: FuncCallNode, scope: Scope):
-        message = scope.is_function_defined(node.identifier, len(node.args_list))
-        self.errors += message
+        name_match, param_match = scope.is_function_defined(node.identifier, len(node.args_list))
         
-        if len(message) == 0:
+        if name_match:
             function = scope.get_function(node.identifier)
             
-            if len(function.params) != len(node.args_list):
+            if not param_match:
                 self.errors.append(Invalid_Arg_Count(node.identifier, len(function.params), len(node.args_list, node.row, node.col)))
             else:
                 for i, arg in enumerate(node.args_list):
@@ -189,24 +201,21 @@ class SemeanticChecker(object):
     @visitor.when(AtomicNode)
     def visit(self, node, scope):
         if not node.type in self.context.types: #TODO arreglar esta vaina
-            self.errors.append(Invalid_Type(node.type, node.row, node.column))
+            self.errors.append(Not_Defined("Type", node.type, node.row, node.column))
         return node.type
     
     @visitor.when(VariableNode)
     def visit(self, node, scope: Scope):
-        message = scope.is_variable_defined(node.lex)
-        self.errors += message
-
-        if len(message) == 0:
+        if scope.is_variable_defined(node.lex):
             return scope.get_variable(node.lex).vtype
-        
+        else:
+            self.errors.append(Not_Defined("Variable", node.lex, node.row, node.col))
+            
         return "Object" #TODO ver como hacemos con los errores aqui
                 
     @visitor.when(NewInstanceNode)
-    def visit(self, node:NewInstanceNode, scope: Scope):
-        message = self.context.is_type_defined(node.identifier)
-        
-        if len(message) == 0:
+    def visit(self, node:NewInstanceNode, scope: Scope):  
+        if self.context.is_type_defined(node.identifier):
             type = self.context.get_type(node.identifier)
             params = type.get_params()
             
@@ -219,6 +228,6 @@ class SemeanticChecker(object):
                         self.errors.append(Invalid_Argument_Type(i, node.identifier, params[i][1], arg_type.name, arg.row, arg.col))  
             return type.name
         else:
-            self.errors += message
+            self.errors.append(Not_Defined("Type", node.identifier, node.row, node.col))
             
         return "Object"
