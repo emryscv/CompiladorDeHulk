@@ -3,7 +3,7 @@ type Animal(name) {
     MakeSomeNoise() => "My name is: " @ name;
 }
 type Perro inherits Animal{
-    MakeSomeNoise() => base.MakeSomeNoise() @ "Jau Jau";    
+    MakeSomeNoise() => base() @ "Jau Jau";    
 }
 
 let scooby: Animal = new Perro("Rex") in scooby.MakeSomeNoise();

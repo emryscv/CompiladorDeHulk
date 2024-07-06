@@ -1,7 +1,9 @@
 import utils.visitor as visitor
-
+from  utils.utils import Token
 class Node:
     def __init__(self, row, col) -> None:
+        self.row = row
+        self.col = col
         pass
 
 class ProgramNode(Node):
@@ -17,11 +19,12 @@ class DeclarationNode(Node):
         self.identifier = identifier
         
 class TypeDefNode(DeclarationNode):
-    def __init__(self, identifier, optional_args, base_identifier, base_optional_args, body, row, col):
+    def __init__(self, identifier, optional_params, base_identifier, optional_base_args, body, row, col):
         super().__init__(identifier, row, col)
-        self.optional_args = optional_args
+        print(optional_params)
+        self.optional_params = optional_params
         self.base_identifier = base_identifier
-        self.base_optional_args = base_optional_args
+        self.optional_base_args = optional_base_args
         self.body = body
 
 class ProtocolDefNode(DeclarationNode):
@@ -31,19 +34,19 @@ class ProtocolDefNode(DeclarationNode):
         self.body = body
 
 class FuncDecNode(DeclarationNode):
-    def __init__(self, identifier, params_list, return_type, row, col):
+    def __init__(self, identifier, params_list, return_type_token, row, col):
         super().__init__(identifier, row, col)
         self.params_list = params_list
-        self.return_type = return_type
+        self.return_type_token = return_type_token
         
 class FuncDefNode(FuncDecNode):
-    def __init__(self, identifier, params_list, return_type, body, row, col):
-        super().__init__(identifier, params_list, return_type, row, col)
+    def __init__(self, identifier, params_list, return_type_token, body, row, col):
+        super().__init__(identifier, params_list, return_type_token, row, col)
         self.body = body
 
 class MethodDefNode(FuncDefNode):
-    def __init__(self, identifier, params_list, return_type, body, row, col):
-        super().__init__(identifier, params_list, return_type, body, row, col)
+    def __init__(self, identifier, params_list, return_type_token, body, row, col):
+        super().__init__(identifier, params_list, return_type_token, body, row, col)
 
 ### expressions ###
 class ExpressionNode(Node):
@@ -61,9 +64,9 @@ class LetInNode(ExpressionNode):
         self.body = body
 
 class VarDefNode(DeclarationNode):
-    def __init__(self, identifier, vtype, expr, row, col):
+    def __init__(self, identifier, vtype_token, expr, row, col):
         super().__init__(identifier, row, col)     
-        self.vtype = vtype
+        self.vtype_token = vtype_token
         self.expr = expr
     
 class IfElseNode(ExpressionNode):
@@ -79,10 +82,10 @@ class WhileLoopNode(ExpressionNode):
         self.body = body
 
 class ForLoopNode(LetInNode): #TODO manejar correctament los row and cols
-     def __init__(self, var, iterable, body, row, col):
-         iter = VarDefNode("iterable", "Iterable", iterable, iterable.row, iterable.col)
+     def __init__(self, var, var_type_token, iterable, body, row, col):
+         iter = VarDefNode("iterable", Token("Iterable", iterable.row, iterable.col), iterable, iterable.row, iterable.col)
          condition = DotNotationNode(iter, FuncCallNode("next", [], iter.row, iter.col), iter.row, iter.col)
-         whileLoop = WhileLoopNode(condition, LetInNode([VarDefNode(var, "", DotNotationNode(VariableNode("iterable"), FuncCallNode("current", [])))], body))
+         whileLoop = WhileLoopNode(condition, LetInNode([VarDefNode(var, var_type_token, DotNotationNode(VariableNode("iterable", iter.row, iter.col), FuncCallNode("current", [], iter.row, iter.col), iter.row, iter.col), row, col)], body, iter.row, iter.col), iter.row, iter.col)
          
          super().__init__([iter], whileLoop, row, col)
          
@@ -131,7 +134,7 @@ class VariableNode(AtomicNode):
     pass
 
 class NewInstanceNode(ExpressionNode):
-    def __init__(self, identifier, expr_list, row, col):
+    def __init__(self, identifier, args_list, row, col):
         super().__init__(row, col)
         self.identifier = identifier
-        self.expr_list = expr_list
+        self.args_list = args_list

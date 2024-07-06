@@ -1,4 +1,4 @@
-function test(x, y) => x + y;
+function test(x: Perro, y) : Gato => x + y;
 function test2(x, y){
     x + y;
 }
