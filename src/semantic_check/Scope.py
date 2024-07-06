@@ -6,9 +6,10 @@ class Scope:
         self.parent: Scope = parent
         self.variables = {}
         self.functions = {"print": Function("print", [("string", "String")], "Object", print)}
+        self.is_self_asignable:bool  = False
         
     def is_variable_defined(self, vname:str):
-        return [] if vname in self.variables or (self.parent != None and self.parent.IsDefine(vname)) else [f'Variable "{vname}" is not defined.']
+        return [] if vname in self.variables or (self.parent != None and len(self.parent.is_variable_defined(vname)) == 0) else [f'Variable "{vname}" is not defined.']
     
     def is_function_defined(self, fname:str, args):
         if fname in self.functions:
@@ -17,7 +18,7 @@ class Scope:
             else:
                 return [f'Function ({fname}): {len(self.functions[fname].params)} params expected but {args} were given.']
         elif self.parent != None:
-            return self.parent.IsDefine(fname, args)
+            return self.parent.is_function_defined(fname, args)
         else:
             return [f'Function "{fname}" is not defined.']
         
@@ -34,13 +35,13 @@ class Scope:
         self.functions[fname] = Function(fname, params, return_type, function_body)
         return []
         
-    def get_variable(self, vname:str):
+    def get_variable(self, vname:str) -> Variable:
         try:
             return self.variables[vname]
         except KeyError:
             return self.parent.get_variable(vname)
         
-    def get_function(self, fname:str):
+    def get_function(self, fname:str) -> Function:
         try:
             return self.functions[fname]
         except KeyError:

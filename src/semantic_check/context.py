@@ -20,12 +20,15 @@ class Context:
         self.types[name] = Type(name)
         return []
         
+    def is_type_defined(self, name:str):
+        if name in self.types:
+            return []
+        
+        return (f'Type "{name}" is not defined.')
+    
     def get_type(self, name:str):
-        try:
-            return self.types[name]
-        except KeyError:
-            return (f'Type "{name}" is not defined.') #TODO arreglar esta historia
-
+        return self.types[name]
+    
     def __str__(self):
         return '{\n\t' + '\n\t'.join(str(x) for x in self.types.values()) + '\n}'
 
