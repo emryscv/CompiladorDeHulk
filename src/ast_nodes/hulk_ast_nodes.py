@@ -80,14 +80,21 @@ class WhileLoopNode(ExpressionNode):
         super().__init__(row, col)
         self.condition = condition
         self.body = body
+        
+    def validate(self, context):
+        if not self.condition.validate(context):
+            return False
+        
+        innerContext = context.CreateChildContext()
 
-class ForLoopNode(LetInNode): #TODO manejar correctament los row and cols
-     def __init__(self, var, var_type_token, iterable, body, row, col):
-         iter = VarDefNode("iterable", Token("Iterable", iterable.row, iterable.col), iterable, iterable.row, iterable.col)
-         condition = DotNotationNode(iter, FuncCallNode("next", [], iter.row, iter.col), iter.row, iter.col)
-         whileLoop = WhileLoopNode(condition, LetInNode([VarDefNode(var, var_type_token, DotNotationNode(VariableNode("iterable", iter.row, iter.col), FuncCallNode("current", [], iter.row, iter.col), iter.row, iter.col), row, col)], body, iter.row, iter.col), iter.row, iter.col)
-         
-         super().__init__([iter], whileLoop, row, col)
+        return self.body.evaluate(innerContext)
+
+class ForLoopNode(LetInNode):
+     def __init__(self, var, iterable, body):
+        iter = VarDefNode(Token("iterable", "Iterable"), "Iterable", iterable)
+        condition = DotNotationNode(iter, FuncCallNode(Token("next", "Next"), []))
+        whileLoop = WhileLoopNode(condition, LetInNode([VarDefNode(var, "", DotNotationNode(VariableNode(Token("iterable", "Iterable")), FuncCallNode(Token("current", "Current"), [])))], body))
+        super().__init__([iter], whileLoop)
          
 class BinaryOperationNode(ExpressionNode):
     def __init__(self, left, right, operator, row, col):

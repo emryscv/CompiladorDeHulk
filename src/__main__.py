@@ -66,10 +66,6 @@ def main(code_path):
     for error in errors:
         print("\t", error)
     print("]")    
-
-    #interpreter = Interpreter(context)
-    #interpreter.visit(ast, scope)
-    
     
 if __name__ == "__main__":
     if not len(sys.argv) == 2:

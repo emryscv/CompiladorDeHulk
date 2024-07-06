@@ -5,7 +5,7 @@ class Variable:
         self.value = value
         
     def __str__(self):
-        return f'{self.name}:{self.vtype}'
+        return f'{self.name}:{self.vtype}, {self.value}'
     
     def __repr__(self) -> str:
         return self.__str__()
