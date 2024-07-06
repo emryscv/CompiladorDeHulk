@@ -57,16 +57,19 @@ def main(code_path):
     type_builder = TypeBuilder(context, errors)
     type_builder.visit(ast)
     
-    semantic_checker = SemeanticChecker(errors, context)
-    semantic_checker.visit(ast, scope)
+    # semantic_checker = SemeanticChecker(errors, context)
+    # semantic_checker.visit(ast, scope)
             
-    print("context:", context)
-    print("scope:", scope)
-    print("errors: [")
-    for error in errors:
-        print("\t", error)
-    print("]")    
+    # print("context:", context)
+    # print("scope:", scope)
+    # print("errors: [")
+    # for error in errors:
+    #     print("\t", error)
+    # print("]")    
     
+    interpreter = Interpreter(context)
+    interpreter.visit(ast)
+
 if __name__ == "__main__":
     if not len(sys.argv) == 2:
         error = Argument_is_required()

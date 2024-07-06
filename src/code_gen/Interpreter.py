@@ -52,7 +52,7 @@ class Interpreter:
 
     @visitor.when(FuncDefNode)
     def visit(self, node, scope):
-        scope.define_function(node.identifier.lex, [param[0].lex for param in node.params_list], node.return_type, node.body)
+        scope.define_function(node.identifier, [param[0] for param in node.params_list], node.return_type_token, node.body)
 
     @visitor.when(ExpressionNode)
     def visit(self, node, scope):
@@ -74,7 +74,7 @@ class Interpreter:
     @visitor.when(VarDefNode)
     def visit(self, node, scope):
         value = self.visit(node.expr, scope)
-        scope.define_variable(node.identifier.lex, node.identifier.token_type, True, value=value)
+        scope.define_variable(node.identifier, node.vtype_token, True, value=value)
 
     @visitor.when(IfElseNode)
     def visit(self, node, scope):
@@ -107,7 +107,7 @@ class Interpreter:
         right = self.visit(node.right, scope)
         left = self.visit(node.left, scope)
         sol = 0
-        match node.operator.lex:
+        match node.operator:
             case '+' | '@':
                 sol = left + right
             case '-':
@@ -127,7 +127,7 @@ class Interpreter:
         right = self.visit(node.right, scope)
         left = self.visit(node.left, scope)
         sol = False
-        match node.operator.lex:
+        match node.operator:
             case '&':
                 sol = left and right
             case '|':
@@ -149,7 +149,7 @@ class Interpreter:
     @visitor.when(VarReAsignNode)
     def visit(self, node, scope):
         value = self.visit(node.expr, scope)
-        scope.define_variable(node.identifier.lex, check=False, value=value)
+        scope.define_variable(node.identifier, check=False, value=value)
         return value
 
     @visitor.when(DotNotationNode)
@@ -159,26 +159,26 @@ class Interpreter:
     
     @visitor.when(FuncCallNode)
     def visit(self, node, scope):
-        args = [self.visit(arg, scope) for arg in node.arg_list]
-        if node.identifier.lex in self.built_in_functions:
+        args = [self.visit(arg, scope) for arg in node.args_list]
+        if node.identifier in self.built_in_functions:
             
-            if node.identifier.lex == "next":
+            if node.identifier == "next":
                 iterable = scope.get_variable("iterable").value
-                scope.define_variable("iterable", "Iterable", False, self.built_in_functions[node.identifier.lex](iterable))
+                scope.define_variable("iterable", "Iterable", False, self.built_in_functions[node.identifier](iterable))
                 if iterable[1] > iterable[2] + 1:
                     return True
                 else:
                     return False
                 
-            elif node.identifier.lex == "current":
+            elif node.identifier == "current":
                 iterable = scope.get_variable("iterable").value
-                return self.built_in_functions[node.identifier.lex]((iterable[0], iterable[2]))
+                return self.built_in_functions[node.identifier]((iterable[0], iterable[2]))
             
             else:
-                return self.built_in_functions[node.identifier.lex](args)
+                return self.built_in_functions[node.identifier](args)
 
         else:
-            function = scope.get_function(node.identifier.lex)
+            function = scope.get_function(node.identifier)
             call_scope = scope.create_child_scope()
             for i in range(len(function.params)):
                 call_scope.define_variable(function.params[i], value=args[i])
@@ -191,21 +191,21 @@ class Interpreter:
     @visitor.when(ConstantNode)
     def visit(self, node, scope):
         if node.type == 'Number':
-            if '.' in node.lex.lex:
-                return float(node.lex.lex)
+            if '.' in node.lex:
+                return float(node.lex)
             else:
-                return int(node.lex.lex)
+                return int(node.lex)
         if node.type == 'Boolean':
-            match node.lex.lex:
+            match node.lex:
                 case 'true':
                     return True
                 case 'false':
                     return False
-        return str(node.lex.lex)
+        return str(node.lex)
         
     @visitor.when(VariableNode)
     def visit(self, node, scope):
-        var = scope.get_variable(node.lex.lex)
+        var = scope.get_variable(node.lex)
         return var.value
     
     @visitor.when(NewInstanceNode)
