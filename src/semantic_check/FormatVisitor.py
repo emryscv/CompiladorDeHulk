@@ -33,20 +33,20 @@ class FormatVisitor(object):
     
     @visitor.when(FuncDecNode)
     def visit(self, node, tabs=0):
-        params = ', '.join(f'{arg[0]}: {arg[1]}' for arg in node.params_list)
+        params = ', '.join(f'{param[0]}: {param[1]}' for param in node.params_list)
         ans = '\t' * tabs + f'\\__FuncDecNode: {node.identifier}({params}): {node.return_type_token.lex}'
         return f'{ans}'
     
     @visitor.when(FuncDefNode)
     def visit(self, node, tabs=0):
-        params = ', '.join(f'{arg[0]}: {arg[1]}' for arg in node.params_list)
+        params = ', '.join(f'{param[0]}: {param[1]}' for param in node.params_list)
         ans = '\t' * tabs + f'\\__FuncDefNode: {node.identifier}({params}): {node.return_type_token.lex if node.return_type_token else None} -> <expr>'
         body = self.visit(node.body, tabs + 1)
         return f'{ans}\n{body}'
     
     @visitor.when(MethodDefNode)
     def visit(self, node, tabs=0):
-        params = ', '.join(f'{arg[0]}: {arg[1]}' for arg in node.params_list)
+        params = ', '.join(f'{param[0]}: {param[1]}' for param in node.params_list)
         ans = '\t' * tabs + f'\\__MethodDefNode: {node.identifier}({params}): {node.return_type_token.lex if node.return_type_token else None} -> <expr>'
         body = self.visit(node.body, tabs + 1)
         return f'{ans}\n{body}'
@@ -110,7 +110,7 @@ class FormatVisitor(object):
     @visitor.when(FuncCallNode)
     def visit(self, node, tabs=0):
         ans = '\t' * tabs + f'\\__FuncCallNode: {node.identifier}(<expr>, ..., <expr>)'
-        args = '\n'.join(self.visit(arg, tabs + 1) for arg in node.arg_list)
+        args = '\n'.join(self.visit(arg, tabs + 1) for arg in node.args_list)
         
         return f'{ans}{"\n" + args if args else ""}'
 

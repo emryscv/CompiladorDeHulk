@@ -41,7 +41,7 @@ class TypeBuilder(object):
     def visit(self, node):
         pass
     
-    @visitor.when(MethodDefNode)
+    @visitor.when(MethodDefNode) #TODO definir metdodos con distintos tipos de parametros
     def visit(self, node):
         self.errors += self.current_type.define_method(node.identifier, node.params_list, node.return_type_token.lex if node.return_type_token else "Object")
 

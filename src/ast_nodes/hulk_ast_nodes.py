@@ -115,10 +115,10 @@ class DotNotationNode(ExpressionNode):
         self.member = member
 
 class FuncCallNode(ExpressionNode):
-    def __init__(self, identifier, arg_list, row, col):
+    def __init__(self, identifier, args_list, row, col):
         super().__init__(row, col)
         self.identifier = identifier
-        self.arg_list = arg_list
+        self.args_list = args_list
 
 class AtomicNode(ExpressionNode):
     def __init__(self, lex, row, col):

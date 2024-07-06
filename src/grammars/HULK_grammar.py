@@ -5,9 +5,9 @@ G = Grammar()
 
 program = G.NonTerminal('<program>', startSymbol=True)
 
-definition_list, definition, arithmetic_expr, expr, expr_or_block, expr_list, stringify, term, factor, atom, func_call, arguments, arg_list, dot_notation_expr, optional_semicolon= G.NonTerminals(
+definition_list, definition, arithmetic_expr, expr, expr_or_block, expr_list, stringify, term, factor, atom, func_call, arguments, args_list, dot_notation_expr, optional_semicolon= G.NonTerminals(
     '<definition-list> <definition> <arithmetic-expr> <expr> <expr-or-block> <expr-list> <stringify> <term> <factor> <atom> <func-call> <arguments> <arg-list> <dot-notation-expr> <optional-semicolon>')
-asign_simple, func_def, arg_def, params_def_list, func_body = G.NonTerminals(
+asign_simple, func_def, params_def, params_def_list, func_body = G.NonTerminals(
     '<asign-simple> <func-def> <arg_def? <arg-def-list> <func-body>')
 var_def, elif_expr, boolean_expr, boolean_term = G.NonTerminals(
     '<var-def> <elif_expr> boolean-expr> <boolean-term>')
@@ -77,17 +77,17 @@ dot_notation_expr %= func_call, lambda h, s: s[1]
 func_call %= id + opar + arguments + cpar, lambda h, s: FuncCallNode(s[1].lex, s[3], s[1].row, s[1].column)
 
 arguments %= G.Epsilon, lambda h, s: []
-arguments %= arg_list,  lambda h, s: s[1]
+arguments %= args_list,  lambda h, s: s[1]
 
-arg_list %= arg_list + coma + expr_or_block, lambda h, s: s[1] + [s[3]]
-arg_list %= expr_or_block, lambda h, s: [s[1]]
+args_list %= args_list + coma + expr_or_block, lambda h, s: s[1] + [s[3]]
+args_list %= expr_or_block, lambda h, s: [s[1]]
 
 ###functions###
 
-func_def %= function + id + opar + arg_def + cpar + type_annotation + func_body, lambda h , s: FuncDefNode(s[2].lex, s[4], s[6], s[7], s[2].row, s[2].column)
+func_def %= function + id + opar + params_def + cpar + type_annotation + func_body, lambda h , s: FuncDefNode(s[2].lex, s[4], s[6], s[7], s[2].row, s[2].column)
 
-arg_def %= params_def_list, lambda h , s: s[1]
-arg_def %= G.Epsilon, lambda h , s: []
+params_def %= params_def_list, lambda h , s: s[1]
+params_def %= G.Epsilon, lambda h , s: []
 
 params_def_list %= params_def_list + coma + id + type_annotation, lambda h , s: s[1] + [(s[3].lex, s[4])]
 params_def_list %= id + type_annotation , lambda h ,s: [(s[1].lex, s[2])]
@@ -139,7 +139,7 @@ type_def %= type_token + id + opar + params_def_list + cpar + optional_inherits_
 optional_inherits %= inherits + id, lambda h, s: s[2]
 optional_inherits %= G.Epsilon, lambda h, s: None
 
-optional_inherits_args %= inherits + id + opar + arg_list + cpar, lambda h, s: (s[2], s[4])
+optional_inherits_args %= inherits + id + opar + args_list + cpar, lambda h, s: (s[2], s[4])
 optional_inherits_args %= G.Epsilon, lambda h, s: (None, [])
 
 type_body %= type_body + type_body_stat, lambda h , s: s[1] + [s[2]]
@@ -147,7 +147,7 @@ type_body %= type_body_stat, lambda h , s: [s[1]]
 
 type_body_stat %= id + type_annotation + asign_equal + expr + semicolon, lambda h, s: VarDefNode(s[1].lex, s[2], s[4], s[3].row, s[3].column) 
 type_body_stat %= id + type_annotation + asign_equal + ocurl + expr_list + ccurl + optional_semicolon, lambda h, s: VarDefNode(s[1].lex, s[2], s[5])
-type_body_stat %= id + opar + arg_def + cpar + type_annotation + func_body, lambda h, s: MethodDefNode(s[1].lex, s[3], s[5], s[6], s[1].row, s[1].column)
+type_body_stat %= id + opar + params_def + cpar + type_annotation + func_body, lambda h, s: MethodDefNode(s[1].lex, s[3], s[5], s[6], s[1].row, s[1].column)
 
 expr %= new + id + opar + arguments + cpar, lambda h, s: NewInstanceNode(s[2].lex, s[4], s[2].row, s[2].column)
 

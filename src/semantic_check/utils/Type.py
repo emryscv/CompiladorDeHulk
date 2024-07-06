@@ -25,6 +25,16 @@ class Type:
         self.attributes.append(attribute)
         return []
     
+    def get_method(self, name, params_count, return_type, check_me=True):
+        if check_me:
+            for method in self.methods:
+                if method.name == name and len(method.params) == params_count and method.return_type == return_type:
+                    return True
+        if self.parent:
+            return self.parent.get_method(name, params_count, return_type)
+        
+        return False
+    
     def get_params(self):
         if len(self.params) == 0 and self.parent:
                 return self.parent.get_params()

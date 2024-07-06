@@ -20,7 +20,6 @@ class SemeanticChecker(object):
             self.visit(definition, scope.create_child_scope())                        
             self.current_type = None
             
-
         self.visit(node.mainExpression, scope)
 
     @visitor.when(TypeDefNode)
@@ -53,11 +52,12 @@ class SemeanticChecker(object):
         if node.return_type_token and not node.return_type_token.lex in self.context.types: #TODO arreglar esta vaina
                 self.errors.append(Invalid_Type(node.return_type_token.lex, node.return_type_token.row, node.return_type_token.column))        
         
-        base = scope.get_function(node.identifier)
+        base = scope.get_function(node.identifier) #TODO Esto no me cuadra
         
         #TODO buscar si existe base en el arbol de tipos
-        #if self.current_type:
-        #    scope.define_function("base", base.params, base.return_type)
+        
+        if self.current_type and self.current_type.get_method(node.identifier, len(node.params_list), node.return_type_token.lex if node.return_type_token else "Object", False):
+            scope.define_function("base", base.params, base.return_type)
         
         self.visit(node.body, scope)
 
@@ -169,7 +169,7 @@ class SemeanticChecker(object):
             
     @visitor.when(FuncCallNode)
     def visit(self, node: FuncCallNode, scope: Scope):
-        message = scope.is_function_defined(node.identifier, len(node.arg_list))
+        message = scope.is_function_defined(node.identifier, len(node.args_list))
         self.errors += message
         
         if len(message) == 0:
@@ -178,7 +178,7 @@ class SemeanticChecker(object):
             if len(function.params) != len(node.args_list):
                 self.errors.append(Invalid_Arg_Count(node.identifier, len(function.params), len(node.args_list, node.row, node.col)))
             else:
-                for i, arg in enumerate(node.arg_list):
+                for i, arg in enumerate(node.args_list):
                     arg_type = self.context.get_type(self.visit(arg, scope))
                     if not arg_type.conformed_by(function.params[i][1]):
                         self.errors.append(Invalid_Argument_Type(i, node.identifier, function.params[i][1], arg_type.name, arg.row, arg.col))
