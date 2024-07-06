@@ -217,7 +217,7 @@ def build_LR0_automaton(G):
     return automaton
 
 
-def evaluate_reverse_parse(right_parse, operations, tokens):
+def evaluate_reverse_parse(right_parse, operations, tokens, get_tokens=False):
     if not right_parse or not operations or not tokens:
         return
 
@@ -227,7 +227,10 @@ def evaluate_reverse_parse(right_parse, operations, tokens):
     for operation in operations:
         if operation == ShiftReduceParser.SHIFT:
             token = next(tokens)
-            stack.append(token.lex)
+            if get_tokens:
+                stack.append(token)
+            else:
+                stack.append(token.lex)
         elif operation == ShiftReduceParser.REDUCE:
             production = next(right_parse)
             head, body = production

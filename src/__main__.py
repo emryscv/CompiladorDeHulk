@@ -13,6 +13,7 @@ from semantic_check.FormatVisitor import FormatVisitor
 from semantic_check.TypeAndFunctionCollectorVisitor import TypeAndFunctionCollector
 from semantic_check.TypeBuilderVisitor import TypeBuilder
 from semantic_check.SemeanticCheckerVisitor import SemeanticChecker
+from code_gen.Interpreter import Interpreter
 
 def main(code_path):
     if not Path(code_path).suffix == ".hulk":
@@ -43,7 +44,7 @@ def main(code_path):
         print(operations_or_error)
         sys.exit(1) 
         
-    ast = evaluate_reverse_parse(derivation, operations_or_error, tokens)
+    ast = evaluate_reverse_parse(derivation, operations_or_error, tokens, true)
 
     formatter = FormatVisitor()
     print(formatter.visit(ast))
@@ -61,7 +62,13 @@ def main(code_path):
             
     print("context:", context)
     print("scope:", scope)
-    print("errors:", errors)
+    print("errors: [")
+    for error in errors:
+        print("\t", error)
+    print("]")    
+
+    #interpreter = Interpreter(context)
+    #interpreter.visit(ast, scope)
     
     
 if __name__ == "__main__":
