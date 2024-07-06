@@ -145,8 +145,8 @@ optional_inherits_args %= G.Epsilon, lambda h, s: (None, [])
 type_body %= type_body + type_body_stat, lambda h , s: s[1] + [s[2]]
 type_body %= type_body_stat, lambda h , s: [s[1]]
 
-type_body_stat %= id + type_annotation + asign_equal + expr + semicolon, lambda h, s: VarDefNode(s[1].lex, s[2], s[4], s[3].row, s[3].column) 
-type_body_stat %= id + type_annotation + asign_equal + ocurl + expr_list + ccurl + optional_semicolon, lambda h, s: VarDefNode(s[1].lex, s[2], s[5])
+type_body_stat %= id + type_annotation + asign_equal + expr + semicolon, lambda h, s: AttributeDefNode(s[1].lex, s[2], s[4], s[3].row, s[3].column) 
+type_body_stat %= id + type_annotation + asign_equal + ocurl + expr_list + ccurl + optional_semicolon, lambda h, s: AttributeDefNode(s[1].lex, s[2], s[5], s[3].row, s[3].column)
 type_body_stat %= id + opar + params_def + cpar + type_annotation + func_body, lambda h, s: MethodDefNode(s[1].lex, s[3], s[5], s[6], s[1].row, s[1].column)
 
 expr %= new + id + opar + arguments + cpar, lambda h, s: NewInstanceNode(s[2].lex, s[4], s[2].row, s[2].column)
@@ -156,19 +156,19 @@ type_annotation %= G.Epsilon, lambda h, s: None # esto hace falta?
 
 ###protocols###
 
-protocol_def %= protocol + id + optional_extends + ocurl + protocol_body + ccurl, lambda h, s: ProtocolDefNode(s[2], s[3], s[5])
+protocol_def %= protocol + id + optional_extends + ocurl + protocol_body + ccurl, lambda h, s: ProtocolDefNode(s[2].lex, s[3], s[5], s[2].row, s[2].column)
 
 optional_extends %= extends + id, lambda h, s: s[2] 
 optional_extends %= G.Epsilon, lambda h, s: None
 
-protocol_body %= protocol_body + id + opar + arg_def_protocol + cpar + colon + id + semicolon, lambda h, s: s[1] + [FuncDecNode(s[2], s[4], s[7])]
+protocol_body %= protocol_body + id + opar + arg_def_protocol + cpar + colon + id + semicolon, lambda h, s: s[1] + [FuncDecNode(s[2].lex, s[4], s[7], s[2].row, s[2].column)]
 protocol_body %= G.Epsilon, lambda h, s: []
 
 arg_def_protocol %= arg_def_list_protocol, lambda h, s: s[1]
 arg_def_protocol %= G.Epsilon, lambda h, s: []
 
-arg_def_list_protocol %= arg_def_list_protocol + coma + id + colon + id, lambda h , s: s[1] + [(s[3], s[5])]
-arg_def_list_protocol %= id + colon + id, lambda h , s: [(s[1], s[3])]
+arg_def_list_protocol %= arg_def_list_protocol + coma + id + colon + id, lambda h , s: s[1] + [(s[3].lex, s[5])]
+arg_def_list_protocol %= id + colon + id, lambda h , s: [(s[1].lex, s[3])]
 
 optional_semicolon %= semicolon, lambda h, s: None
 optional_semicolon %= G.Epsilon, lambda h, s: None

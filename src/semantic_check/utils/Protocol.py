@@ -6,13 +6,13 @@ class Protocol:
         self.methods: list[Function] = []
         self.parent: Protocol = None
         
-    def define_method(self, name:str, params:list, return_type:str):
+    def declare_method(self, name:str, params:list, return_type:str):
         if name in (method.name for method in self.methods):
-            return [f'Method "{name}" already defined in {self.name}']
+            return False
 
         method = Function(name, params, return_type)
         self.methods.append(method)
-        return []
+        return True
     
     def __str__(self):
         return f'{self.name}{(" extends " + self.parent.name) if self.parent else ""} {self.methods}'

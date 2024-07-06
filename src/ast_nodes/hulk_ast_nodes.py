@@ -68,6 +68,9 @@ class VarDefNode(DeclarationNode):
         super().__init__(identifier, row, col)     
         self.vtype_token = vtype_token
         self.expr = expr
+        
+class AttributeDefNode(VarDefNode):
+    pass     
     
 class IfElseNode(ExpressionNode):
     def __init__(self, boolExpr_List, body_List, row, col):

@@ -26,12 +26,19 @@ class UnexspectedSequenceTokens(HULK_error):
     def __init__(self, token, prev_token):
         super().__init__(f"Unexpected token: {token.lex} in Line: {token.row}, Column: {token.column} after {prev_token.lex}", "Semantic Error")
 
-class Invalid_Type(HULK_error):
-    def __init__(self, type, row, column):
-        super().__init__(f'Type "{type}" is not defined in Line: {row}, Column: {column}', "Semantic Error")
+class Not_Defined(HULK_error):
+    def __init__(self, type, identifier, row, column):
+        super().__init__(f'{type} "{identifier}" is not defined in Line: {row}, Column: {column}', "Semantic Error")
         
-
-class   Invalid_Argument_Type(HULK_error):
+class Already_Defined(HULK_error):
+    def __init__(self, type, identifier, row, column):
+        super().__init__(f'{type} with the same name ({identifier}) is already defined in Line: {row}, Column: {column}', "Semantic Error")
+        
+class Already_Denfined_In_Type(HULK_error):
+    def __init__(self, type, identifier, type_name, row, column):
+        super().__init__(f'{type} with the same name ({identifier}) is already defined in ({type_name}) in Line: {row}, Column: {column}', "Semantic Error")
+    
+class Invalid_Argument_Type(HULK_error):
     def __init__(self, position, function_id, param_type, arg_type, row, column):
         super().__init__(f'Argument number: {position} in ({function_id}) has type ({param_type}) but ({arg_type}) was given  in Line: {row}, Column: {column}', "Semantic Error")
 

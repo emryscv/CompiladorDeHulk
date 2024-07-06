@@ -10,60 +10,44 @@ class Context:
             "Boolean": Type("Boolean"),
         }
         self.protocols: dict[str, Protocol] = {
-            "Iterable": Type("Iterable") #TODO añadirle los metodos q hacen falta
+            "Iterable": Protocol("Iterable")
         }
-        
+                
         object = self.get_type("Object")
         self.get_type("String").parent = object
         self.get_type("Number").parent = object
         self.get_type("Boolean").parent = object
 
+        iterable = self.get_protocol("Iterable")
+        iterable.declare_method("next", [], "Boolean")
+        iterable.declare_method("current", [], "Object")
+
     def create_type(self, name:str):
-        message = self.is_defined(name)
-        
-        if len(message) == 0:
-            self.types[name] = Type(name)
-        
-        return message
+        self.types[name] = Type(name)
     
     def create_protocol(self, name:str):
-        message = self.is_defined(name)
-        
-        if len(message) == 0:
-            self.types[name] = Protocol(name)
-        
-        return message
-        
+        self.protocols[name] = Protocol(name)
+                
     def is_type_defined(self, name:str):
         if name in self.types:
-            return []
+            return True
         
-        return (f'Type "{name}" is not defined.')
+        return False
     
     def is_protocol_defined(self, name:str):
         if name in self.protocols:
-            return []
+            return True
         
-        return (f'Protocol "{name}" is not defined.')
-    
-    def is_defined(self, name:str):
-        if name in self.types:
-            return [f'Type with the same name ({name}) already in context.']
-        
-        if name in self.protocols:
-            return [f'Protocol with the same name ({name}) already in context.']
-        
-        return []
+        return False
     
     def get_type(self, name:str):
         return self.types[name]
     
     def get_protocol(self, name:str):
-        return self.types[name]
-    
+        return self.protocols[name]
     
     def __str__(self):
-        return '{\n\t' + '\n\t'.join(str(x) for x in self.types.values()) + '\n}'
+        return '{\n\ttypes:{\n\t\t' + '\n\t\t'.join(str(x) for x in self.types.values()) + '\n\t}\n\tprotoocols:{\n\t\t' + '\n\t\t'.join(str(x) for x in self.protocols.values()) + '\n\t}\n}'
 
     def __repr__(self):
         return str(self)

@@ -1,5 +1,6 @@
 from semantic_check.utils.Function import Function
 from semantic_check.utils.Variable import Variable
+from semantic_check.utils.Protocol import Protocol
 
 class Type:
     def __init__(self, name:str):
@@ -11,19 +12,19 @@ class Type:
     
     def define_method(self, name:str, params:list, return_type:str):
         if name in (method.name for method in self.methods):
-            return [f'Method "{name}" already defined in {self.name}']
-
+            return False
+        
         method = Function(name, params, return_type)
         self.methods.append(method)
-        return []
+        return True
     
     def define_attribute(self, name:str, typex:str):    
         if name in (attribute.name for attribute in self.attributes):
-            return [f'Attribute "{name}" already defined in {self.name}']
+            return False
 
         attribute = Variable(name, typex)
         self.attributes.append(attribute)
-        return []
+        return True
     
     def get_method(self, name, params_count, return_type, check_me=True):
         if check_me:
@@ -47,6 +48,12 @@ class Type:
             return self.parent.conformed_by(name)
         else:
             return False    
+    
+    def implements(self, protocol:Protocol):
+        for method in protocol.methods:
+            if not self.get_method(method.name, len(method.params), method.return_type):
+                return False
+        return True
     
     def __str__(self):
         return f'{self.name}{(" inherits " + self.parent.name) if self.parent else ""} {self.attributes} {self.methods}'

@@ -1,10 +1,11 @@
 function test() => x + y;
 
 type Animal {
-    test() => x + y;
+    test(x: Number) => x + y;
 }
 type Perro inherits Animal{
-     test() => x - y;
+    test() => x - y;
+    test() => x - y;
 }
 
 function test2(x, y){
@@ -12,9 +13,9 @@ function test2(x, y){
     x - y;
 }
 
-type Point(x, y) {
-    x: Number = x;
-    y: Number = y;
+type Point(x, x) {
+    x: Yo = x;
+    y = y;
 }
 type PolarPoint(phi, rho) inherits Point(rho * sin(phi), rho * cos(phi)) {
     phi = phi;
