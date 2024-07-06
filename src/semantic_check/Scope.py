@@ -5,7 +5,7 @@ class Scope:
     def __init__(self, parent = None):
         self.parent: Scope = parent
         self.variables = {}
-        self.functions = {"print": Function("print", [("string", "String")], "Object")}
+        self.functions = {"print": Function("print", [("string", "String")], "Object", print)}
         
     def is_variable_defined(self, vname:str):
         return [] if vname in self.variables or (self.parent != None and self.parent.IsDefine(vname)) else [f'Variable "{vname}" is not defined.']
@@ -24,15 +24,14 @@ class Scope:
     def define_variable(self, vname:str, vtype=None, check=True, value=None):
         if check and vname in self.variables:
             return [f'Variable with the same name ({vname}) is already defined']
-        
         self.variables[vname] = Variable(vname, vtype, value)
         return []
     
-    def define_function(self, fname, params, return_type):
+    def define_function(self, fname, params, return_type, function_body=None):
         if fname in self.functions:
             return [f'Function with the same name ({fname}) is already defined']
         
-        self.functions[fname] = Function(fname, params, return_type)
+        self.functions[fname] = Function(fname, params, return_type, function_body)
         return []
         
     def get_variable(self, vname:str):

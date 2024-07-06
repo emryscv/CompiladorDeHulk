@@ -1,4 +1,5 @@
 import utils.visitor as visitor
+from utils.utils import Token
 
 class Node:
     def evaluate(self):
@@ -132,11 +133,10 @@ class WhileLoopNode(ExpressionNode):
 
 class ForLoopNode(LetInNode):
      def __init__(self, var, iterable, body):
-         iter = VarDefNode("iterable", "Iterable", iterable)
-         condition = DotNotationNode(iter, FuncCallNode("next", []))
-         whileLoop = WhileLoopNode(condition, LetInNode([VarDefNode(var, "", DotNotationNode(VariableNode("iterable"), FuncCallNode("current", [])))], body))
-         
-         super().__init__([iter], whileLoop)
+        iter = VarDefNode(Token("iterable", "Iterable"), "Iterable", iterable)
+        condition = DotNotationNode(iter, FuncCallNode(Token("next", "Next"), []))
+        whileLoop = WhileLoopNode(condition, LetInNode([VarDefNode(var, "", DotNotationNode(VariableNode(Token("iterable", "Iterable")), FuncCallNode(Token("current", "Current"), [])))], body))
+        super().__init__([iter], whileLoop)
          
 class BinaryOperationNode(ExpressionNode):
     def __init__(self, left, right, operator):

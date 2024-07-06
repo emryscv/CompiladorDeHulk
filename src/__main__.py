@@ -60,12 +60,12 @@ def main(code_path):
     # semantic_checker = SemeanticChecker(errors, context)
     # semantic_checker.visit(ast, scope)
             
-    print("context:", context)
-    print("scope:", scope)
-    print("errors:", errors)
+    # print("context:", context)
+    # print("scope:", scope)
+    # print("errors:", errors)
 
     interpreter = Interpreter(context)
-    interpreter.visit(ast, scope)
+    interpreter.visit(ast)
     
     
 if __name__ == "__main__":
