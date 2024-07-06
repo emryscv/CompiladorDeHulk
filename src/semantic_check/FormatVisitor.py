@@ -67,7 +67,6 @@ class FormatVisitor(object):
     
     @visitor.when(VarDefNode)
     def visit(self, node, tabs=0):
-        print(node.vtype_token)
         ans = '\t' * tabs + f'\\__VarDefNode: {node.identifier}: {node.vtype_token.lex if node.vtype_token else None} = <expr>'
         expr = self.visit(node.expr, tabs + 1)
         return f'{ans}\n{expr}'

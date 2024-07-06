@@ -19,6 +19,7 @@ class SemeanticChecker(object):
         for definition in node.definitions: 
             self.visit(definition, scope.create_child_scope())                        
             self.current_type = None
+            
 
         self.visit(node.mainExpression, scope)
 
@@ -27,7 +28,7 @@ class SemeanticChecker(object):
         self.current_type = self.context.get_type(node.identifier)
         
         for param in self.current_type.params:
-            scope.define_variable(param[0], param[1].lex if param[1] else None)
+            scope.define_variable(param[0], param[1])
             
         for attribute in self.current_type.attributes:
             scope.define_variable(attribute.name, attribute.vtype)
@@ -57,7 +58,7 @@ class SemeanticChecker(object):
         #TODO buscar si existe base en el arbol de tipos
         #if self.current_type:
         #    scope.define_function("base", base.params, base.return_type)
-            
+        
         self.visit(node.body, scope)
 
     @visitor.when(BlockExprNode)
@@ -78,7 +79,7 @@ class SemeanticChecker(object):
     
     @visitor.when(VarDefNode)
     def visit(self, node:VarDefNode, scope:Scope):
-        self.errors += scope.define_variable(node.identifier, node.vtype_token.lex if node.vtype_token else None, check=False)
+        self.errors += scope.define_variable(node.identifier, node.vtype_token.lex if node.vtype_token else "Object", check=False)
         
         expr_type = self.context.get_type(self.visit(node.expr, scope))
 
@@ -122,13 +123,13 @@ class SemeanticChecker(object):
         if node.operator in ['+', '-', '*', '/', '^', '**']:
             if not (left_type == "Number" and right_type == "Number"):
                 self.errors.append(Invalid_Operation(node.operator, left_type, right_type, node.row, node.col))
-                return None
+                return "Object"
             else:
                 return "Number"
         elif node.operator in ['@', '@@']:
             if not (left_type in ["Number", "String", "Boolean"] and right_type  in ["Number", "String", "Boolean"]):
                 self.errors.append(Invalid_Operation(node.operator, left_type, right_type, node.row, node.col))
-                return None
+                return "Object"
             else:
                 return "String"
     
@@ -139,10 +140,10 @@ class SemeanticChecker(object):
         
         if node.operator in ['<', '>', '<=', '>=', '==', '!='] and not (left_type == "Number" and right_type == "Number"):
                 self.errors.append(Invalid_Operation(node.operator, left_type, right_type, node.row, node.col))
-                return None
+                return "Object"
         elif node.operator in ['&', '|'] and not (left_type == "Boolean" and right_type == "Boolean"):
                 self.errors.append(Invalid_Operation(node.operator, left_type, right_type, node.row, node.col))
-                return None
+                return "Object"
         
         return "Boolean"
     
@@ -164,7 +165,7 @@ class SemeanticChecker(object):
                 self.errors.append(Invalid_Initialize_type(node.identifier, variable.vtype, expr_type.name, node.expr.row, node.expr.col))
             return variable.vtype
 
-        return None
+        return "Object"
             
     @visitor.when(FuncCallNode)
     def visit(self, node: FuncCallNode, scope: Scope):
@@ -183,7 +184,7 @@ class SemeanticChecker(object):
                         self.errors.append(Invalid_Argument_Type(i, node.identifier, function.params[i][1], arg_type.name, arg.row, arg.col))
             
             return function.return_type
-        return None
+        return "Object"
     
     @visitor.when(AtomicNode)
     def visit(self, node, scope):
@@ -199,7 +200,7 @@ class SemeanticChecker(object):
         if len(message) == 0:
             return scope.get_variable(node.lex).vtype
         
-        return None #TODO ver como hacemos con los errores aqui
+        return "Object" #TODO ver como hacemos con los errores aqui
                 
     @visitor.when(NewInstanceNode)
     def visit(self, node:NewInstanceNode, scope: Scope):
@@ -215,7 +216,9 @@ class SemeanticChecker(object):
                 for i, arg in enumerate(node.args_list): 
                     arg_type = self.context.get_type(self.visit(arg, scope))
                     if not arg_type.conformed_by(params[i][1]):
-                        self.errors.append(Invalid_Argument_Type(i, node.identifier, params[i][1], arg_type.name, arg.row, arg.col))
-                        
+                        self.errors.append(Invalid_Argument_Type(i, node.identifier, params[i][1], arg_type.name, arg.row, arg.col))  
             return type.name
-        return None
+        else:
+            self.errors += message
+            
+        return "Object"

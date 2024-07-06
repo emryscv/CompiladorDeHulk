@@ -9,7 +9,6 @@ class Scope:
         self.is_self_asignable:bool  = False
         
     def is_variable_defined(self, vname:str):
-        print(self.variables)
         return [] if vname in self.variables or (self.parent != None and len(self.parent.is_variable_defined(vname)) == 0) else [f'Variable "{vname}" is not defined.']
     
     def is_function_defined(self, fname:str, args):
@@ -41,7 +40,6 @@ class Scope:
         try:
             return self.variables[vname]
         except KeyError:
-            print(vname)
             return self.parent.get_variable(vname)
         
     def get_function(self, fname:str) -> Function:

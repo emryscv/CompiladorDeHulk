@@ -39,7 +39,6 @@ class Type:
             return False    
     
     def __str__(self):
-        print(self.parent)
         return f'{self.name}{(" inherits " + self.parent.name) if self.parent else ""} {self.attributes} {self.methods}'
     
     def __rep__(self):

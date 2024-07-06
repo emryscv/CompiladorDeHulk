@@ -28,7 +28,7 @@ class TypeBuilder(object):
         else:
             self.errors += message
             
-        self.current_type.params = node.optional_params
+        self.current_type.params = [(param[0], param[1].lex if param[1] else "Object") for param in node.optional_params]
         
         for definition in node.body:
             self.visit(definition)
@@ -43,11 +43,11 @@ class TypeBuilder(object):
     
     @visitor.when(MethodDefNode)
     def visit(self, node):
-        self.errors += self.current_type.define_method(node.identifier, node.params_list, node.return_type_token.lex if node.return_type_token else None)
+        self.errors += self.current_type.define_method(node.identifier, node.params_list, node.return_type_token.lex if node.return_type_token else "Object")
 
     @visitor.when(VarDefNode)
     def visit(self, node):
-        self.errors += self.current_type.define_attribute(node.identifier, node.vtype_token.lex if node.vtype_token else None)
+        self.errors += self.current_type.define_attribute(node.identifier, node.vtype_token.lex if node.vtype_token else "Object")
     
         
     
