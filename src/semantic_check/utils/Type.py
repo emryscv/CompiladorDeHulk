@@ -52,4 +52,4 @@ class Type:
         return f'{self.name}{(" inherits " + self.parent.name) if self.parent else ""} {self.attributes} {self.methods}'
     
     def __rep__(self):
-        return __str__()
+        return self.__str__()
