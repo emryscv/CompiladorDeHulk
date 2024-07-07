@@ -20,6 +20,7 @@ class Interpreter:
             "current": lambda x: x[0][x[1]], 
             "next": lambda x: (x[0], x[1], x[2] + 1) 
         }
+        self.types = {}
 
     @visitor.on('node')
     def visit(self, node, scope):
@@ -40,7 +41,8 @@ class Interpreter:
 
     @visitor.when(TypeDefNode)
     def visit(self, node, scope):
-        pass
+        type = self.context.get_type(node.identifier)
+        self.types[type] = node
 
     @visitor.when(ProtocolDefNode)
     def visit(self, node, scope):
@@ -53,6 +55,10 @@ class Interpreter:
     @visitor.when(FuncDefNode)
     def visit(self, node, scope):
         scope.define_function(node.identifier, [param[0] for param in node.params_list], node.return_type_token, node.body)
+
+    @visitor.when(MethodDefNode)
+    def visit(self, node, scope):
+        scope.define_function(node.identifier, [param[0] for param in node.params_list], node.return_type_token, node.body, True)
 
     @visitor.when(ExpressionNode)
     def visit(self, node, scope):
@@ -106,7 +112,7 @@ class Interpreter:
     def visit(self, node, scope):
         right = self.visit(node.right, scope)
         left = self.visit(node.left, scope)
-        sol = 0
+        sol = None
         match node.operator:
             case '+' | '@':
                 sol = left + right
@@ -117,7 +123,7 @@ class Interpreter:
             case '/': 
                 sol = left / right
             case '@@':
-                sol = left + ' ' + right
+                sol = left + " " + right
             case '^':
                 sol = left ** right
         return sol
@@ -154,8 +160,13 @@ class Interpreter:
 
     @visitor.when(DotNotationNode)
     def visit(self, node, scope):
-        self.visit(node.object, scope)
+        if isinstance(node.object, VariableNode):
+            object = self.visit(node.object, scope, True)
+        else:
+            self.visit(node.object, scope)
+            return self.visit(node.member, scope)
         return self.visit(node.member, scope)
+            
     
     @visitor.when(FuncCallNode)
     def visit(self, node, scope):
@@ -179,8 +190,11 @@ class Interpreter:
 
         else:
             function = scope.get_function(node.identifier)
-            call_scope = scope.create_child_scope()
+            call_scope = scope
+            if not function.is_method:
+                call_scope = scope.create_child_scope()
             for i in range(len(function.params)):
+                print('yes')
                 call_scope.define_variable(function.params[i], value=args[i])
             return self.visit(function.body, call_scope)
         
@@ -204,10 +218,19 @@ class Interpreter:
         return str(node.lex)
         
     @visitor.when(VariableNode)
-    def visit(self, node, scope):
+    def visit(self, node, scope, get_var_name=False):
+        if node.lex == 'self':
+            return 'self'
         var = scope.get_variable(node.lex)
+        if get_var_name:
+            return var.name
         return var.value
     
     @visitor.when(NewInstanceNode)
     def visit(self, node, scope):
-        pass
+        var_type = self.context.get_type(node.identifier)
+        args = [self.visit(arg, scope) for arg in node.args_list]
+        instance = self.types[var_type]
+        instance.define_instance_variable(args, scope)
+        for expr in instance.body:
+            self.visit(expr, scope)

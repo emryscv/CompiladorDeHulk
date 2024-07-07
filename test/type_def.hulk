@@ -1,4 +1,4 @@
-function test() => x + y;
+function test(x, y) => x + y;
 
 type Animal {
     test() => x + y;

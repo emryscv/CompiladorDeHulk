@@ -60,8 +60,8 @@ def main(code_path):
     # semantic_checker = SemeanticChecker(errors, context)
     # semantic_checker.visit(ast, scope)
             
-    # print("context:", context)
-    # print("scope:", scope)
+    print("context:", context)
+    print("scope:", scope)
     # print("errors: [")
     # for error in errors:
     #     print("\t", error)

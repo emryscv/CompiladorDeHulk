@@ -28,11 +28,11 @@ class Scope:
         self.variables[vname] = Variable(vname, vtype, value)
         return []
     
-    def define_function(self, fname, params, return_type, function_body=None):
+    def define_function(self, fname, params, return_type, function_body=None, is_method=False):
         if fname in self.functions:
             return [f'Function with the same name ({fname}) is already defined']
         
-        self.functions[fname] = Function(fname, params, return_type, function_body)
+        self.functions[fname] = Function(fname, params, return_type, function_body, is_method)
         return []
         
     def get_variable(self, vname:str) -> Variable:

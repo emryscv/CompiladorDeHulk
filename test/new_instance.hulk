@@ -1,9 +1,12 @@
-type Animal(name) {
-    name = name;
-    MakeSomeNoise() => "My name is: " @ name;
+type Person(firstname, lastname) {
+    firstname = firstname;
+    lastname = lastname;
+
+    name() => self.firstname @@ self.lastname;
 }
-type Perro inherits Animal{
-    MakeSomeNoise() => base() @ "Jau Jau";    
+type Knight inherits Person {
+    name() => "Sir" @@ base();
 }
 
-let scooby: Animal = new Perro("Rex") in scooby.MakeSomeNoise();
+let p = new Person("Phil", "Collins") in
+    print(p.name());
