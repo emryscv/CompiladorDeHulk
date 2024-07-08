@@ -265,7 +265,6 @@ class SemeanticChecker(object):
             else:
                 for i, arg in enumerate(node.args_list):
                     arg_type = self.visit(arg, scope)
-                    print(function.params[i])
                     if not arg_type.match(function.params[i][1]):
                         self.errors.append(Invalid_Argument_Type(i, node.identifier.lex, function.params[i][1].name, arg_type.name, node.identifier.row, node.identifier.column))
             
@@ -300,21 +299,21 @@ class SemeanticChecker(object):
           
         return self.context.get_type("Object")[1]
                 
-    # @visitor.when(NewInstanceNode)
-    # def visit(self, node:NewInstanceNode, scope: Scope):  
-    #     if self.context.is_type_defined(node.identifier):
-    #         type = self.context.get_type(node.identifier)
-    #         params = type.get_params()
+    @visitor.when(NewInstanceNode)
+    def visit(self, node:NewInstanceNode, scope: Scope):  
+        success, type = self.context.get_type(node.identifier.lex)
+        
+        if success:
+            params = type.get_params()
             
-    #         if len(params) != len(node.args_list):
-    #             self.errors.append(Invalid_Arg_Count(node.identifier, len(params), len(node.args_list)))
-    #         else:    
-    #             for i, arg in enumerate(node.args_list): 
-    #                 arg_type = self.context.get_type(self.visit(arg, scope))
-    #                 if not arg_type.conformed_by(params[i][1]):
-    #                     self.errors.append(Invalid_Argument_Type(i, node.identifier, params[i][1], arg_type.name, arg.row, arg.col))  
-    #         return type.name
-    #     else:
-    #         self.errors.append(Not_Defined("Type", node.identifier))
-            
-    #     return "Object"
+            if len(params) != len(node.args_list):
+                self.errors.append(Invalid_Arg_Count(node.identifier, len(params), len(node.args_list)))
+            else:    
+                for i, arg in enumerate(node.args_list): 
+                    arg_type = self.visit(arg, scope)
+                    if not arg_type.match(params[i][1]):
+                        self.errors.append(Invalid_Argument_Type(i, node.identifier.lex, params[i][1].name, arg_type.name, node.identifier.row, node.identifier.column))  
+            return type
+        else:
+            self.errors.append(Not_Defined("Type", node.identifier))
+            return self.context.get_type("Object")[1]
