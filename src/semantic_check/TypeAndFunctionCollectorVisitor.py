@@ -26,7 +26,17 @@ class TypeAndFunctionCollector(object):
         
         
         self.scope.define_function("print", [("string", self.context.get_type("Object")[1])], self.context.get_type("Object")[1])
-        self.scope.define_function("range", [("min", self.context("Number")[1]), ("max", self.context.get_type("Number")[1])], self.context.get_protocol("Range")[1])        
+        self.scope.define_function("range", [("min", self.context.get_type("Number")[1]), ("max", self.context.get_type("Number")[1])], self.context.get_protocol("Range")[1])      
+        self.scope.define_function("sqrt", [("value", self.context.get_type("Number")[1])], self.context.get_type("Number")[1])
+        self.scope.define_function("sin", [("angle", self.context.get_type("Number")[1])], self.context.get_type("Number")[1])
+        self.scope.define_function("cos", [("angle", self.context.get_type("Number")[1])], self.context.get_type("Number")[1])
+        self.scope.define_function("exp", [("value", self.context.get_type("Number")[1])], self.context.get_type("Number")[1])
+        self.scope.define_function("log", [("base", self.context.get_type("Number")[1]), ("value", self.context.get_type("Number")[1])], self.context.get_type("Number")[1])
+        self.scope.define_function("rand", [], self.context.get_type("Number")[1])  
+        
+        self.scope.define_variable("PI", self.context.get_type("Number")[1])
+        self.scope.define_variable("E", self.context.get_type("Number")[1])
+        
         #TODO definir sin, cos, etc...
         #despues de eso comprobar los parametros en los tipos
 
