@@ -64,7 +64,7 @@ class Boolean_Expected(HULK_error):
 
 class Invalid_Arg_Count(HULK_error):    
     def __init__(self, function_id, params_count, arg_count):
-        super().__init__(f'{function_id.lex} expects {params_count} params but {arg_count}was given in Line: {function_id.row}, Column: {function_id.column}', "Semantic Error")
+        super().__init__(f'{function_id.lex} expects {params_count} params but {arg_count} was given in Line: {function_id.row}, Column: {function_id.column}', "Semantic Error")
 
 class Forbiden_Inheritance(HULK_error):
     def __init__(self, base_identifier):

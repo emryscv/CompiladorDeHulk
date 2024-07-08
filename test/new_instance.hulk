@@ -1,4 +1,4 @@
-type Animal(name) {
+type Animal(name: Perro) {
     name = name;
     MakeSomeNoise() => "My name is: " @ name;
 }
