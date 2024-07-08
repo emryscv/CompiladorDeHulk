@@ -17,11 +17,11 @@ function test2(x, y){
     x - y;
 }
 
-type Point(x, x) {
+type Point(x, y) {
     x: Yo = x;
     y = y;
 }
-type PolarPoint(phi, rho) inherits Point(rho * sin(phi), rho * cos(phi)) {
+type PolarPoint(phi:Number, rho:Number) inherits Point(rho * sin(phi), rho * cos(phi)) {
     phi = phi;
     rho = rho;
 }

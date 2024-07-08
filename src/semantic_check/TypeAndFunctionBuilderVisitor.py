@@ -39,13 +39,13 @@ class TypeAndFunctionBuilder(object):
             
         params = []
         
-        for param in self.current_type.params:
-            param_type = param[1] if not param[1] else Token("Object", id, param[0].row, param[0].column)
+        for param in node.optional_params:
+            param_type = param[1] if param[1] else Token("Object", id, param[0].row, param[0].column)
             
             sucess, type = self.context.get(param_type.lex)
             if not sucess:
                 self.errors.append(Not_Defined("Type", param_type))      
-            params.append(param[0], type)
+            params.append((param[0], type))
         
         self.current_type.params = params
         self.current_type.parent = parent
