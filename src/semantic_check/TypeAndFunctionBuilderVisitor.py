@@ -71,17 +71,16 @@ class TypeAndFunctionBuilder(object):
         
     @visitor.when(FuncDecNode)
     def visit(self, node: FuncDecNode):
-        if node.return_type_token:
-            sucess, return_type = self.context.get(node.return_type_token.lex)
-            if not sucess:
-                self.errors.append(Not_Defined("Type", node.return_type_token))
-        else:
-            _, return_type = self.context.get("Object")
+        #siempre hay tipo por como esta definida la gramatica
+        sucess, return_type = self.context.get(node.return_type_token.lex)
+        if not sucess:
+            self.errors.append(Not_Defined("Type", node.return_type_token))
         
         params_name = {"*"} #python things
         params = []
         
         for param in node.params_list:
+            #siempre hay tipo por como esta definida la gramatica
             sucess, type = self.context.get(param[1].lex) 
             if not sucess:
                 self.errors.append(Not_Defined("Type", param[1]))
@@ -98,16 +97,16 @@ class TypeAndFunctionBuilder(object):
     def visit(self, node:FuncDefNode, scope: Scope):
         function = scope.get_function(node.identifier.lex)
         
-        if node.return_type_token:
-            sucess, function.return_type = self.context.get(node.return_type_token.lex)
-            if not sucess:
-                self.errors.append(Not_Defined("Type", node.return_type_token))
-        else:
-            _, function.return_type = self.context.get("Object")
+        #siempre hay tipo por el recorrido de type collection
+        sucess, function.return_type = self.context.get(function.return_type.lex)
+        if not sucess:
+            #si falla es porq habia un token porq sin oes object
+            self.errors.append(Not_Defined("Type", node.return_type_token))
         
         params = []
         
         for param in function.params:
+            #siempre hay tipo por el recorrido de type collection
             sucess, type = self.context.get(param[1].lex) 
             if not sucess:
                 self.errors.append(Not_Defined("Type", param[1]))
@@ -117,17 +116,16 @@ class TypeAndFunctionBuilder(object):
         
     @visitor.when(MethodDefNode) #TODO definir metdodos con distintos tipos de parametros
     def visit(self, node: MethodDefNode):
-        if node.return_type_token:
-            sucess, return_type = self.context.get(node.return_type_token.lex)
-            if not sucess:
-                self.errors.append(Not_Defined("Type", node.return_type_token))
-        else:
-            _, return_type = self.context.get("Object")
-        
+        #Hay q comprobar que halla token tipo
+        sucess, return_type = self.context.get(node.return_type_token.lex if node.return_type_token else "Object")
+        if not sucess:
+            self.errors.append(Not_Defined("Type", node.return_type_token))
+
         params = []
         
         for param in node.params_list:
-            sucess, type = self.context.get(param[1].lex) 
+            #Hay q comprobar que halla token tipo
+            sucess, type = self.context.get(param[1].lex if param[1] else "Object") 
             if not sucess:
                 self.errors.append(Not_Defined("Type", param[1]))
             params.append((param[0], type))
@@ -137,13 +135,11 @@ class TypeAndFunctionBuilder(object):
 
     @visitor.when(AttributeDefNode)
     def visit(self, node:AttributeDefNode):
-        if node.vtype_token:
-            sucess, vtype = self.context.get(node.vtype_token.lex)
-            if not sucess:
-                self.errors.append(Not_Defined("Type", node.vtype_token))
-        else:
-            _, vtype = self.context.get("Object")
-            
+        #Hay q comprobar que halla token tipo
+        sucess, vtype = self.context.get(node.vtype_token.lex if node.vtype_token else "Object")
+        if not sucess:
+            self.errors.append(Not_Defined("Type", node.vtype_token))
+        
         if not self.current_type.define_attribute(node.identifier.lex, vtype):
             self.errors.append(Already_Defined_In("Attribute", node.identifier, self.current_type.name))
     

@@ -14,7 +14,7 @@ class Protocol:
         self.methods.append(method)
         return True
 
-    def get_method(self, name, params_count, return_type, check_me=True, function = None) -> tuple[bool, bool, bool]:
+    def get_method(self, name, params_count, return_type, check_me=True) -> tuple[bool, bool, bool, Function]:
         name_match = name_match_parent = False
         params_match = params_match_parent = False
         return_match = return_match_parent = False
@@ -30,7 +30,7 @@ class Protocol:
                         if not params_match:
                             params_match = True
                             function = method
-                        if method.return_type == return_type:
+                        if method.return_type.name == return_type.name:
                             return_match = True
                             return (name_match, params_match, return_match, method)
         
