@@ -45,7 +45,7 @@ class SemeanticChecker(object):
                 for i, arg in enumerate(node.optional_base_args):
                     arg_type = self.visit(arg, scope)
                     if not arg_type.match(params[i][1]):
-                        self.errors.append(Invalid_Argument_Type(i, node.identifier.lex, params[i][1], arg_type.name, node.identifier.row, node.identifier.column))
+                        self.errors.append(Invalid_Argument_Type(i, node.identifier.lex, params[i][1], arg_type.name, node.base_identifier.row, node.base_identifier.column))
         
         #TODO revisar
         #Los metodos no estan en el scope son de self    
@@ -93,13 +93,13 @@ class SemeanticChecker(object):
             
         self.visit(node.body, scope)
     
-    # @visitor.when(BlockExprNode)
-    # def visit(self, node, scope):
-    #     for i, expr in enumerate(node.expr_list):
-    #         expr_type = self.visit(expr, scope)
+    @visitor.when(BlockExprNode)
+    def visit(self, node, scope):
+        for i, expr in enumerate(node.expr_list):
+            expr_type = self.visit(expr, scope)
 
-    #         if i == len(node.expr_list) - 1:
-    #             return expr_type
+            if i == len(node.expr_list) - 1:
+                return expr_type
             
     # @visitor.when(LetInNode)
     # def visit(self, node, scope):
@@ -182,32 +182,32 @@ class SemeanticChecker(object):
 
     #     return self.visit(node.body, scope) #TODO esta vaina tiene q retornar lo de la ultima iteracion o None
     
-    # @visitor.when(BinaryOperationNode)
-    # def visit(self, node, scope):
-    #     left_type = self.visit(node.left, scope)
-    #     right_type = self.visit(node.right, scope)
+    @visitor.when(BinaryOperationNode)
+    def visit(self, node:BinaryOperationNode, scope):
+        left_type = self.visit(node.left, scope)
+        right_type = self.visit(node.right, scope)
 
-    #     if node.operator in ['+', '-', '*', '/', '^', '**']:
-    #         if not (left_type == "Number" and right_type == "Number"):
-    #             self.errors.append(Invalid_Operation(node.operator, left_type, right_type, node.row, node.col))
-    #         return "Number"
+        if node.operator.lex in ['+', '-', '*', '/', '^', '**']:
+            if not (left_type.name == "Number" and right_type.name == "Number"):
+                self.errors.append(Invalid_Operation(node.operator, left_type.name, right_type.name))
+            return self.context.get_type("Number")[1]
         
-    #     elif node.operator in ['@', '@@']:
-    #         if not (left_type in ["Number", "String", "Boolean"] and right_type  in ["Number", "String", "Boolean"]):
-    #             self.errors.append(Invalid_Operation(node.operator, left_type, right_type, node.row, node.col))
-    #         return "String"
+        elif node.operator.lex in ['@', '@@']:
+            if not (left_type.name in ["Number", "String", "Boolean"] and right_type.name  in ["Number", "String", "Boolean"]):
+                self.errors.append(Invalid_Operation(node.operator, left_type.name, right_type.name))
+            return self.context.get_type("String")[1]
     
-    # @visitor.when(BooleanExprNode)
-    # def visit(self, node, scope):
-    #     left_type = self.visit(node.left, scope)
-    #     right_type = self.visit(node.right, scope)
-        
-    #     if node.operator in ['<', '>', '<=', '>=', '==', '!='] and not (left_type == "Number" and right_type == "Number"):
-    #             self.errors.append(Invalid_Operation(node.operator, left_type, right_type, node.row, node.col))
-    #     elif node.operator in ['&', '|'] and not (left_type == "Boolean" and right_type == "Boolean"):
-    #             self.errors.append(Invalid_Operation(node.operator, left_type, right_type, node.row, node.col))
-
-    #     return "Boolean"
+    @visitor.when(BooleanExprNode)
+    def visit(self, node:BooleanExprNode, scope):
+        left_type = self.visit(node.left, scope)
+        right_type = self.visit(node.right, scope)
+       
+        if node.operator.lex in ['<', '>', '<=', '>=', '==', '!='] and not (left_type.name == "Number" and right_type.name == "Number"):
+                self.errors.append(Invalid_Operation(node.operator, left_type.name, right_type.name))
+        elif node.operator.lex in ['&', '|'] and not (left_type.name == "Boolean" and right_type.name == "Boolean"):
+                self.errors.append(Invalid_Operation(node.operator, left_type.name, right_type.name))
+    
+        return self.context.get_type("Boolean")
     
     # @visitor.when(VarReAsignNode)
     # def visit(self, node, scope):
@@ -252,53 +252,59 @@ class SemeanticChecker(object):
     #     print(inner_scope)
     #     return self.visit(node.member, inner_scope)
         
-    # @visitor.when(FuncCallNode)
-    # def visit(self, node: FuncCallNode, scope: Scope):
-    #     function = None
-    #     name_match = False
-    #     param_match = False
+    @visitor.when(FuncCallNode)
+    def visit(self, node: FuncCallNode, scope: Scope):
+        function = None
+        name_match = False
+        param_match = False
         
-    #     if scope.is_dot_notation:
-    #         name_match, param_match, return_match, function = scope.dot_notation_current_type.get_method(node.identifier, len(node.args_list), "Object", )
-    #     else:
-    #         name_match, param_match = scope.is_function_defined(node.identifier, len(node.args_list))
+        #if scope.is_dot_notation:
+        #    name_match, param_match, return_match, function = scope.dot_notation_current_type.get_method(node.identifier, len(node.args_list), "Object", )
+        #else:
+        name_match, param_match = scope.is_function_defined(node.identifier.lex, len(node.args_list))
             
-    #     if name_match:
-    #         if not scope.is_dot_notation:
-    #             function = scope.get_function(node.identifier)
+        if name_match:
+            #if not scope.is_dot_notation:
+            function = scope.get_function(node.identifier.lex)
             
-    #         if not param_match:
-    #             self.errors.append(Invalid_Arg_Count(node.identifier, len(function.params), len(node.args_list)))
-    #         else:
-    #             for i, arg in enumerate(node.args_list):
-    #                 arg_type = self.context.get_type(self.visit(arg, scope))
-    #                 if not arg_type.conformed_by(function.params[i][1]):
-    #                     self.errors.append(Invalid_Argument_Type(i, node.identifier, function.params[i][1], arg_type.name, arg.row, arg.col))
+            if not param_match:
+                self.errors.append(Invalid_Arg_Count(node.identifier, len(function.params), len(node.args_list)))
+            else:
+                for i, arg in enumerate(node.args_list):
+                    arg_type = self.visit(arg, scope)
+                    print(function.params[i])
+                    if not arg_type.match(function.params[i][1]):
+                        self.errors.append(Invalid_Argument_Type(i, node.identifier.lex, function.params[i][1], arg_type.name, node.identifier.row, node.identifier.column))
             
-    #         return function.return_type
-    #     else:
-    #         if scope.is_dot_notation:
-    #             self.errors.append(Not_Defined_In("Function", node.identifier, scope.dot_notation_current_type.name, node.row, node.col))
-    #         else:
-    #             self.errors.append(Not_Defined("Function", node.identifier))
-    #         return "Object"
+            return function.return_type
+        else:
+            #if scope.is_dot_notation:
+            #    self.errors.append(Not_Defined_In("Function", node.identifier, scope.dot_notation_current_type.name, node.row, node.col))
+            #else:
+            self.errors.append(Not_Defined("Function", node.identifier))
+            return self.context.get_type("Object")[1]
         
-    # @visitor.when(AtomicNode)
-    # def visit(self, node, scope):
-    #     succes, type = self.context.get(node.lex)
-    #     return type
+    @visitor.when(ConstantNode)
+    def visit(self, node:ConstantNode, scope):
+        #solo es Number, String, Boolean por definicion luego no hay que comprobar
+        succes, type = self.context.get(node.type)
+        return type
     
-    # @visitor.when(VariableNode)
-    # def visit(self, node, scope: Scope):
-    #     if scope.is_variable_defined(node.lex):
-    #         return scope.get_variable(node.lex).vtype
-    #     else:
-    #         if scope.is_dot_notation:
-    #             self.errors.append(Not_Defined_In("Variable", node.lex, scope.dot_notation_current_type.name, node.row, node.col))
-    #         else:
-    #             self.errors.append(Not_Defined("Variable", node.lex))
+    @visitor.when(VariableNode)
+    def visit(self, node:VariableNode, scope: Scope):
+        if scope.is_variable_defined(node.lex.lex):
+            return scope.get_variable(node.lex.lex).vtype
+        else:
+            self.errors.append(Not_Defined("Variable", node.lex))
             
-    #     return "Object" #TODO ver como hacemos con los errores aqui
+        #TODO activar cuando este ready el dot notation
+        #else:
+        #    if scope.is_dot_notation:
+        #       self.errors.append(Not_Defined_In("Variable", node.lex, scope.#dot_notation_current_type.name, node.row, node.col))
+        #    else:
+        #        self.errors.append(Not_Defined("Variable", node.lex))
+          
+        return self.context.get_type("Object")[1]
                 
     # @visitor.when(NewInstanceNode)
     # def visit(self, node:NewInstanceNode, scope: Scope):  
