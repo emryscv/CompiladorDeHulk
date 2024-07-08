@@ -78,7 +78,7 @@ class IfElseNode(ExpressionNode):
         self.body_List = body_List
 
 class WhileLoopNode(ExpressionNode):
-    def __init__(self, condition, body):
+    def __init__(self, condition, body, row, col):
         super().__init__()
         self.condition = condition
         self.body = body

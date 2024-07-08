@@ -58,7 +58,7 @@ class SemeanticChecker(object):
         #TODO revisar
         #Los metodos no estan en el scope son de self    
         #for method in self.current_type.methods:
-        #    scope.define_function(method.name, method.params, method.return_type)
+        #     scope.define_function(method.name, method.params, method.return_type)
         
         scope.define_variable("self", self.current_type.name)
         
@@ -109,40 +109,35 @@ class SemeanticChecker(object):
             if i == len(node.expr_list) - 1:
                 return expr_type
             
-    # @visitor.when(LetInNode)
-    # def visit(self, node, scope):
-    #     inner_scope = scope.create_child_scope()
+    @visitor.when(LetInNode)
+    def visit(self, node, scope):
+        inner_scope = scope.create_child_scope()
         
-    #     for var in node.var_list: 
-    #         self.visit(var, inner_scope)
+        for var in node.var_list: 
+            self.visit(var, inner_scope)
             
-    #     return self.visit(node.body, inner_scope)
+        return self.visit(node.body, inner_scope)
     
-    # @visitor.when(VarDefNode)
-    # def visit(self, node:VarDefNode, scope:Scope):
-    #     scope.define_variable(node.identifier, node.vtype_token.lex if node.vtype_token else "Object", check=False)
-
-    #     expr_type = self.context.get_type(self.visit(node.expr, scope))
-
-    #     if node.identifier == "self":
-    #         scope.is_self_asignable = True
+    @visitor.when(VarDefNode)
+    def visit(self, node:VarDefNode, scope:Scope):
+        expr_type = self.visit(node.expr, scope)
+        vtype = None
         
-    #     if node.vtype_token:
-    #         if not node.vtype_token.lex in self.context.types: #TODO arreglar esta vaina
-    #             self.errors.append(Not_Defined("Type", node.vtype_token))
-    #             return "Object"
-    #         else: 
-    #             if not expr_type.conformed_by(node.vtype_token.lex):
-    #                 if self.context.is_protocol_defined(node.vtype_token.lex):
-    #                     protocol = self.context.get_protocol(node.vtype_token.lex)
-    #                     if not expr_type.implements(protocol):
-    #                         self.errors.append(Invalid_Initialize_type(node.identifier, node.vtype_token.lex, expr_type.name, node.expr.row, node.expr.col))
-    #                 else:
-    #                     self.errors.append(Invalid_Initialize_type(node.identifier, node.vtype_token.lex, expr_type.name, node.expr.row, node.expr.col))
-    #             return node.vtype_token.lex
-    #     else:
-    #         scope.get_variable(node.identifier).vtype = expr_type.name
-    #         return expr_type.name
+        if node.identifier == "self":
+            scope.is_self_asignable = True
+        
+        if node.vtype_token:
+            success, vtype = self.context.get(node.vtype_token.lex)
+            if not success:
+                self.errors.append(Not_Defined("Type", node.vtype_token))
+            else: 
+                if not expr_type.match(vtype):
+                   self.errors.append(Invalid_Initialize_type(node.identifier, vtype.name, expr_type.name))
+        else:
+            vtype = expr_type
+        
+        scope.define_variable(node.identifier.lex, vtype, check=False)
+        return vtype
     
     # @visitor.when(AttributeDefNode)
     # def visit(self, node:VarDefNode, scope:Scope):    
@@ -182,13 +177,13 @@ class SemeanticChecker(object):
     #     for expr in node.body_List:
     #         self.visit(expr, scope)
         
-    # @visitor.when(WhileLoopNode)
-    # def visit(self, node, scope):
-    #     condition_type = self.visit(node.condition, scope)
-    #     if condition_type != "Boolean":
-    #         self.errors.append(Boolean_Expected(condition_type, node.condition.row, node.condition.col))
+    @visitor.when(WhileLoopNode)
+    def visit(self, node, scope):
+        condition_type = self.visit(node.condition, scope)
+        if condition_type.name != "Boolean":
+            self.errors.append(Boolean_Expected(condition_type, node.condition, node.condition, node.row, node.col))
 
-    #     return self.visit(node.body, scope) #TODO esta vaina tiene q retornar lo de la ultima iteracion o None
+        return self.visit(node.body, scope) #TODO esta vaina tiene q retornar lo de la ultima iteracion o None
     
     @visitor.when(BinaryOperationNode)
     def visit(self, node:BinaryOperationNode, scope):
@@ -215,35 +210,25 @@ class SemeanticChecker(object):
         elif node.operator.lex in ['&', '|'] and not (left_type.name == "Boolean" and right_type.name == "Boolean"):
                 self.errors.append(Invalid_Operation(node.operator, left_type.name, right_type.name))
     
-        return self.context.get_type("Boolean")
+        return self.context.get_type("Boolean")[1]
     
-    # @visitor.when(VarReAsignNode)
-    # def visit(self, node, scope):
-    #     message = [] #TODO 
-        
-    #     if not self.is_self_asignable and node.identifier == 'self':
-    #         self.errors.append(Self_Not_Target(node.row, node.col))
-    #     else:    
-    #         message = scope.is_variable_defined(node.identifier)
-    #         self.errors += message
-        
-    #     expr_type = self.context.get_type(self.visit(node.expr, scope))
-        
-    #     if len(message) == 0:
-    #         variable = scope.get_variable(node.identifier)
+    @visitor.when(VarReAsignNode)
+    def visit(self, node: VarReAsignNode, scope: Scope):
+        if (not scope.is_self_asignable and node.identifier.lex == 'self'):
+            self.errors.append(Self_Not_Target(node.identifier.row, node.identifier.column))
+        elif not scope.is_variable_defined(node.identifier.lex):
+            self.errors.append(Not_Defined("Variable", node.identifier))
+        else:     
+            expr_type = self.visit(node.expr, scope)
+            variable = scope.get_variable(node.identifier.lex)
             
-    #         if not expr_type.conformed_by(variable.vtype):
-    #             if self.context.is_protocol_defined(node.vtype_token.lex):
-    #                 protocol = self.context.get_protocol(variable.vtype)
-    #                 if not expr_type.implements(protocol):
-    #                     self.errors.append(Invalid_Initialize_type(node.identifier, variable.vtype, expr_type.name, node.expr.row, node.expr.col))
-    #             else:
-    #                 self.errors.append(Invalid_Initialize_type(node.identifier, variable.vtype, expr_type.name, node.expr.row, node.expr.col))
+            if not expr_type.match(variable.vtype):
+                self.errors.append(Invalid_Initialize_type(node.identifier, variable.vtype.name, expr_type.name))
             
-    #         return variable.vtype
-
-    #     return "Object"
-    
+            return variable.vtype
+        
+        return self.context.get_type("Object")[1]
+        
     # @visitor.when(DotNotationNode)
     # def visit(self, node: DotNotationNode, scope: Scope):
     #     type_name = self.visit(node.object, scope)
@@ -300,6 +285,7 @@ class SemeanticChecker(object):
     
     @visitor.when(VariableNode)
     def visit(self, node:VariableNode, scope: Scope):
+        print("aqui")
         if scope.is_variable_defined(node.lex.lex):
             return scope.get_variable(node.lex.lex).vtype
         else:

@@ -47,8 +47,8 @@ class Invalid_Argument_Type(HULK_error):
         super().__init__(f'Argument number: {position} in ({function_id}) has type ({param_type}) but ({arg_type}) was given  in Line: {row}, Column: {column}', "Semantic Error")
 
 class Invalid_Initialize_type(HULK_error):
-    def __init__(self, variable_id, vtype, expr_type, row, column):
-        super().__init__(f'Variable: ({variable_id}) has type {vtype} and {expr_type} was given in Line: {row}, Column: {column}', "Semantic Error")
+    def __init__(self, variable, vtype, expr_type):
+        super().__init__(f'Variable: ({variable.lex}) has type {vtype} but {expr_type} was given in Line: {variable.row}, Column: {variable.column}', "Semantic Error")
         
 class Invalid_Operation(HULK_error):
     def __init__(self, operator, left_type, right_type):
