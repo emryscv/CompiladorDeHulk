@@ -1,6 +1,10 @@
 function test() => x + y;
 
-type Animal {
+protocol A{
+    test(x:Object, x:Object): Object;
+}
+
+type Animal inherits A{
     test(x: Number) => x + y;
 }
 type Perro inherits Animal{

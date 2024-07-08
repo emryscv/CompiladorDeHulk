@@ -1,17 +1,20 @@
 from semantic_check.utils.Variable import Variable
 from semantic_check.utils.Function import Function
+from semantic_check.utils.Type import Type
 
 class Scope:
     def __init__(self, parent = None):
         self.parent: Scope = parent
         self.variables = {}
-        self.functions = {"print": Function("print", [("string", "Object")], "Object")}
+        self.functions = {}
         self.is_self_asignable:bool  = False
+        self.is_dot_notation:bool = False
+        self.dot_notation_current_type:Type = None
         
     def is_variable_defined(self, vname:str):
         return vname in self.variables or (self.parent != None and self.parent.is_variable_defined(vname))
     
-    def is_function_defined(self, fname:str, args):
+    def  is_function_defined(self, fname:str, args):
         if fname in self.functions:
             if len(self.functions[fname].params) == args:
                 return (True, True)

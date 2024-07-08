@@ -37,6 +37,8 @@ class FormatVisitor(object):
         ans = '\t' * tabs + f'\\__FuncDecNode: {node.identifier}({params}): {node.return_type_token.lex}'
         return f'{ans}'
     
+    #TODO arreglar el formater
+    
     @visitor.when(FuncDefNode)
     def visit(self, node, tabs=0):
         params = ', '.join(f'{param[0]}: {param[1]}' for param in node.params_list)
