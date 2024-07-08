@@ -128,7 +128,7 @@ boolean_term %= arithmetic_expr, lambda h, s: s[1]
 
 ###loops###
 
-expr %= while_token + opar + boolean_expr + cpar + expr_or_block,  lambda h, s: WhileLoopNode(s[3], s[5])
+expr %= while_token + opar + boolean_expr + cpar + expr_or_block,  lambda h, s: WhileLoopNode(s[3], s[5], s[2].row, (s[2].column + 1))
 expr %= for_token + opar + id + type_annotation + in_token + expr_or_block + cpar + expr_or_block, lambda h, s: ForLoopNode(s[3], s[4], s[6], s[8])
 
 ###types###

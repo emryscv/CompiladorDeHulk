@@ -1,5 +1,5 @@
-let x: String = 1 in
+let x: Number = 1 in
 while(x < 11){
     print(x);
-    x := x + 1;
+    self := x + 1;
 };
