@@ -57,8 +57,8 @@ def main(code_path):
     type_builder = TypeAndFunctionBuilder(context, errors)
     type_builder.visit(ast, scope)
     
-    #semantic_checker = SemeanticChecker(errors, context)
-    #semantic_checker.visit(ast, scope)
+    semantic_checker = SemeanticChecker(errors, context)
+    semantic_checker.visit(ast, scope)
             
     print("context:", context)
     print("scope:", scope)
