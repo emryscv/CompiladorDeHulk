@@ -29,23 +29,31 @@ class SemeanticChecker(object):
     def visit(self, node: TypeDefNode, scope: Scope):#TODO hecarle un ojo al parent
         _, self.current_type = self.context.get_type(node.identifier.lex)
 
+
+        print("params", self.current_type.params)
         params = []        
         for param in self.current_type.params:   
             if not scope.define_variable(param[0].lex, param[1]):
                 self.errors.append(Already_Defined("Parameter", param[0]))
-            params.append(param[0].lex, param[1])
+            params.append((param[0].lex, param[1]))
         
         self.current_type.params = params
         
+        
+        print("chequeo params", self.current_type.params)
         if len(self.current_type.params) > 0:
+            print("chequeo params")
             params = self.current_type.parent.get_params()
             if len(params) != len(node.optional_base_args):
                 self.errors.append(Invalid_Arg_Count(node.base_identifier, len(params), len(node.optional_base_args)))
+                print("chequeo params fail")
             else:
+                print("chequeo params success")
                 for i, arg in enumerate(node.optional_base_args):
                     arg_type = self.visit(arg, scope)
+                    print("arg", arg_type, "param", params[i][1])
                     if not arg_type.match(params[i][1]):
-                        self.errors.append(Invalid_Argument_Type(i, node.identifier.lex, params[i][1], arg_type.name, node.base_identifier.row, node.base_identifier.column))
+                        self.errors.append(Invalid_Argument_Type(i, node.identifier.lex, params[i][1].name, arg_type.name, node.base_identifier.row, node.base_identifier.column))
         
         #TODO revisar
         #Los metodos no estan en el scope son de self    
@@ -274,7 +282,7 @@ class SemeanticChecker(object):
                     arg_type = self.visit(arg, scope)
                     print(function.params[i])
                     if not arg_type.match(function.params[i][1]):
-                        self.errors.append(Invalid_Argument_Type(i, node.identifier.lex, function.params[i][1], arg_type.name, node.identifier.row, node.identifier.column))
+                        self.errors.append(Invalid_Argument_Type(i, node.identifier.lex, function.params[i][1].name, arg_type.name, node.identifier.row, node.identifier.column))
             
             return function.return_type
         else:
