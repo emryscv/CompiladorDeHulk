@@ -51,8 +51,8 @@ class Invalid_Initialize_type(HULK_error):
         super().__init__(f'Variable: ({variable_id}) has type {vtype} and {expr_type} was given in Line: {row}, Column: {column}', "Semantic Error")
         
 class Invalid_Operation(HULK_error):
-    def __init__(self, operator, left_type, right_type, row, column):
-        super().__init__(f'Operator: ({operator}) can\'t be applied to {left_type} and {right_type} in Line: {row}, Column: {column}', "Semantic Error")
+    def __init__(self, operator, left_type, right_type):
+        super().__init__(f'Operator: ({operator.lex}) can\'t be applied to {left_type} and {right_type} in Line: {operator.row}, Column: {operator.column}', "Semantic Error")
 
 class Self_Not_Target(HULK_error):
      def __init__(self, row, column):

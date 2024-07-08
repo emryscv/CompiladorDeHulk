@@ -20,12 +20,16 @@ class TypeAndFunctionCollector(object):
         self.context = Context()
         
         self.scope = Scope()
-        self.scope.define_function("print", [("string", "Object")], "Object")
-        self.scope.define_function("range", [("min", "Number"), ("max", "Number")], "Range")
-
+        
         for definition in node.definitions:
             self.visit(definition)
         
+        
+        self.scope.define_function("print", [("string", self.context.get_type("Object")[1])], self.context.get_type("Object")[1])
+        self.scope.define_function("range", [("min", self.context("Number")[1]), ("max", self.context.get_type("Number")[1])], self.context.get_protocol("Range")[1])        
+        #TODO definir sin, cos, etc...
+        #despues de eso comprobar los parametros en los tipos
+
         return self.context, self.scope
 
     @visitor.when(TypeDefNode)

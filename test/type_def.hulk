@@ -1,4 +1,4 @@
-function test(x, x) => x + y;
+function test(x:Number, y:Number) => x + y;
 
 protocol A{
     test(x:Object, x:Object): Object;
@@ -9,7 +9,7 @@ type Animal inherits A{
 }
 type Perro inherits Animal{
     test() => x - y;
-    test() => x - y;
+    test() => x;
 }
 
 function test2(x, y){
