@@ -6,4 +6,4 @@ type Perro inherits Animal{
     MakeSomeNoise() => base() @ "Jau Jau";    
 }
 
-let scooby: Animal = new Perro("Rex") in scooby.MakeSomeNoise();
+let scooby: Animal = new Perro("Rex") in scooby.name;
