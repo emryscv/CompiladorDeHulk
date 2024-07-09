@@ -1,10 +1,11 @@
 import utils.visitor as visitor
 from  ast_nodes.hulk_ast_nodes import *
-from utils.error_manager import Not_Defined, Invalid_Argument_Type, Invalid_Initialize_type, Invalid_Operation, Self_Not_Target, Boolean_Expected, Invalid_Arg_Count, Already_Defined, Already_Defined_In, Not_Defined_In
+from utils.error_manager import Not_Defined, Invalid_Argument_Type, Invalid_Initialize_type, Invalid_Operation, Self_Not_Target, Boolean_Expected, Invalid_Arg_Count, Already_Defined, Already_Defined_In, Not_Defined_In, Cant_Infer_Type
 from semantic_check.Scope import Scope
 from semantic_check.context import Context
 from semantic_check.utils.Type import Type
 from semantic_check.utils.Protocol import Protocol
+from semantic_check.utils.lca import get_LCA
 
 class SemeanticChecker(object):
     def __init__(self, errors, context):
@@ -22,15 +23,13 @@ class SemeanticChecker(object):
             self.visit(definition, scope.create_child_scope())                        
             self.current_type = None
             self.current_protocol = None
-            
+
         self.visit(node.mainExpression, scope)
 
     @visitor.when(TypeDefNode)
     def visit(self, node: TypeDefNode, scope: Scope):#TODO hecarle un ojo al parent
         _, self.current_type = self.context.get_type(node.identifier.lex)
-
-
-        print("params", self.current_type.params)
+        
         params = []        
         for param in self.current_type.params:   
             if not scope.define_variable(param[0].lex, param[1]):
@@ -40,18 +39,13 @@ class SemeanticChecker(object):
         self.current_type.params = params
         
         
-        print("chequeo params", self.current_type.params)
         if len(self.current_type.params) > 0:
-            print("chequeo params")
             params = self.current_type.parent.get_params()
             if len(params) != len(node.optional_base_args):
                 self.errors.append(Invalid_Arg_Count(node.base_identifier, len(params), len(node.optional_base_args)))
-                print("chequeo params fail")
             else:
-                print("chequeo params success")
                 for i, arg in enumerate(node.optional_base_args):
                     arg_type = self.visit(arg, scope)
-                    print("arg", arg_type, "param", params[i][1])
                     if not arg_type.match(params[i][1]):
                         self.errors.append(Invalid_Argument_Type(i, node.identifier.lex, params[i][1].name, arg_type.name, node.base_identifier.row, node.base_identifier.column))
         
@@ -152,16 +146,26 @@ class SemeanticChecker(object):
             attribute.vtype = expr_type
             return expr_type
             
-    # @visitor.when(IfElseNode)
-    # def visit(self, node, scope):
-    #     for expr in node.boolExpr_List:
-    #         expr_type = self.visit(expr, scope)
-    #         if expr_type != "Boolean":
-    #             self.errors.append(Boolean_Expected(expr_type, node.row, node.col))
+    @visitor.when(IfElseNode)
+    def visit(self, node, scope):
+        for expr in node.boolExpr_List:
+            expr_type = self.visit(expr[1], scope)
+            if expr_type.name != "Boolean":
+                self.errors.append(Boolean_Expected(expr_type, expr[0].row, node[0].column))
 
-    #     #TODO LCA d estos panas
-    #     for expr in node.body_List:
-    #         self.visit(expr, scope)
+        calc_lca = True
+        for i, expr in enumerate(node.body_List):
+            expr_type = self.visit(expr[1], scope)
+            if calc_lca:
+                if i == 0:
+                    lca = expr_type
+                else:
+                    lca = get_LCA(lca, expr_type)                 
+                if lca == None:
+                    self.errors.append(Cant_Infer_Type(expr[0].row, expr[0].column))
+                    calc_lca = False
+                
+        return lca if lca else self.context.get_type("Object")
         
     @visitor.when(WhileLoopNode)
     def visit(self, node, scope):
@@ -232,7 +236,7 @@ class SemeanticChecker(object):
         param_match = False
         
         if scope.is_dot_notation:
-            name_match, param_match, return_match, function = scope.dot_notation_current_type.get_method(node.identifier.lex, len(node.args_list), "Object", )
+            name_match, param_match, return_match, function = scope.dot_notation_current_type.get_method(node.identifier.lex, len(node.args_list), self.context.get_type("Object")[1], )
         else:
             name_match, param_match = scope.is_function_defined(node.identifier.lex, len(node.args_list))
             
@@ -264,7 +268,6 @@ class SemeanticChecker(object):
     
     @visitor.when(VariableNode)
     def visit(self, node:VariableNode, scope: Scope):
-        print("aqui")
         if scope.is_dot_notation:
             if self.current_type and scope.dot_notation_current_type.name == self.current_type.name:
                 success, attribute = self.current_type.get_attribute(node.lex.lex)

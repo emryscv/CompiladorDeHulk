@@ -1,10 +1,10 @@
-let x = 5 in 
+let x: Iterable = range(1, 10) in 
 if(x > 11) {
     print(true);
 }
 else{
     if(x > 11) {
-        print(true);
+        x;
     }
     elif(x > 8){
         print(1);

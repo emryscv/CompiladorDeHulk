@@ -26,7 +26,7 @@ class TypeAndFunctionCollector(object):
         
         
         self.scope.define_function("print", [("string", self.context.get_type("Object")[1])], self.context.get_type("Object")[1])
-        self.scope.define_function("range", [("min", self.context.get_type("Number")[1]), ("max", self.context.get_type("Number")[1])], self.context.get_protocol("Range")[1])      
+        self.scope.define_function("range", [("min", self.context.get_type("Number")[1]), ("max", self.context.get_type("Number")[1])], self.context.get_type("Range")[1])      
         self.scope.define_function("sqrt", [("value", self.context.get_type("Number")[1])], self.context.get_type("Number")[1])
         self.scope.define_function("sin", [("angle", self.context.get_type("Number")[1])], self.context.get_type("Number")[1])
         self.scope.define_function("cos", [("angle", self.context.get_type("Number")[1])], self.context.get_type("Number")[1])

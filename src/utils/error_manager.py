@@ -5,7 +5,14 @@ class HULK_error:
 
     def __str__(self):
         return f"Error: {self.message}. Type: {self.type}"
-    
+
+class HULK_Warning:
+    def __init__(self, message, type):
+        self.message = message
+        self.type = type
+        
+    def __str__(self):
+        return f"Warning: {self.message}. Type: {self.type}"
 class Argument_is_required(HULK_error):
     def __init__(self):
         super().__init__(f"One argument is required", "Missing Argument")
@@ -75,4 +82,8 @@ class Forbiden_Inheritance(HULK_error):
 
 class Forbiden_Extends(HULK_error):
     def __init__(self, base_identifier):
-        super().__init__(f'A Protocol can\'t extends a Type in Line: {base_identifier.identifier}, Column: {base_identifier.column}', "Semantic Error")
+        super().__init__(f'A Protocol can\'t extends a Type in Line: {base_identifier.row}, Column: {base_identifier.column}', "Semantic Error")
+        
+class Cant_Infer_Type(HULK_Warning):
+    def __init__(self, row, col):
+        super().__init__(f'Compiler can\'t infer a type for this expression in Line: {row}, Column: {col}', "Semantic Error")

@@ -77,8 +77,8 @@ class FormatVisitor(object):
     def visit(self, node, tabs=0):
         ans = '\t' * tabs + f'\\__IfElseNode: if(<boolean-expr>){"{<expr>}"} elif(<boolean-expr>){"{<expr>}"} ... else{"{<expr>}"}'
         
-        conditions = '\n'.join(self.visit(expr, tabs + 1) for expr in node.boolExpr_List)
-        bodies = '\n'.join(self.visit(expr, tabs + 1) for expr in node.body_List)
+        conditions = '\n'.join(self.visit(expr[1], tabs + 1) for expr in node.boolExpr_List)
+        bodies = '\n'.join(self.visit(expr[1], tabs + 1) for expr in node.body_List)
         
         return f'{ans}\n{"\t" * (tabs + 1)}Conditions:\n{conditions}\n{"\t" * (tabs + 1)}Expressions:\n{bodies}'
     
