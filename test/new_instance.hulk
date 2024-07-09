@@ -1,9 +1,12 @@
-type Animal(name: Perro) {
+type Animal(name:String) {
     name = name;
-    MakeSomeNoise() => "My name is: " @ name;
+    MakeSomeNoise() => "My name is: " @ self.name;
 }
 type Perro inherits Animal{
     MakeSomeNoise() => base() @ "Jau Jau";    
 }
 
-let scooby: Animal = new Perro("Rex") in scooby.name;
+let scooby: Animal = new Perro("Rex") in {
+    scooby.MakeSomeNoise();
+    scooby.name;
+};
