@@ -112,7 +112,7 @@ class SemeanticChecker(object):
         expr_type = self.visit(node.expr, scope)
         vtype = None
         
-        if node.identifier == "self":
+        if node.identifier.lex == "self":
             scope.is_self_asignable = True
         
         if node.vtype_token:
@@ -131,10 +131,6 @@ class SemeanticChecker(object):
     @visitor.when(AttributeDefNode)
     def visit(self, node:VarDefNode, scope:Scope):    
         expr_type = self.visit(node.expr, scope)
-
-        if node.identifier == "self":
-            self.errors.append(Self_Not_Target(node.row, node.col))
-            return self.context.get_type("Object")[1]
         
         _, attribute = self.current_type.get_attribute(node.identifier.lex)
         
@@ -204,7 +200,7 @@ class SemeanticChecker(object):
     
     @visitor.when(VarReAsignNode)
     def visit(self, node: VarReAsignNode, scope: Scope):
-        if (not scope.is_self_asignable and node.identifier.lex == 'self'):
+        if ((not scope.is_self_asignable and node.identifier.lex == 'self') and self.current_type and not self.current_type.get_attribute("self")[0]):
             self.errors.append(Self_Not_Target(node.identifier.row, node.identifier.column))
         elif not scope.is_variable_defined(node.identifier.lex):
             self.errors.append(Not_Defined("Variable", node.identifier))

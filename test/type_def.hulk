@@ -5,7 +5,10 @@ protocol A{
 }
 
 type Animal inherits A{
-    test(x: Number, x) => x + y;
+    self = 5;
+    test(x: Number, x){
+        let self = 0 in self := x;
+    }
 }
 type Perro inherits Animal{
     test() => x - y;
