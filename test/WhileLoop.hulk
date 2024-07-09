@@ -1,4 +1,4 @@
-let x: Number = 1 in
+let self: Number = 1 in
 while(x < 11){
     print(x);
     self := x + 1;
