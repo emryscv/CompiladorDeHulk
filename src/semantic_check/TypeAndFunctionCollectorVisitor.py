@@ -63,7 +63,7 @@ class TypeAndFunctionCollector(object):
     @visitor.when(FuncDefNode)
     def visit(self, node: FuncDefNode):
         params = [(param[0], param[1] if param[1] else Token("Object", id, param[0].row, param[0].column)) for param in node.params_list]
-        return_type = node.return_type_token.lex if node.return_type_token else Token("Object", id, node.identifier.row, node.identifier.column)
+        return_type = node.return_type_token if node.return_type_token else Token("Object", id, node.identifier.row, node.identifier.column)
         
         if self.scope.define_function(node.identifier.lex, params, return_type):
             self.errors.append(Already_Defined("Function", node.identifier))
