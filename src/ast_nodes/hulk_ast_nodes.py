@@ -27,11 +27,6 @@ class TypeDefNode(DeclarationNode):
         self.optional_base_args = optional_base_args
         self.body = body
 
-    def define_instance_variable(self, args, scope):
-        for i in range(len(self.optional_params)):
-            scope.define_variable(self.optional_params[i][0], self.optional_params[i][1], value = args[i])
-
-
 class ProtocolDefNode(DeclarationNode):
     def __init__(self, identifier, base_identifier, body, row, col):
         super().__init__(identifier, row, col)

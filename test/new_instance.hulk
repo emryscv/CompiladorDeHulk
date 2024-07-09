@@ -8,5 +8,24 @@ type Knight inherits Person {
     name() => "Sir" @@ base();
 }
 
-let p = new Person("Phil", "Collins") in
-    print(p.name());
+type Point(x, y) {
+    x: Number = x;
+    y: Number = y;
+
+    getX() => self.x;
+}
+
+type PolarPoint(phi, rho) inherits Point(rho * sin(phi), rho * cos(phi)) {
+    phi = phi;
+    rho = rho;
+
+    getRho() => self.rho;
+}
+
+{
+    let p = new PolarPoint(5, 4) in
+            print(p.getRho() @@ p.getX());
+
+    let p = new Knight("Alex", "Ferguson") in
+            print(p.name());            
+}
