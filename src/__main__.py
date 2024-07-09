@@ -11,7 +11,7 @@ from utils.error_manager import *
 from parser.parsing_utils import evaluate_reverse_parse
 from semantic_check.FormatVisitor import FormatVisitor 
 from semantic_check.TypeAndFunctionCollectorVisitor import TypeAndFunctionCollector
-from semantic_check.TypeBuilderVisitor import TypeBuilder
+from semantic_check.TypeAndFunctionBuilderVisitor import TypeAndFunctionBuilder
 from semantic_check.SemeanticCheckerVisitor import SemeanticChecker
 from code_gen.Interpreter import Interpreter
 
@@ -54,8 +54,8 @@ def main(code_path):
     type_and_function_collector = TypeAndFunctionCollector(errors)
     context, scope = type_and_function_collector.visit(ast)    
     
-    type_builder = TypeBuilder(context, errors)
-    type_builder.visit(ast)
+    type_builder = TypeAndFunctionBuilder(context, errors)
+    type_builder.visit(ast, scope)
     
     semantic_checker = SemeanticChecker(errors, context)
     semantic_checker.visit(ast, scope)
@@ -69,12 +69,13 @@ def main(code_path):
 
     #interpreter = Interpreter(context)
     #interpreter.visit(ast, scope)
-    
-    
+
 if __name__ == "__main__":
+    
     if not len(sys.argv) == 2:
         error = Argument_is_required()
         print(error)
         sys.exit(1)
     hulk_path = sys.argv[1]
     main(hulk_path)
+    
