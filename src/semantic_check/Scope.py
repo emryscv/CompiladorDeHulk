@@ -1,40 +1,44 @@
 from semantic_check.utils.Variable import Variable
 from semantic_check.utils.Function import Function
+from semantic_check.utils.Type import Type
 
 class Scope:
     def __init__(self, parent = None):
         self.parent: Scope = parent
         self.variables = {}
-        self.functions = {"print": Function("print", [("string", "String")], "Object")}
+        self.functions = {}
         self.is_self_asignable:bool  = False
+        self.is_dot_notation:bool = False
+        self.dot_notation_current_type:Type = None
         
     def is_variable_defined(self, vname:str):
-        return [] if vname in self.variables or (self.parent != None and len(self.parent.is_variable_defined(vname)) == 0) else [f'Variable "{vname}" is not defined.']
+        return vname in self.variables or (self.parent != None and self.parent.is_variable_defined(vname))
     
-    def is_function_defined(self, fname:str, args):
+    def  is_function_defined(self, fname:str, args):
         if fname in self.functions:
             if len(self.functions[fname].params) == args:
-                return []
+                return (True, True)
             else:
-                return [f'Function ({fname}): {len(self.functions[fname].params)} params expected but {args} were given.']
+                return (True, False)
         elif self.parent != None:
             return self.parent.is_function_defined(fname, args)
         else:
-            return [f'Function "{fname}" is not defined.']
+            return (False, False)
         
     def define_variable(self, vname:str, vtype=None, check=True, value=None):
         if check and vname in self.variables:
-            return [f'Variable with the same name ({vname}) is already defined']
+            return False
+        
         self.variables[vname] = Variable(vname, vtype, value)
-        return []
+        return True
     
     def define_function(self, fname, params, return_type, function_body=None, is_method=False, check=True):
         if check:
             if fname in self.functions:
-                return [f'Function with the same name ({fname}) is already defined']
+                return True
         
         self.functions[fname] = Function(fname, params, return_type, function_body, is_method)
-        return []
+        return False
         
     def get_variable(self, vname:str) -> Variable:
         try:

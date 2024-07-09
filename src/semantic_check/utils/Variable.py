@@ -1,5 +1,7 @@
+from typing import Union
+
 class Variable:
-    def __init__(self, name:str, vtype:str, value=None):
+    def __init__(self, name:str, vtype, value=None):
         self.name = name
         self.vtype = vtype
         self.value = value

@@ -1,3 +1,7 @@
+type Animal(name:String) {
+    name = name;
+    MakeSomeNoise() => "My name is: " @ self.name;
+
 type Person(firstname, lastname) {
     firstname = firstname;
     lastname = lastname;
@@ -21,11 +25,20 @@ type PolarPoint(phi, rho) inherits Point(rho * sin(phi), rho * cos(phi)) {
 
     getRho() => self.rho;
 }
+type Gato inherits Animal{
+    a = 6;
+}
 
 {
+    let scooby: Animal = new Perro("Rex") in {
+      scooby.MakeSomeNoise();
+      scooby.name;
+    };
+
     let p = new PolarPoint(5, 4) in
             print(p.getRho() @@ p.getX());
 
     let p = new Knight("Alex", "Ferguson") in
             print(p.name());            
 }
+
