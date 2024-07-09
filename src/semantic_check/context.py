@@ -4,6 +4,7 @@ from semantic_check.utils.Protocol import Protocol
 class Context:
     def __init__(self):
         self.types: dict[str, Type]= {
+            "Void": Type("Void"),
             "Object": Type("Object"), 
             "String": Type("String"),
             "Number": Type("Number"),

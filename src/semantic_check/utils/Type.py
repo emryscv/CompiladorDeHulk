@@ -78,7 +78,7 @@ class Type:
     def implements(self, protocol:Protocol):
         for method in protocol.methods:
             name_match, params_match, return_match, function = self.get_method(method.name, len(method.params), method.return_type)
-            if (name_match, params_match, return_match) != (True, True, True):
+            if (name_match, params_match, return_match) != (True, True, True) and ((name_match, params_match, return_match) == (True, True, False) and not function.return_type.match(method.return_type)):
                 return False
         return True
     
