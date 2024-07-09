@@ -5,6 +5,9 @@ type Animal(name:String) {
 type Perro inherits Animal{
     MakeSomeNoise() => base() @ "Jau Jau";    
 }
+type Gato inherits Animal{
+    a = 6;
+}
 
 let scooby: Animal = new Perro("Rex") in {
     scooby.MakeSomeNoise();

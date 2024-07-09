@@ -21,16 +21,16 @@ class Context:
         
         range_type = self.get_type("Range")[1]
         range_type.parent = object
-        range_type.params = [("min", "Number"), ("max", "Number")]
-        range_type.define_attribute("min", "Number")
-        range_type.define_attribute("max", "Number")
-        range_type.define_attribute("current", "Number")
-        range_type.define_method("next", [], "Boolean")
-        range_type.define_method("current", [], "Number")
+        range_type.params = [("min", self.get_type("Number")[1]), ("max", self.get_type("Number")[1])]
+        range_type.define_attribute("min", self.get_type("Number")[1])
+        range_type.define_attribute("max", self.get_type("Number")[1])
+        range_type.define_attribute("current", self.get_type("Number")[1])
+        range_type.define_method("next", [], self.get_type("Boolean")[1])
+        range_type.define_method("current", [], self.get_type("Number")[1])
         
         iterable = self.get_protocol("Iterable")[1]
-        iterable.declare_method("next", [], "Boolean")
-        iterable.declare_method("current", [], "Object")
+        iterable.declare_method("next", [], self.get_type("Boolean")[1])
+        iterable.declare_method("current", [], self.get_type("Object")[1])
 
     def create_type(self, name:str):
         self.types[name] = Type(name)
