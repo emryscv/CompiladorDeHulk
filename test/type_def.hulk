@@ -1,5 +1,6 @@
 function test(x:Number, y:Number) => x + y;
 
+
 protocol A{
     test(x:Object, x:Object): Object;
 }
