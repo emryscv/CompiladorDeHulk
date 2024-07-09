@@ -53,8 +53,15 @@ class Type:
             return (name_match_parent, params_match_parent, return_match_parent, function_parent)
         else:
             return (name_match, params_match, return_match, function)
-        
     
+    def get_attribute(self, name):
+        for attribute in self.attributes:
+            if attribute.name == name:
+                return (True, attribute)
+        if self.parent:
+            return self.parent.get_attribute(name)
+        return (False, None)
+        
     def get_params(self):
         if len(self.params) == 0 and self.parent:
                 return self.parent.get_params()

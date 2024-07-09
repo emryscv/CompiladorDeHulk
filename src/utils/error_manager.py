@@ -31,8 +31,8 @@ class Not_Defined(HULK_error):
         super().__init__(f'{type} "{token.lex}" is not defined in Line: {token.row}, Column: {token.column}', "Semantic Error")
         
 class Not_Defined_In(HULK_error): #TODO pasarle el token
-    def __init__(self, type, identifier, name, row, column):
-        super().__init__(f'{type} "{identifier}" is not defined in {name} Line: {row}, Column: {column}', "Semantic Error")
+    def __init__(self, type, identifier, name):
+        super().__init__(f'{type} "{identifier.lex}" is not defined in {name} Line: {identifier.row}, Column: {identifier.column}', "Semantic Error")
         
 class Already_Defined(HULK_error):
     def __init__(self, type, identifier):
