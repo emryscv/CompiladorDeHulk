@@ -18,12 +18,10 @@ class TypeAndFunctionCollector(object):
     @visitor.when(ProgramNode)
     def visit(self, node):
         self.context = Context()
-        
         self.scope = Scope()
         
         for definition in node.definitions:
             self.visit(definition)
-        
         
         self.scope.define_function("print", [("string", self.context.get_type("Object")[1])], self.context.get_type("Object")[1])
         self.scope.define_function("range", [("min", self.context.get_type("Number")[1]), ("max", self.context.get_type("Number")[1])], self.context.get_type("Range")[1])      
@@ -37,9 +35,7 @@ class TypeAndFunctionCollector(object):
         self.scope.define_variable("PI", self.context.get_type("Number")[1])
         self.scope.define_variable("E", self.context.get_type("Number")[1])
         
-        #TODO definir sin, cos, etc...
-        #despues de eso comprobar los parametros en los tipos
-
+       
         return self.context, self.scope
 
     @visitor.when(TypeDefNode)

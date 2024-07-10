@@ -31,6 +31,8 @@ class SemeanticChecker(object):
         _, self.current_type = self.context.get_type(node.identifier.lex)
         
         params = []        
+        print(node.identifier)
+        print(self.current_type.params)
         for param in self.current_type.params:   
             if not scope.define_variable(param[0].lex, param[1]):
                 self.errors.append(Already_Defined("Parameter", param[0]))
@@ -200,19 +202,34 @@ class SemeanticChecker(object):
     
     @visitor.when(VarReAsignNode)
     def visit(self, node: VarReAsignNode, scope: Scope):
-        if ((not scope.is_self_asignable and node.identifier.lex == 'self') and self.current_type and not self.current_type.get_attribute("self")[0]):
-            self.errors.append(Self_Not_Target(node.identifier.row, node.identifier.column))
-        elif not scope.is_variable_defined(node.identifier.lex):
-            self.errors.append(Not_Defined("Variable", node.identifier))
-        else:     
-            expr_type = self.visit(node.expr, scope)
-            variable = scope.get_variable(node.identifier.lex)
+        expr_type = self.visit(node.expr, scope)
+                
+        if isinstance(node.identifier, DotNotationNode):
+            if isinstance(node.identifier.member, FuncCallNode):
+                self.append.error()#TODO
+            else:
+                var_type = self.visit(node.identifier, scope)
             
-            if not expr_type.match(variable.vtype):
-                self.errors.append(Invalid_Initialize_type(node.identifier, variable.vtype.name, expr_type.name))
+                if not expr_type.match(var_type):
+                    self.errors.append(Invalid_Initialize_type(node.identifier, var_type.name, expr_type.name))
+                
+                return var_type.name
+        else:
+            print(node.identifier.lex)
+            print(scope.parent, scope.is_variable_defined(node.identifier.lex.lex))
+            if ((not scope.is_self_asignable and node.identifier.lex.lex == 'self') and self.current_type and not self.current_type.get_attribute("self")[0]):
+                self.errors.append(Self_Not_Target(node.identifier.lex.row, node.identifier.lex.column))
+            elif not scope.is_variable_defined(node.identifier.lex.lex):
+                self.errors.append(Not_Defined("Variable", node.identifier.lex))
+            else:     
+                
+                variable = scope.get_variable(node.identifier.lex.lex)
+                
+                if not expr_type.match(variable.vtype):
+                    self.errors.append(Invalid_Initialize_type(node.identifier.lex, variable.vtype.name, expr_type.name))
+                
+                return variable.vtype
             
-            return variable.vtype
-        
         return self.context.get_type("Object")[1]
         
     @visitor.when(DotNotationNode)

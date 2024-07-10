@@ -55,6 +55,11 @@ def main(code_path):
     type_and_function_collector = TypeAndFunctionCollector(errors)
     context, scope = type_and_function_collector.visit(ast)    
     
+    if errors:
+        for error in errors:
+            print(error)
+        sys.exit(1)
+    
     type_builder = TypeAndFunctionBuilder(context, errors)
     type_builder.visit(ast, scope)
     
