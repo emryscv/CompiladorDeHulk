@@ -1,1 +1,1 @@
-let flag = false in print(flag & 11 == 11 & 22 > 1 | true);
+let flag = false in print(flag | false);

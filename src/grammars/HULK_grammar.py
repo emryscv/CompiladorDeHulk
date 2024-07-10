@@ -99,7 +99,7 @@ func_body %= ocurl + expr_list + ccurl + optional_semicolon, lambda h, s: BlockE
 ###variables###
 
 let_in %= let + var_def + in_token + expr_or_block, lambda h, s: LetInNode(s[2], s[4])
-asign_simple %= id + asign + expr_or_block, lambda h, s: VarReAsignNode(s[1], s[3])
+asign_simple %= dot_notation_expr + asign + expr_or_block, lambda h, s: VarReAsignNode(s[1], s[3])
 
 var_def %= var_def + coma + id + type_annotation + asign_equal + expr_or_block, lambda h , s: s[1] + [VarDefNode(s[3], s[4], s[6])]
 var_def %= id + type_annotation + asign_equal + expr_or_block, lambda h , s: [VarDefNode(s[1], s[2], s[4])]

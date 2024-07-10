@@ -39,6 +39,7 @@ def main(code_path):
     
     parser = LR1Parser(G, verbose=False)
     derivation, operations_or_error = parser(tokens)
+    print(derivation)
 
     if not derivation:
         print(operations_or_error)
@@ -54,6 +55,11 @@ def main(code_path):
     type_and_function_collector = TypeAndFunctionCollector(errors)
     context, scope = type_and_function_collector.visit(ast)    
     
+    if errors:
+        for error in errors:
+            print(error)
+        sys.exit(1)
+    
     type_builder = TypeAndFunctionBuilder(context, errors)
     type_builder.visit(ast, scope)
     
@@ -62,13 +68,12 @@ def main(code_path):
             
     print("context:", context)
     print("scope:", scope)
-    print("errors: [")
-    for error in errors:
-        print("\t", error)
-    print("]")    
+    if errors:
+        for error in errors:
+            print(error)
 
-    #interpreter = Interpreter(context)
-    #interpreter.visit(ast, scope)
+    interpreter = Interpreter(context)
+    interpreter.visit(ast)
 
 if __name__ == "__main__":
     
