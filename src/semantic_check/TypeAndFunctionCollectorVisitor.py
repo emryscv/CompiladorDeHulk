@@ -34,8 +34,6 @@ class TypeAndFunctionCollector(object):
         
         self.scope.define_variable("PI", self.context.get_type("Number")[1])
         self.scope.define_variable("E", self.context.get_type("Number")[1])
-        
-       
         return self.context, self.scope
 
     @visitor.when(TypeDefNode)
