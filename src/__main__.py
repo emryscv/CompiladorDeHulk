@@ -39,6 +39,7 @@ def main(code_path):
     
     parser = LR1Parser(G, verbose=False)
     derivation, operations_or_error = parser(tokens)
+    print(derivation)
 
     if not derivation:
         print(operations_or_error)
@@ -57,15 +58,14 @@ def main(code_path):
     type_builder = TypeAndFunctionBuilder(context, errors)
     type_builder.visit(ast, scope)
     
-    # semantic_checker = SemeanticChecker(errors, context)
-    # semantic_checker.visit(ast, scope)
+    semantic_checker = SemeanticChecker(errors, context)
+    semantic_checker.visit(ast, scope)
             
     print("context:", context)
     print("scope:", scope)
-    print("errors: [")
-    for error in errors:
-        print("\t", error)
-    print("]")    
+    if errors:
+        for error in errors:
+            print(error)
 
     interpreter = Interpreter(context)
     interpreter.visit(ast)

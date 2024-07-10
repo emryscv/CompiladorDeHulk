@@ -1,10 +1,9 @@
 class Function:
-    def __init__(self, name, params, return_type, body=None, is_method=False):
+    def __init__(self, name, params, return_type, body=None):
         self.name = name
         self.params = params
         self.return_type = return_type
         self.body= body
-        self.is_method = is_method
         
     def __str__(self):
         return f'{self.name}({self.params}) -> {self.return_type}'

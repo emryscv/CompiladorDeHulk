@@ -16,11 +16,12 @@ class Interpreter:
             "exp": lambda x: x[0]**x[1],
             "log": lambda x: math.log(x[0], x[1]),
             "rand": lambda x: random.random,
-            "range": lambda x: (list(range(x[0], x[1])), x[1] - 1, - 1),
+            "range": lambda x: (list(range(x[0], x[1])), x[1], - 1),
             "current": lambda x: x[0][x[1]], 
             "next": lambda x: (x[0], x[1], x[2] + 1) 
         }
         self.types = {}
+        self.current_function = None
 
     @visitor.on('node')
     def visit(self, node, scope):
@@ -41,8 +42,8 @@ class Interpreter:
 
     @visitor.when(TypeDefNode)
     def visit(self, node, scope):
-        type = self.context.get_type(node.identifier)
-        self.types[type.name] = node
+        type = self.context.get_type(node.identifier.lex)
+        self.types[type[1].name] = node
 
     @visitor.when(ProtocolDefNode)
     def visit(self, node, scope):
@@ -54,11 +55,11 @@ class Interpreter:
 
     @visitor.when(FuncDefNode)
     def visit(self, node, scope):
-        scope.define_function(node.identifier, [param[0] for param in node.params_list], node.return_type_token, node.body)
+        scope.define_function(node.identifier.lex, [param[0] for param in node.params_list], node.return_type_token, node.body)
 
     @visitor.when(MethodDefNode)
     def visit(self, node, scope):
-        scope.define_function(node.identifier, [param[0] for param in node.params_list], node.return_type_token, node.body, True, False)
+        scope.define_method(node.identifier.lex, [param[0] for param in node.params_list], node.return_type_token, node.body)
 
     @visitor.when(ExpressionNode)
     def visit(self, node, scope):
@@ -81,19 +82,19 @@ class Interpreter:
     def visit(self, node, scope):
         value = self.visit(node.expr, scope)
         if isinstance(node.expr, NewInstanceNode):
-            scope.define_variable(node.identifier, node.expr.identifier, True, value=value)
+            scope.define_variable(node.identifier.lex, node.expr.identifier.lex, True, value=value)
         else:
-            scope.define_variable(node.identifier, node.vtype_token, True, value=value)
+            scope.define_variable(node.identifier.lex, node.vtype_token, True, value=value)
 
     @visitor.when(IfElseNode)
     def visit(self, node, scope):
         for i  in range(len(node.boolExpr_List)):
-            condition = self.visit(node.boolExpr_List[i], scope)
+            condition = self.visit(node.boolExpr_List[i][1], scope)
             if condition:
-                expr = self.visit(node.body_List[i], scope)
+                expr = self.visit(node.body_List[i][1], scope)
                 return expr
-           
-        return self.visit(node.body_List[-1], scope)
+        else:
+            return self.visit(node.body_List[-1][1], scope)
         
 
     @visitor.when(WhileLoopNode)
@@ -116,7 +117,7 @@ class Interpreter:
         right = self.visit(node.right, scope)
         left = self.visit(node.left, scope)
         sol = None
-        match node.operator:
+        match node.operator.lex:
             case '+':
                 sol = left + right
             case '-':
@@ -138,7 +139,7 @@ class Interpreter:
         right = self.visit(node.right, scope)
         left = self.visit(node.left, scope)
         sol = False
-        match node.operator:
+        match node.operator.lex:
             case '&':
                 sol = left and right
             case '|':
@@ -160,7 +161,7 @@ class Interpreter:
     @visitor.when(VarReAsignNode)
     def visit(self, node, scope):
         value = self.visit(node.expr, scope)
-        scope.define_variable(node.identifier, check=False, value=value)
+        scope.define_variable(node.identifier.lex, check=False, value=value)
         return value
 
     @visitor.when(DotNotationNode)
@@ -182,42 +183,51 @@ class Interpreter:
     @visitor.when(FuncCallNode)
     def visit(self, node, scope, current_type=None):
         args = [self.visit(arg, scope) for arg in node.args_list]
-        if node.identifier in self.built_in_functions:
+        if node.identifier.lex in self.built_in_functions:
             
-            if node.identifier == "next":
+            if node.identifier.lex == "next":
                 iterable = scope.get_variable("iterable").value
-                scope.define_variable("iterable", "Iterable", False, self.built_in_functions[node.identifier](iterable))
+                scope.define_variable("iterable", "Iterable", False, self.built_in_functions[node.identifier.lex](iterable))
                 if iterable[1] > iterable[2] + 1:
                     return True
                 else:
                     return False
                 
-            elif node.identifier == "current":
+            elif node.identifier.lex == "current":
                 iterable = scope.get_variable("iterable").value
-                return self.built_in_functions[node.identifier]((iterable[0], iterable[2]))
+                return self.built_in_functions[node.identifier.lex]((iterable[0], iterable[2]))
             
             else:
-                return self.built_in_functions[node.identifier](args)
+                return self.built_in_functions[node.identifier.lex](args)
 
         else:
-            if node.identifier == 'base' or not node.identifier in scope.functions:
-                print(node.identifier)
-                print(1)
-                print(current_type)
-                var_type = self.context.get_type(current_type) 
-                parent = self.types[var_type.parent.name]
-                print(parent.body)
-                for expr in parent.body:
-                    self.visit(expr, scope)
+            is_method = False
+            is_base = False
+            actual_func = None
+            print(node.identifier.lex)
             print(scope)
-            function = scope.get_function(node.identifier)
+            if node.identifier.lex == 'base':
+                actual_func = self.current_function
+                function = scope.get_method(self.current_function, True)
+                is_method = True
+                is_base = True
+            else:
+                self.current_function = node.identifier.lex
+                try:
+                    function = scope.get_function(node.identifier.lex)
+                except:
+                    function = scope.get_method(node.identifier.lex)
+                is_method = True
             call_scope = scope
-            if not function.is_method:
+            if not is_method:
                 call_scope = scope.create_child_scope()
             for i in range(len(function.params)):
-                print('yes')
-                call_scope.define_variable(function.params[i], value=args[i])
-            return self.visit(function.body, call_scope)
+                call_scope.define_variable(function.params[i].lex, value=args[i])
+            output = self.visit(function.body, call_scope)
+
+            if is_base:
+                scope.reset_type_deep(actual_func)
+            return output
         
     @visitor.when(AtomicNode)
     def visit(self, node, scope):
@@ -226,52 +236,54 @@ class Interpreter:
     @visitor.when(ConstantNode)
     def visit(self, node, scope):
         if node.type == 'Number':
-            if '.' in node.lex:
-                return float(node.lex)
+            if '.' in node.lex.lex:
+                return float(node.lex.lex)
             else:
-                return int(node.lex)
+                return int(node.lex.lex)
         if node.type == 'Boolean':
-            match node.lex:
+            match node.lex.lex:
                 case 'true':
                     return True
                 case 'false':
                     return False
-        return str(node.lex)
+        return str(node.lex.lex)
         
     @visitor.when(VariableNode)
     def visit(self, node, scope, get_var_name=False):
-        if node.lex == 'self':
+        if node.lex.lex == 'self':
             return 'self'
-        var = scope.get_variable(node.lex)
+        var = scope.get_variable(node.lex.lex)
         if get_var_name:
             return var.name
         return var.value
     
     @visitor.when(NewInstanceNode)
-    def visit(self, node, scope, is_parent=False):
-        var_type = self.context.get_type(node.identifier)
+    def visit(self, node, scope):
+        var_type = self.context.get_type(node.identifier.lex)
         args = [self.visit(arg, scope) for arg in node.args_list]
-        instance = self.types[var_type.name]
+        instance = self.types[var_type[1].name]
 
         parent = None
         parent_args = None
-
         if instance.optional_params:
             for i in range(len(instance.optional_params)):
-                scope.define_variable(instance.optional_params[i][0], instance.optional_params[i][1], value = args[i])
+                parameter_type = instance.optional_params[i][1]
+                if parameter_type:
+                    parameter_type = parameter_type.lex
+                
+                scope.define_variable(instance.optional_params[i][0].lex, instance.optional_params[i][1], value = args[i])
 
             if instance.optional_base_args:
                 parent_args = instance.optional_base_args
         
-        if var_type.parent and not var_type.parent.name == 'Object':
-            parent = self.types[var_type.parent.name]
+        if var_type[1].parent and not var_type[1].parent.name == 'Object':
+            parent = self.types[var_type[1].parent.name]
             if parent_args:
                 args = parent_args
             else:
                 args = node.args_list
-            parent_instance = NewInstanceNode(parent.identifier, args, 0, 0)
-            self.visit(parent_instance, scope, True)
-
-        if not  is_parent:
-            for expr in instance.body:
-                self.visit(expr, scope)
+            parent_instance = NewInstanceNode(parent.identifier, args)
+            self.visit(parent_instance, scope)
+        print(node.identifier)
+        for expr in instance.body:
+            self.visit(expr, scope)

@@ -1,19 +1,20 @@
-let x: Iterable = range(1, 10) in 
-if(x > 11) {
-    print(true);
-}
-else{
+for (x in range(0, 13)){
     if(x > 11) {
-        x;
-    }
-    elif(x > 8){
-        print(1);
-    }
-    elif(x > 5){
-        print(2);
+        print(true);
     }
     else{
+        if(x > 11) {
+            x;
+        }
+        elif(x > 8){
+            print(1);
+        }
+        elif(x > 5){
+            print(2);
+        }
+        else{
+            print(false);
+        };  
         print(false);
-    };  
-    print(false);
+    };
 };

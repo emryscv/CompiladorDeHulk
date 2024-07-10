@@ -9,5 +9,5 @@ type Knight inherits Person {
 }
 
 let p = new Person("Phil", "Collins") in
-    let q = new Person("Jorge", "Alberto") in
+    let q = new Knight("Jorge", "Alberto") in
         print(p.name() @@ q.name());

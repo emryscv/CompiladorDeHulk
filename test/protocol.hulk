@@ -2,11 +2,11 @@ protocol Animal{
     MakeSomeNoise(): String;
 }
 protocol Dolphin extends Animal{
-    Swim(distance: number): Void;
+    Swim(distance: Number): Void;
 }
 protocol Cat extends Animal{
     Sleep(): Void;
-    Walk(distance: number): Void;
+    Walk(distance: Number): Void;
 }
 
 print("hola");
