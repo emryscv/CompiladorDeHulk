@@ -167,7 +167,7 @@ class SemeanticChecker(object):
     def visit(self, node, scope):
         condition_type = self.visit(node.condition, scope)
         if condition_type.name != "Boolean":
-            self.errors.append(Boolean_Expected(condition_type, node.condition, node.condition, node.row, node.col))
+            self.errors.append(Boolean_Expected(condition_type, node.row, node.col))
 
         return self.visit(node.body, scope)
     

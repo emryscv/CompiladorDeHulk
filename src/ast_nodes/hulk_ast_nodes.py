@@ -21,7 +21,6 @@ class DeclarationNode(Node):
 class TypeDefNode(DeclarationNode):
     def __init__(self, identifier, optional_params, base_identifier, optional_base_args, body):
         super().__init__(identifier)
-
         self.optional_params = optional_params
         self.base_identifier = base_identifier
         self.optional_base_args = optional_base_args
@@ -83,10 +82,12 @@ class WhileLoopNode(ExpressionNode):
         super().__init__()
         self.condition = condition
         self.body = body
+        self.row = row
+        self.col = col
 
 class ForLoopNode(LetInNode):
      def __init__(self, var, var_type_token, iterable, body):
-         iter = VarDefNode(Token("iterable", id, iterable.identifier.row, iterable.identifier.column), Token("Iterable", id, iterable.identifier.row, iterable.identifier.column), iterable)
+         iter = VarDefNode(Token("iterable", id, iterable.identifier.row, iterable.identifier.column), None, iterable)
          condition = DotNotationNode(iter, FuncCallNode(Token("next", id, iterable.identifier.row, iterable.identifier.column), []))
          whileLoop = WhileLoopNode(condition, LetInNode([VarDefNode(var, var_type_token, DotNotationNode(VariableNode(Token("iterable", id, var.row, var.column)), FuncCallNode(Token("current", id, var.row, var.column), [])))], body), iterable.identifier.row, iterable.identifier.column)
          
