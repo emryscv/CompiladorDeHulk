@@ -36,9 +36,6 @@ class TypeAndFunctionCollector(object):
         
         self.scope.define_variable("PI", self.context.get_type("Number")[1])
         self.scope.define_variable("E", self.context.get_type("Number")[1])
-        
-        #TODO definir sin, cos, etc...
-        #despues de eso comprobar los parametros en los tipos
 
         return self.context, self.scope
 

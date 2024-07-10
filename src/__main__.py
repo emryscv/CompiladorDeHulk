@@ -43,7 +43,7 @@ def main(code_path):
     if not derivation:
         print(operations_or_error)
         sys.exit(1) 
-        
+    print(derivation)
     ast = evaluate_reverse_parse(derivation, operations_or_error, tokens, true)
 
     formatter = FormatVisitor()
