@@ -10,6 +10,8 @@ class Scope:
         self.is_self_asignable:bool  = False
         self.is_dot_notation:bool = False
         self.dot_notation_current_type:Type = None
+        self.methods = {}
+        self.type_deep = {}
         
     def is_variable_defined(self, vname:str):
         return vname in self.variables or (self.parent != None and self.parent.is_variable_defined(vname))
@@ -32,12 +34,21 @@ class Scope:
         self.variables[vname] = Variable(vname, vtype, value)
         return True
     
-    def define_function(self, fname, params, return_type):
-        if fname in self.functions:
-            return True
+    def define_function(self, fname, params, return_type, function_body=None, check=True):
+        if check:
+            if fname in self.functions:
+                return True
         
-        self.functions[fname] = Function(fname, params, return_type)
+        self.functions[fname] = Function(fname, params, return_type, function_body)
         return False
+    
+    def define_method(self, mname, params, return_type, function_body):
+        if mname in self.methods:
+            self.type_deep[mname] += 1
+            self.methods[mname].append(Function(mname, params, return_type, function_body))
+        else:
+            self.type_deep[mname] = 0
+            self.methods[mname] = [Function(mname, params, return_type, function_body)]
         
     def get_variable(self, vname:str) -> Variable:
         try:
@@ -50,6 +61,19 @@ class Scope:
             return self.functions[fname]
         except KeyError:
             return self.parent.get_function(fname)
+        
+    def get_method(self, mname, is_base=False):
+        if is_base:
+            self.type_deep[mname] -= 1
+        try:
+            print(self.methods)
+            print(self.type_deep)
+            return self.methods[mname][self.type_deep[mname]]
+        except KeyError:
+            return self.parent.methods.get_method(mname)
+    
+    def reset_type_deep(self, mname):
+        self.type_deep[mname] += 1
         
     def create_child_scope(self):
         return Scope(self)

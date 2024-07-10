@@ -39,6 +39,7 @@ def main(code_path):
     
     parser = LR1Parser(G, verbose=False)
     derivation, operations_or_error = parser(tokens)
+    print(derivation)
 
     if not derivation:
         print(operations_or_error)
@@ -62,13 +63,12 @@ def main(code_path):
             
     print("context:", context)
     print("scope:", scope)
-    print("errors: [")
-    for error in errors:
-        print("\t", error)
-    print("]")    
+    if errors:
+        for error in errors:
+            print(error)
 
-    #interpreter = Interpreter(context)
-    #interpreter.visit(ast, scope)
+    interpreter = Interpreter(context)
+    interpreter.visit(ast)
 
 if __name__ == "__main__":
     

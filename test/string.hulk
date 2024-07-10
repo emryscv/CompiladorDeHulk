@@ -1,1 +1,1 @@
-let msg: Number = "Hello World!" in print(msg);
+let msg: Number = "Hello World!" in print(msg @ "Casa");

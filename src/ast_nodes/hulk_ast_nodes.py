@@ -21,6 +21,7 @@ class DeclarationNode(Node):
 class TypeDefNode(DeclarationNode):
     def __init__(self, identifier, optional_params, base_identifier, optional_base_args, body):
         super().__init__(identifier)
+
         self.optional_params = optional_params
         self.base_identifier = base_identifier
         self.optional_base_args = optional_base_args

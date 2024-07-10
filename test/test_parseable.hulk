@@ -8,11 +8,6 @@ function operate(x, y) {
 }
 function fib(n) => if (n == 0 | n == 1) 1 else fib(n-1) + fib(n-2);
 function fact(x) => let f = 1 in for (i in range(1, x+1)) f := f * i;
-function gcd(a, b) => while (a > 0)
-        let m = a % b in {
-            b := a;
-            a := m;
-        };
 protocol Hashable {
     hash(): Number;
 }
@@ -28,7 +23,6 @@ type Range(min:Number, max:Number) {
     max = max;
     current = min - 1;
 
-    next(): Boolean => (self.current := self.current + 1) < self.max;
     current(): Number => self.current;
 }
 type Point(x,y) {
@@ -38,8 +32,6 @@ type Point(x,y) {
     getX() => self.x;
     getY() => self.y;
 
-    setX(x: Number) => self.x := x;
-    setY(y: Number) => self.y := y;
 }
 type PolarPoint(phi, rho) inherits Point(rho * sin(phi), rho * cos(phi)) {
     rho() => sqrt(self.getX() ^ 2 + self.getY() ^ 2);
@@ -55,12 +47,6 @@ type Person(firstname, lastname) {
     hash() : Number {
         5;
     }
-}
-type Superman {
-}
-type Bird {
-}
-type Plane {
 }
 type A {
     hello() => print("A");
@@ -86,7 +72,7 @@ type C inherits A {
         print(42);
         print(sin(PI/2));
         print("Hello World");
-    }
+    };
 
 
     print(tan(PI) ** 2 + cot(PI) ** 2);
@@ -100,7 +86,7 @@ type C inherits A {
     let number = 42 in {
         let text = "The meaning of life is" in {
                 print(text @ number);
-            }
+            };
         };
     let a = 6, b = a * 7 in print(b);
     let a = 6 in
@@ -131,24 +117,11 @@ type C inherits A {
             print(a);
             print(b);
         };
-    let a = 42 in if (a % 2 == 0) print("Even") else print("odd");
-    let a = 42 in print(if (a % 2 == 0) "even" else "odd");
-    let a = 42 in
-        if (a % 2 == 0) {
-            print(a);
-            print("Even");
-        }
-        else print("Odd");
-    let a = 42, mod = a % 3 in
-        print(
-            if (mod == 0) "Magic"
-            elif (mod % 3 == 1) "Woke"
-            else "Dumb"
-        );
+    
     let a = 10 in while (a >= 0) {
         print(a);
         a := a - 1;
-    }
+    };
 
     for (x in range(0, 10)) print(x);
     let iterable = range(0, 10) in
@@ -168,29 +141,11 @@ type C inherits A {
     let p: Person = new Knight("Phil", "Collins") in print(p.name());
     let x: Number = 42 in print(x);
 
-    let x = new Superman() in
-        print(
-            if (x is Bird) "It's bird!"
-            elif (x is Plane) "It's a plane!"
-            else "No, it's Superman!"
-        );
     let x = 42 in print(x);
     let total = 5 + 6 in print(total);
-    let x : A = if (rand() < 0.5) new B() else new C() in
-        if (x is B)
-            let y : B = x as B in {
-                y.hello();
-            }
-        else {
-            print("x cannot be downcasted to B");
-        };
+   
 
-    let numbers = [1,2,3,4,5,6,7,8,9] in
-        for (x in numbers)
-            print(x);
-    let numbers = [1,2,3,4,5,6,7,8,9] in print(numbers[7]);
-    let squares = [x^2 || x in range(1,10)] in print(2);
-    let squares = [x^2 || x in range(1,10)] in for (x in squares) print(x);
+   
     let x : Hashable = new Person("Nahomi", "Bouza") in print(x.hash());
     let x  = new Point(0,0) in print("lala");
 }
