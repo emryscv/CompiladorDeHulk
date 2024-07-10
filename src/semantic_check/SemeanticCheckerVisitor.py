@@ -30,9 +30,7 @@ class SemeanticChecker(object):
     def visit(self, node: TypeDefNode, scope: Scope):#TODO hecarle un ojo al parent
         _, self.current_type = self.context.get_type(node.identifier.lex)
         
-        params = []        
-        print(node.identifier)
-        print(self.current_type.params)
+        params = []
         for param in self.current_type.params:   
             if not scope.define_variable(param[0].lex, param[1]):
                 self.errors.append(Already_Defined("Parameter", param[0]))
@@ -178,7 +176,7 @@ class SemeanticChecker(object):
         left_type = self.visit(node.left, scope)
         right_type = self.visit(node.right, scope)
 
-        if node.operator.lex in ['+', '-', '*', '/', '^', '**']:
+        if node.operator.lex in ['+', '-', '*', '/', '^', '**', '%']:
             if not (left_type.name == "Number" and right_type.name == "Number"):
                 self.errors.append(Invalid_Operation(node.operator, left_type.name, right_type.name))
             return self.context.get_type("Number")[1]
@@ -211,12 +209,10 @@ class SemeanticChecker(object):
                 var_type = self.visit(node.identifier, scope)
             
                 if not expr_type.match(var_type):
-                    self.errors.append(Invalid_Initialize_type(node.identifier, var_type.name, expr_type.name))
+                    self.errors.append(Invalid_Initialize_type(node.identifier.member.lex, var_type.name, expr_type.name))
                 
                 return var_type.name
         else:
-            print(node.identifier.lex)
-            print(scope.parent, scope.is_variable_defined(node.identifier.lex.lex))
             if ((not scope.is_self_asignable and node.identifier.lex.lex == 'self') and self.current_type and not self.current_type.get_attribute("self")[0]):
                 self.errors.append(Self_Not_Target(node.identifier.lex.row, node.identifier.lex.column))
             elif not scope.is_variable_defined(node.identifier.lex.lex):
@@ -224,7 +220,7 @@ class SemeanticChecker(object):
             else:     
                 
                 variable = scope.get_variable(node.identifier.lex.lex)
-                
+
                 if not expr_type.match(variable.vtype):
                     self.errors.append(Invalid_Initialize_type(node.identifier.lex, variable.vtype.name, expr_type.name))
                 

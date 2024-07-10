@@ -66,8 +66,6 @@ class Scope:
         if is_base:
             self.type_deep[mname] -= 1
         try:
-            print(self.methods)
-            print(self.type_deep)
             return self.methods[mname][self.type_deep[mname]]
         except KeyError:
             return self.parent.methods.get_method(mname)

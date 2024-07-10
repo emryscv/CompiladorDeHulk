@@ -132,6 +132,8 @@ class Interpreter:
                 sol = str(left) + " " + str(right)
             case '^':
                 sol = left ** right
+            case '%':
+                sol = left % right
         return sol
 
     @visitor.when(BooleanExprNode)
@@ -204,8 +206,6 @@ class Interpreter:
             is_method = False
             is_base = False
             actual_func = None
-            print(node.identifier.lex)
-            print(scope)
             if node.identifier.lex == 'base':
                 actual_func = self.current_function
                 function = scope.get_method(self.current_function, True)
@@ -217,7 +217,7 @@ class Interpreter:
                     function = scope.get_function(node.identifier.lex)
                 except:
                     function = scope.get_method(node.identifier.lex)
-                is_method = True
+                    is_method = True
             call_scope = scope
             if not is_method:
                 call_scope = scope.create_child_scope()
