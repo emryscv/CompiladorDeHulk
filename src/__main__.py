@@ -56,6 +56,7 @@ def main(code_path):
             print(error)
         sys.exit(1)
     
+    
     type_builder = TypeAndFunctionBuilder(context, errors)
     type_builder.visit(ast, scope)
     

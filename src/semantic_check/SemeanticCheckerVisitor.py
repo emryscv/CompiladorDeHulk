@@ -52,7 +52,7 @@ class SemeanticChecker(object):
         scope.define_variable("self", self.current_type)
         
         for definition in node.body:
-            self.visit(definition, scope)
+            self.visit(definition, scope.create_child_scope())
     
     @visitor.when(ProtocolDefNode)
     def visit(self, node:ProtocolDefNode, scope: Scope):

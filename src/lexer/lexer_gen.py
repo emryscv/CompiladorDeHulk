@@ -66,6 +66,8 @@ class Lexer:
                 idx, token_type = priority[0]
 
                 text = text[len(lex):]
+                if lex[0] == '"':
+                    lex =  lex[1:-1].replace('\\"','"')
                 yield lex, token_type, row, column, errors
 
                 column += len(lex)

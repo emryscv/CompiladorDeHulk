@@ -32,6 +32,9 @@ class Interpreter:
 
         program_scope = Scope()
 
+        program_scope.define_variable("PI", self.context.get_type("Number")[1], value=math.pi)
+        program_scope.define_variable("E", self.context.get_type("Number")[1], value=math.e)
+
         for definition in node.definitions:
             self.visit(definition, program_scope)
         self.visit(node.mainExpression, program_scope)
@@ -130,7 +133,7 @@ class Interpreter:
                 sol = str(left) + str(right)
             case '@@':
                 sol = str(left) + " " + str(right)
-            case '^':
+            case '^'|'**':
                 sol = left ** right
             case '%':
                 sol = left % right
@@ -163,7 +166,7 @@ class Interpreter:
     @visitor.when(VarReAsignNode)
     def visit(self, node, scope):
         value = self.visit(node.expr, scope)
-        scope.define_variable(node.identifier.lex, check=False, value=value)
+        scope.define_variable(node.identifier.lex.lex, check=False, value=value, reasign=True)
         return value
 
     @visitor.when(DotNotationNode)
@@ -176,7 +179,10 @@ class Interpreter:
         except:
             pass
         if obj and isinstance(node.member, FuncCallNode):
-            return self.visit(node.member, scope, obj.vtype)
+            if obj == 'self':
+                return self.visit(node.member, scope, obj)
+            else:
+                return self.visit(node.member, scope, obj.vtype)
         else:
             self.visit(node.object, scope)
             return self.visit(node.member, scope)
@@ -284,6 +290,5 @@ class Interpreter:
                 args = node.args_list
             parent_instance = NewInstanceNode(parent.identifier, args)
             self.visit(parent_instance, scope)
-        print(node.identifier)
         for expr in instance.body:
             self.visit(expr, scope)

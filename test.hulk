@@ -23,18 +23,17 @@ protocol Iterable {
     next() : Boolean;
     current() : Object;
 }
-
-type Point(x: Number,y: Number) {
+type Point(x:Number ,y: Number) {
     x = x;
     y = y;
 
     getX(): Number => self.x;
     getY(): Number => self.y;
 
-    setX(o: Number) => self.x := o;
-    setY(m: Number) => self.y := m;
+    setX(x: Number) => self.x := x;
+    setY(y: Number) => self.y := y;
 }
-type PolarPoint(phi:Number, rho:Number) inherits Point(rho * sin(phi), rho * cos(phi)) {
+type PolarPoint(phi: Number, rho:Number) inherits Point(rho * sin(phi), rho * cos(phi)) {
     rho(): Number => sqrt(self.getX() ^ 2 + self.getY() ^ 2);
 }
 type Knight inherits Person {
@@ -49,6 +48,7 @@ type Person(firstname: String, lastname: String) {
         5;
     }
 }
+
 type A {
     hello() => print("A");
 }
@@ -66,7 +66,7 @@ type C inherits A {
     print(42);
     print((((1 + 2) ^ 3) * 4) / 5);
     print("Hello World");
-    print("The message is Hello World");
+    print("The message is \"Hello World\"");
     print("The meaning of life is " @ 42);
     print(sin(2 * PI) ^ 2 + cos(3 * PI / log(4, 64)));
     {
@@ -84,11 +84,11 @@ type C inherits A {
     let number = 42 in
         let text = "The meaning of life is" in
             print(text @ number);
-    let number = 42 in {
-        let text = "The meaning of life is" in {
-                print(text @ number);
-            };
-        };
+    let number = 42 in (
+        let text = "The meaning of life is" in (
+                print(text @ number)
+            )
+        );
     let a = 6, b = a * 7 in print(b);
     let a = 6 in
         let b = a * 7 in
@@ -132,20 +132,18 @@ type C inherits A {
             elif (mod % 3 == 1) "Woke"
             else "Dumb"
         );
-    
-    let a = 10 in while (a >= 10) {
+    let a = 10 in while (a >= 0) {
         print(a);
         a := a - 1;
     };
-
+    
     for (x in range(0, 10)) print(x);
     let iterable = range(0, 10) in
         while (iterable.next())
             let x = iterable.current() in
                 print(x);
 
-    let pt = new Point(3, 4) in
-        print("x: " @ pt.getX() @ "; y: " @ pt.getY());
+    
     let pt = new Point(3,4) in
         print("x: " @ pt.getX() @ "; y: " @ pt.getY());
     let pt = new PolarPoint(3,4) in
@@ -156,11 +154,10 @@ type C inherits A {
     let p: Person = new Knight("Phil", "Collins") in print(p.name());
     let x: Number = 42 in print(x);
 
+    
     let x = 42 in print(x);
-    let total = 5 + 6 in print(total);
-   
+    let total = ({ print("Total"); 5; }) + 6 in print(total);
+    
 
-   
-    let x : Hashable = new Person("Nahomi", "Bouza") in print(x.hash());
-    let x  = new Point(0,0) in print("lala");
+
 }

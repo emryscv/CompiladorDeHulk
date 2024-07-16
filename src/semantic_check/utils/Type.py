@@ -80,6 +80,8 @@ class Type:
             name_match, params_match, return_match, function = self.get_method(method.name, len(method.params), method.return_type)
             if (name_match, params_match, return_match) != (True, True, True) and ((name_match, params_match, return_match) == (True, True, False) and not function.return_type.match(method.return_type)):
                 return False
+            if (name_match, params_match, return_match) != (True, True, True):
+                return False      
         return True
     
     def match(self, type) -> bool: #TODO ver porq no se pued eponer Type aqui
