@@ -35,20 +35,16 @@ def main(code_path):
             print(error)
         sys.exit(1)
 
-    print(tokens)
     
     parser = LR1Parser(G, verbose=False)
     derivation, operations_or_error = parser(tokens)
-    print(derivation)
 
     if not derivation:
         print(operations_or_error)
         sys.exit(1) 
-    print(derivation)
     ast = evaluate_reverse_parse(derivation, operations_or_error, tokens, true)
 
     formatter = FormatVisitor()
-    print(formatter.visit(ast))
     
     errors = []    
     
@@ -60,18 +56,18 @@ def main(code_path):
             print(error)
         sys.exit(1)
     
+    
     type_builder = TypeAndFunctionBuilder(context, errors)
     type_builder.visit(ast, scope)
     
     semantic_checker = SemeanticChecker(errors, context)
     semantic_checker.visit(ast, scope)
             
-    print("context:", context)
-    print("scope:", scope)
     if errors:
         for error in errors:
             print(error)
-
+        sys.exit(1)
+        
     interpreter = Interpreter(context)
     interpreter.visit(ast)
 

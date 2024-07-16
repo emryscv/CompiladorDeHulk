@@ -31,7 +31,7 @@ class TokenNotRecognized(HULK_error):
 
 class UnexspectedSequenceTokens(HULK_error):
     def __init__(self, token, prev_token):
-        super().__init__(f"Unexpected token: {token.lex} in Line: {token.row}, Column: {token.column} after {prev_token.lex}", "Semantic Error")
+        super().__init__(f"Unexpected token: {token.lex} in Line: {token.row}, Column: {token.column} after {prev_token.lex}", "Parsing Error")
 
 class Not_Defined(HULK_error):
     def __init__(self, type, token):

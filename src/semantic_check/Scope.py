@@ -27,13 +27,18 @@ class Scope:
         else:
             return (False, False)
         
-    def define_variable(self, vname:str, vtype=None, check=True, value=None):
+    def define_variable(self, vname:str, vtype=None, check=True, value=None, reasign=False):
+
+        if reasign:
+            self.variables[vname] = Variable(vname, vtype, value)
+            return True
+        
         if check and vname in self.variables:
             return False
         
         self.variables[vname] = Variable(vname, vtype, value)
         return True
-    
+        
     def define_function(self, fname, params, return_type, function_body=None, check=True):
         if check:
             if fname in self.functions:
@@ -66,8 +71,6 @@ class Scope:
         if is_base:
             self.type_deep[mname] -= 1
         try:
-            print(self.methods)
-            print(self.type_deep)
             return self.methods[mname][self.type_deep[mname]]
         except KeyError:
             return self.parent.methods.get_method(mname)
